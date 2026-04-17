@@ -6,7 +6,6 @@ import { useLang } from '../context/LangContext';
 import { t } from '../lib/i18n';
 import LangToggle from '../components/LangToggle';
 import ScoreBadge from '../components/ScoreBadge';
-import Stars from '../components/Stars';
 
 export default function VenuePage() {
   const { id }   = useParams();
@@ -118,11 +117,13 @@ export default function VenuePage() {
             <div className="max-w-lg mx-auto flex flex-col gap-2.5">
               {subScores.map(({ label, val }) => (
                 <div key={label} className="flex items-center gap-3">
-                  <span className="text-xs font-medium text-gray-400 uppercase tracking-wide font-sans w-24 shrink-0">
+                  <span className="text-xs font-medium text-gray-400 uppercase tracking-wide font-sans w-20 shrink-0">
                     {label}
                   </span>
-                  <Stars score={val ?? 0} size={15} />
-                  <span className="text-xs text-gray-500 font-sans ml-auto">{val ?? '—'}/5</span>
+                  <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-coffee rounded-full" style={{ width: `${((val ?? 0) / 10) * 100}%` }} />
+                  </div>
+                  <span className="text-xs font-bold text-coffee font-sans ml-2 shrink-0">{val ?? '—'}/10</span>
                 </div>
               ))}
             </div>

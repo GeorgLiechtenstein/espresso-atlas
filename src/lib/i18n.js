@@ -259,8 +259,8 @@ export function scoreLabel(score, lang = 'de') {
   if (score === null || score === undefined) return null;
   const n = parseFloat(score);
   const labels = tr[lang] ?? tr.de;
-  if (n <= 2)   return labels.scoreBad;
-  if (n < 3.5)  return labels.scoreMediocre;
-  if (n <= 4)   return labels.scoreGood;
+  if (n <= 4)  return labels.scoreBad;
+  if (n < 7)   return labels.scoreMediocre;
+  if (n <= 8)  return labels.scoreGood;
   return labels.scoreExcellent;
 }

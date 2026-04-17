@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { t, scoreLabel } from '../lib/i18n';
 import LangToggle from '../components/LangToggle';
-import StarInput from '../components/StarInput';
+import NumberPicker from '../components/NumberPicker';
 import ScoreBadge from '../components/ScoreBadge';
 
 const CURRENCIES = ['EUR', 'CHF', 'USD', 'GBP', 'TRY', 'IQD'];
@@ -371,14 +371,14 @@ export default function ReviewPage() {
                     ⓘ
                   </button>
                 </div>
-                {val > 0 && <span className="text-sm font-bold text-score-gold font-sans">{val}/5</span>}
+                {val > 0 && <span className="text-sm font-bold text-score-gold font-sans">{val}/10</span>}
               </div>
               {openInfo === key && (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 text-xs text-amber-800 font-sans leading-snug">
                   {info}
                 </div>
               )}
-              <StarInput value={val} onChange={set} size={44} />
+              <NumberPicker value={val} onChange={set} />
             </div>
           ))}
 

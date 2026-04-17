@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { t } from '../lib/i18n';
 import ScoreBadge from './ScoreBadge';
-import Stars from './Stars';
 
 /**
  * BottomSheet — venue detail panel that slides up from the bottom.
@@ -128,10 +127,12 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
           {subScores ? (
             <div className="bg-surface rounded-xl px-4 py-3 mt-4 flex flex-col gap-2.5">
               {subScores.map(({ label, val }) => (
-                <div key={label} className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-medium text-gray-500 font-sans w-24">{label}</span>
-                  <Stars score={val ?? 0} size={15} />
-                  <span className="text-xs font-semibold text-ink font-sans w-6 text-right">{val ?? '—'}</span>
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-gray-500 font-sans w-20 shrink-0">{label}</span>
+                  <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-coffee rounded-full" style={{ width: `${((val ?? 0) / 10) * 100}%` }} />
+                  </div>
+                  <span className="text-xs font-bold text-coffee font-sans w-8 text-right shrink-0">{val ?? '—'}/10</span>
                 </div>
               ))}
             </div>

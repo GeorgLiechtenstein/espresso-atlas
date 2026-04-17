@@ -5,9 +5,9 @@ import { scoreLabel as scoreLabelI18n } from '../lib/i18n';
 export function scoreColor(s) {
   if (s === null || s === undefined) return '#9CA3AF';
   const n = parseFloat(s);
-  if (n <= 2)   return '#E53935';
-  if (n < 3.5)  return '#FFC107';
-  if (n <= 4)   return '#43A047';
+  if (n <= 4)   return '#E53935';
+  if (n < 7)    return '#FFC107';
+  if (n <= 8)   return '#43A047';
   return '#F59E0B';
 }
 
