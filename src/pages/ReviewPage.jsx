@@ -219,12 +219,12 @@ export default function ReviewPage() {
       if (isEdit) {
         const { error: err } = await supabase.from('venues').update(payload).eq('id', preVenueId);
         if (err) throw new Error(err.message);
-        navigate(`/venue/${preVenueId}`);
+        navigate(`/venue/${preVenueId}`, { replace: true });
       } else {
         const { data: newVenue, error: err } = await supabase
           .from('venues').insert(payload).select().single();
         if (err) throw new Error(err.message);
-        navigate(`/venue/${newVenue.id}`);
+        navigate(`/venue/${newVenue.id}`, { replace: true });
       }
     } catch (err) {
       setError(err.message || 'Error');
