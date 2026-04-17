@@ -67,7 +67,7 @@ export default function VenuePage() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-border px-4 py-3 flex items-center gap-2">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/')}
           className="min-w-[44px] min-h-[44px] -ml-2 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors"
           aria-label={tr.backToMap}
         >
