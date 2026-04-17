@@ -85,6 +85,7 @@ export default function ReviewPage() {
         setCountry(data.country || '');
         setLat(data.lat ? parseFloat(data.lat) : null);
         setLng(data.lng ? parseFloat(data.lng) : null);
+        if (data.address) setLocSearch(data.address);
         setRoastery(data.roastery || '');
         setBody(data.body || 0);
         setBalance(data.balance || 0);
@@ -203,8 +204,11 @@ export default function ReviewPage() {
         photoUrl = publicUrl;
       }
 
+      const addressVal = locSearch.startsWith('📍') ? null : locSearch.trim() || null;
+
       const payload = {
         name: name.trim(), city: city.trim(), country: country.trim(),
+        address: addressVal,
         lat: resolvedLat, lng: resolvedLng,
         body, balance, crema, overall,
         ceramic_cup: ceramicCup || null,

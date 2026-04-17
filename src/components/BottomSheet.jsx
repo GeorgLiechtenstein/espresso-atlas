@@ -113,6 +113,9 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
           <div className="flex items-start gap-3 mb-1">
             <div className="flex-1 min-w-0">
               <h3 className="font-serif text-[22px] text-ink leading-tight">{venue.name}</h3>
+              {venue.address && (
+                <p className="text-sm font-sans mt-0.5" style={{ color: '#666' }}>{venue.address}</p>
+              )}
               <p className="text-sm font-sans mt-0.5" style={{ color: '#666' }}>
                 {venue.city}, {venue.country}
               </p>

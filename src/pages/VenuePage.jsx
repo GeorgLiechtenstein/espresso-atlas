@@ -98,6 +98,9 @@ export default function VenuePage() {
           <div className="max-w-lg mx-auto flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               <h1 className="font-serif text-3xl leading-tight mb-1">{venue.name}</h1>
+              {venue.address && (
+                <p className="text-gray-400 text-sm font-sans">{venue.address}</p>
+              )}
               <p className="text-gray-400 text-sm font-sans">{venue.city}, {venue.country}</p>
               {venue.roastery && (
                 <p className="text-gray-500 text-xs font-sans mt-1">☕ {venue.roastery}</p>
