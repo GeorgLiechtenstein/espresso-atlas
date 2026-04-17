@@ -65,6 +65,7 @@ export default function ReviewPage() {
   const [openInfo,     setOpenInfo]     = useState(null);
   const [locating,     setLocating]     = useState(false);
   const locTimer = useRef(null);
+  const locJustSelected = useRef(false);
 
   // ── Submit state ────────────────────────────────────────────────────────────
   const [saving,    setSaving]    = useState(false);
@@ -101,6 +102,7 @@ export default function ReviewPage() {
 
   // Nominatim autocomplete for address/location
   useEffect(() => {
+    if (locJustSelected.current) { locJustSelected.current = false; return; }
     if (locSearch.length < 3 || locSearch.startsWith('📍')) { setLocSugg([]); return; }
     clearTimeout(locTimer.current);
     locTimer.current = setTimeout(async () => {
@@ -116,6 +118,7 @@ export default function ReviewPage() {
   }, [locSearch, lang]);
 
   function applyLocSuggestion(s) {
+    locJustSelected.current = true;
     const addr    = s.address || {};
     const vName   = addr.amenity || addr.name || addr.shop || addr.cafe || addr.restaurant
                     || s.display_name.split(',')[0].trim();
