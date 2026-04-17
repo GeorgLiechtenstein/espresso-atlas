@@ -311,7 +311,7 @@ export default function ReviewPage() {
               {locSugg.length > 0 && (
                 <div className="absolute top-full left-0 right-0 z-30 bg-white border border-border rounded-xl shadow-lg mt-1 overflow-hidden max-h-56 overflow-y-auto">
                   {locSugg.map((s, i) => (
-                    <button key={i} type="button" onClick={() => applyLocSuggestion(s)}
+                    <button key={i} type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyLocSuggestion(s)}
                       className="w-full text-left px-3 py-3 hover:bg-surface transition-colors border-b border-border last:border-0 min-h-[52px]">
                       <p className="text-sm font-medium text-ink font-sans truncate">{s.display_name.split(',')[0]}</p>
                       <p className="text-xs text-gray-400 font-sans truncate">{s.display_name.split(',').slice(1, 3).join(',').trim()}</p>
