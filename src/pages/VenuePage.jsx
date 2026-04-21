@@ -100,20 +100,16 @@ export default function VenuePage() {
       {/* Header */}
       <header className="sticky top-0 z-50 flex items-center gap-2 px-4 py-3"
               style={{ background: '#F7F3EC', borderBottom: '1px solid rgba(26,23,20,0.10)' }}>
-        <CupLogo />
-        <button
-          onClick={() => navigate('/?tab=map')}
-          className="min-h-[44px] -ml-2 flex items-center gap-1 px-2 rounded-xl"
-          style={{ color: '#6B4A2A', fontSize: 13, fontWeight: 600 }}
-          aria-label={tr.backToMap}
-        >
-          <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          {lang === 'de' ? 'Karte' : 'Map'}
-        </button>
-        <div className="flex-1" />
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <CupLogo />
+          <span
+            onClick={() => navigate('/?tab=map')}
+            className="font-serif text-[19px] text-ink leading-tight"
+            style={{ cursor: 'pointer' }}
+          >
+            Espresso Atlas
+          </span>
+        </div>
         {user && (
           <button
             onClick={() => navigate(`/review/${id}`)}
