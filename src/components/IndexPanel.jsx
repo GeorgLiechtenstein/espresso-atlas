@@ -50,6 +50,7 @@ export default function IndexPanel({ venues, isOpen }) {
   const [scoreFilter,  setScoreFilter]  = useState('all');
   const [periodFilter, setPeriodFilter] = useState('all');
   const [openFilter,   setOpenFilter]   = useState(null);
+  const [citySearch,   setCitySearch]   = useState('');
 
   const cities = useMemo(() => {
     const counts = {};
@@ -155,7 +156,7 @@ export default function IndexPanel({ venues, isOpen }) {
         <Pill
           label={cityFilter === 'all' ? tr.filterCity : cityFilter}
           active={cityFilter !== 'all'}
-          onClick={() => setOpenFilter((p) => p === 'city' ? null : 'city')}
+          onClick={() => { setOpenFilter((p) => p === 'city' ? null : 'city'); setCitySearch(''); }}
         />
         <Pill
           label={scoreFilter === 'all' ? tr.filterScore : scoreLabels[scoreFilter]}
@@ -171,19 +172,38 @@ export default function IndexPanel({ venues, isOpen }) {
 
       {/* ── Dropdowns ── */}
       {openFilter === 'city' && (
-        <div className="shrink-0 overflow-y-auto" style={{ maxHeight: 200, borderBottom: '1px solid #E0D8CC', background: '#FAF0E6' }}>
-          {[['all', `${tr.allCities} (${venues.length})`], ...cities.map(([c, n]) => [c, `${c} (${n})`])].map(([key, label]) => (
-            <button key={key} onClick={() => { setCityFilter(key); setOpenFilter(null); }}
+        <div className="shrink-0" style={{ borderBottom: '1px solid #E0D8CC', background: '#FAF0E6' }}>
+          <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(26,23,20,0.07)' }}>
+            <input
+              autoFocus
+              type="text"
+              value={citySearch}
+              onChange={(e) => setCitySearch(e.target.value)}
+              placeholder={lang === 'de' ? 'Stadt suchen…' : 'Search city…'}
               style={{
-                width: '100%', textAlign: 'left', padding: '11px 20px', fontSize: 14,
+                width: '100%', padding: '7px 10px', fontSize: 13,
                 fontFamily: '"DM Sans", system-ui, sans-serif',
-                fontWeight: cityFilter === key ? 600 : 400,
-                color: cityFilter === key ? '#1a1714' : '#4a4340',
-                background: 'none', border: 'none', borderBottom: '1px solid rgba(26,23,20,0.06)',
-                cursor: 'pointer',
+                background: 'rgba(26,23,20,0.06)', border: 'none', borderRadius: 8,
+                color: '#1a1714', outline: 'none',
               }}
-            >{label}</button>
-          ))}
+            />
+          </div>
+          <div style={{ maxHeight: 180, overflowY: 'auto' }}>
+            {[['all', `${tr.allCities} (${venues.length})`], ...cities.map(([c, n]) => [c, `${c} (${n})`])]
+              .filter(([key, label]) => key === 'all' || label.toLowerCase().includes(citySearch.toLowerCase()))
+              .map(([key, label]) => (
+                <button key={key} onClick={() => { setCityFilter(key); setOpenFilter(null); setCitySearch(''); }}
+                  style={{
+                    width: '100%', textAlign: 'left', padding: '11px 20px', fontSize: 14,
+                    fontFamily: '"DM Sans", system-ui, sans-serif',
+                    fontWeight: cityFilter === key ? 600 : 400,
+                    color: cityFilter === key ? '#1a1714' : '#4a4340',
+                    background: 'none', border: 'none', borderBottom: '1px solid rgba(26,23,20,0.06)',
+                    cursor: 'pointer',
+                  }}
+                >{label}</button>
+              ))}
+          </div>
         </div>
       )}
 
