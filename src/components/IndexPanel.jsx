@@ -134,7 +134,7 @@ export default function IndexPanel({ venues, isOpen }) {
             Index
           </span>
           <span style={{
-            fontSize: 12, color: '#9CA3AF',
+            fontSize: 12, color: '#555555',
             fontFamily: '"DM Sans", system-ui, sans-serif',
           }}>
             {filtered.length}
@@ -255,7 +255,7 @@ export default function IndexPanel({ venues, isOpen }) {
       {/* ── List ── */}
       <div className="flex-1 overflow-y-auto">
         {filtered.length === 0 && (
-          <p style={{ textAlign: 'center', color: '#9CA3AF', fontSize: 14, padding: '48px 0', fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+          <p style={{ textAlign: 'center', color: '#555555', fontSize: 14, padding: '48px 0', fontFamily: '"DM Sans", system-ui, sans-serif' }}>
             {lang === 'de' ? 'Keine Einträge.' : 'No entries.'}
           </p>
         )}
@@ -302,7 +302,7 @@ export default function IndexPanel({ venues, isOpen }) {
                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                 }}>{venue.name}</p>
                 <p style={{
-                  fontSize: 12, color: '#9CA3AF', marginBottom: venue.comment ? 5 : 0,
+                  fontSize: 12, color: '#555555', marginBottom: venue.comment ? 5 : 0,
                   fontFamily: '"DM Sans", system-ui, sans-serif',
                 }}>
                   {venue.city}{dateStr ? ` · ${dateStr}` : ''}

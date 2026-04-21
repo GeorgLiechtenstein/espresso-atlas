@@ -48,7 +48,7 @@ export default function VenuePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#F7F3EC' }}>
-        <p className="text-gray-400 text-sm font-sans">{tr.loading}</p>
+        <p style={{ color: '#555555', fontSize: 14 }} className="font-sans">{tr.loading}</p>
       </div>
     );
   }
@@ -120,7 +120,7 @@ export default function VenuePage() {
           <button
             onClick={() => navigate(`/review/${id}`)}
             className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl"
-            style={{ color: '#8a837e' }}
+            style={{ color: '#555555' }}
             aria-label={tr.editRating}
           >
             <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -151,7 +151,7 @@ export default function VenuePage() {
         <p style={{
           fontFamily: '"DM Serif Display", Georgia, serif',
           fontSize: 13, letterSpacing: '1.5px', textTransform: 'uppercase',
-          color: '#8a837e', marginBottom: 6,
+          color: '#555555', marginBottom: 6,
         }}>
           {venue.city}{ratedDate ? ` · ${ratedDate}` : ''}
         </p>
@@ -165,13 +165,13 @@ export default function VenuePage() {
 
         {/* Address */}
         {venue.address && (
-          <p style={{ fontSize: 14, color: '#8a837e', marginBottom: 2 }}>{venue.address}</p>
+          <p style={{ fontSize: 14, color: '#555555', marginBottom: 2 }}>{venue.address}</p>
         )}
         {venue.roastery && (
-          <p style={{ fontSize: 13, color: '#8a837e', marginBottom: 2 }}>☕ {venue.roastery}</p>
+          <p style={{ fontSize: 13, color: '#555555', marginBottom: 2 }}>☕ {venue.roastery}</p>
         )}
         {venue.ceramic_cup && (
-          <p style={{ fontSize: 13, color: '#8a837e', marginBottom: 2 }}>🍵 {tr.ceramicCupLabel}</p>
+          <p style={{ fontSize: 13, color: '#555555', marginBottom: 2 }}>🍵 {tr.ceramicCupLabel}</p>
         )}
 
         {divider}
@@ -184,7 +184,7 @@ export default function VenuePage() {
               <div>
                 <div style={{
                   fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
-                  color: '#8a837e', marginBottom: 4,
+                  color: '#555555', marginBottom: 4,
                 }}>{lang === 'de' ? 'Gesamturteil' : 'Overall'}</div>
                 <div style={{
                   fontFamily: '"DM Serif Display", Georgia, serif',
@@ -197,7 +197,7 @@ export default function VenuePage() {
                 <div style={{ textAlign: 'right' }}>
                   <div style={{
                     fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
-                    color: '#8a837e', marginBottom: 4,
+                    color: '#555555', marginBottom: 4,
                   }}>{lang === 'de' ? 'Wiederkommen?' : 'Come back?'}</div>
                   <div style={{
                     fontFamily: '"DM Serif Display", Georgia, serif',
@@ -242,7 +242,7 @@ export default function VenuePage() {
           <>
             <div style={{
               fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase',
-              color: '#8a837e', marginBottom: 14, fontWeight: 700,
+              color: '#555555', marginBottom: 14, fontWeight: 700,
             }}>{lang === 'de' ? 'Die vier Kriterien' : 'The four criteria'}</div>
             <div className="flex flex-col gap-4 mb-6">
               {criteria.map(({ label, hint, val }) => (
@@ -252,11 +252,11 @@ export default function VenuePage() {
                       fontFamily: '"DM Serif Display", Georgia, serif',
                       fontSize: 17, fontWeight: 700, color: '#1a1714', flex: 1,
                     }}>{label}</span>
-                    <span style={{ fontSize: 11, color: '#8a837e', marginRight: 10 }}>{hint}</span>
+                    <span style={{ fontSize: 11, color: '#555555', marginRight: 10 }}>{hint}</span>
                     <span style={{
                       fontFamily: '"DM Serif Display", Georgia, serif',
                       fontSize: 16, color: '#1a1714', fontWeight: 700,
-                    }}>{val}<span style={{ color: '#8a837e', fontWeight: 400, fontSize: 13 }}>/10</span></span>
+                    }}>{val}<span style={{ color: '#555555', fontWeight: 400, fontSize: 13 }}>/10</span></span>
                   </div>
                   <div style={{ height: 4, background: 'rgba(26,23,20,0.10)', borderRadius: 2, position: 'relative' }}>
                     <div style={{
@@ -271,7 +271,7 @@ export default function VenuePage() {
           </>
         ) : (
           <div className="mb-6 text-center">
-            <p style={{ fontSize: 14, color: '#8a837e', fontStyle: 'italic' }}>{tr.noRating}</p>
+            <p style={{ fontSize: 14, color: '#555555', fontStyle: 'italic' }}>{tr.noRating}</p>
             {user && (
               <button
                 onClick={() => navigate(`/review/${id}`)}

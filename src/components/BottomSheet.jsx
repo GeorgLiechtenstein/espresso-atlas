@@ -145,7 +145,7 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
           </div>
 
           {/* Location */}
-          <p style={{ fontSize: 13, color: '#8a837e', marginBottom: 14, marginTop: 4 }}>
+          <p style={{ fontSize: 13, color: '#555555', marginBottom: 14, marginTop: 4 }}>
             {venue.address ? `${venue.address} · ` : ''}{venue.city}
           </p>
 
@@ -165,7 +165,7 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
             <div className="flex flex-col gap-1.5 mb-4">
               {subScores.map(({ label, val }) => (
                 <div key={label} className="flex items-center gap-2">
-                  <span style={{ fontSize: 11, color: '#8a837e', width: 52, flexShrink: 0, letterSpacing: 0.2 }}>
+                  <span style={{ fontSize: 11, color: '#555555', width: 52, flexShrink: 0, letterSpacing: 0.2 }}>
                     {label}
                   </span>
                   <div className="flex-1 rounded-full overflow-hidden"
@@ -177,12 +177,12 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
                     fontFamily: '"DM Serif Display", Georgia, serif',
                     fontSize: 11, color: '#4a4340',
                     width: 28, textAlign: 'right', flexShrink: 0,
-                  }}>{val}<span style={{ color: '#8a837e', fontWeight: 400 }}>/10</span></span>
+                  }}>{val}<span style={{ color: '#555555', fontWeight: 400 }}>/10</span></span>
                 </div>
               ))}
             </div>
           ) : (
-            <p style={{ fontSize: 13, color: '#8a837e', fontStyle: 'italic', marginBottom: 14 }}>
+            <p style={{ fontSize: 13, color: '#555555', fontStyle: 'italic', marginBottom: 14 }}>
               {lang === 'de' ? 'Noch keine Bewertung.' : 'No rating yet.'}
             </p>
           )}
@@ -230,7 +230,7 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                marginLeft: 'auto', fontSize: 13, color: '#8a837e',
+                marginLeft: 'auto', fontSize: 13, color: '#555555',
                 letterSpacing: 0.3, textDecoration: 'none',
               }}
             >

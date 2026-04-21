@@ -125,7 +125,7 @@ export default function HomePage() {
           {user && tab === 'about' && (
             <button
               onClick={handleSignOut}
-              style={{ fontSize: 12, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              style={{ fontSize: 12, color: '#555555', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
               className="font-sans hover:text-ink transition-colors"
             >
               {tr.signOut}
@@ -221,7 +221,7 @@ export default function HomePage() {
               padding: '8px 10px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
             }}>
-              <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: '1.8px', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: 6, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+              <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: '1.8px', textTransform: 'uppercase', color: '#666666', marginBottom: 6, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
                 Urteil
               </div>
               {[
@@ -236,7 +236,7 @@ export default function HomePage() {
                     background: fill,
                     border: stroke ? `1.5px solid ${stroke}` : '1px solid rgba(255,255,255,0.2)',
                   }} />
-                  <span style={{ fontSize: 10, fontFamily: '"DM Sans", system-ui, sans-serif', color: '#6B7280' }}>{label}</span>
+                  <span style={{ fontSize: 10, fontFamily: '"DM Sans", system-ui, sans-serif', color: '#555555' }}>{label}</span>
                 </div>
               ))}
             </div>
@@ -271,7 +271,7 @@ export default function HomePage() {
       >
         <div className="shrink-0" style={{ height: 'calc(env(safe-area-inset-top) + 50px)' }} />
         <main className="max-w-2xl mx-auto px-5 py-8 pb-4">
-          <p className="text-xs text-gray-400 font-sans mb-8 tracking-widest uppercase">
+          <p className="text-xs font-sans mb-8 tracking-widest uppercase" style={{ color: '#555555' }}>
             {tr.aboutTagline}
           </p>
           <div className="space-y-8">
@@ -291,14 +291,14 @@ export default function HomePage() {
             {user ? (
               <button
                 onClick={handleSignOut}
-                className="text-sm text-gray-400 font-sans hover:text-ink transition-colors"
+                className="text-sm font-sans hover:text-ink transition-colors" style={{ color: '#555555' }}
               >
                 {tr.signOut}
               </button>
             ) : (
               <button
                 onClick={() => navigate('/login')}
-                className="text-sm text-gray-400 font-sans hover:text-ink transition-colors"
+                className="text-sm font-sans hover:text-ink transition-colors" style={{ color: '#555555' }}
               >
                 Admin Login
               </button>

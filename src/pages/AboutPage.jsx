@@ -24,7 +24,7 @@ export default function AboutPage() {
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
           <Link
             to="/"
-            className="flex items-center gap-2 text-sm text-gray-400 hover:text-ink transition-colors font-sans"
+            className="flex items-center gap-2 text-sm hover:text-ink transition-colors font-sans" style={{ color: '#555555' }}
           >
             <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 19l-7-7 7-7" />
@@ -42,7 +42,7 @@ export default function AboutPage() {
             {user && (
               <button
                 onClick={handleSignOut}
-                style={{ fontSize: 12, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                style={{ fontSize: 12, color: '#555555', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                 className="font-sans hover:text-ink transition-colors"
               >
                 {tr.signOut}
@@ -54,7 +54,7 @@ export default function AboutPage() {
 
       {/* Content */}
       <main className="max-w-2xl mx-auto px-5 py-12 pb-24">
-        <p className="text-sm text-gray-400 font-sans mb-10 tracking-wide uppercase">
+        <p className="text-sm font-sans mb-10 tracking-wide uppercase" style={{ color: '#555555' }}>
           {tr.aboutTagline}
         </p>
 
