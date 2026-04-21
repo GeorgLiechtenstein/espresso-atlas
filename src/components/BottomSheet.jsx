@@ -99,7 +99,7 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
           paddingBottom: 'calc(72px + env(safe-area-inset-bottom))',
           maxHeight: '88vh',
           overflowY: 'auto',
-          background: '#F7F3EC',
+          background: '#FAF0E6',
         }}
         className="fixed bottom-0 left-0 right-0 rounded-t-2xl shadow-2xl"
         onTouchStart={onTouchStart}
@@ -108,7 +108,7 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2 sticky top-0 z-10"
-             style={{ background: '#F7F3EC' }}>
+             style={{ background: '#FAF0E6' }}>
           <div className="w-9 h-1 rounded-full"
                style={{ background: 'rgba(26,23,20,0.18)' }} />
         </div>
@@ -209,7 +209,7 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
                 cursor: 'pointer', letterSpacing: 0.3,
               }}
             >
-              {lang === 'de' ? 'Ganze Notiz →' : 'Full note →'}
+              {lang === 'de' ? 'Ganze Notiz lesen →' : 'Full note →'}
             </button>
 
             {user && (

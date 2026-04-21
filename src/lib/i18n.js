@@ -63,13 +63,19 @@ export const tr = {
     venueNotFound:  'Lokal nicht gefunden.',
 
     // Wizard steps
-    step1Title:     'Wo bist du?',
-    step2Title:     'Wie war er?',
-    step3Title:     'In einem Satz?',
-    nextStep:       'Weiter',
-    wouldReturnQ:   'Würde ich wiederkommen?',
-    wouldReturnYes: 'Ja',
-    wouldReturnNo:  'Nein',
+    step1Title:        'Wo bist du?',
+    step2Title:        'Wie war er?',
+    step3Title:        'In einem Satz?',
+    step1Subtitle:     'Café, Adresse und Stadt eingeben.',
+    step1SubtitleGPS:  'Via GPS erkannt — bitte bestätigen.',
+    step2Subtitle:     'Vier Kriterien. Schieben. Weiter.',
+    step3Subtitle:     'Optional — aber das Beste am Atlas.',
+    cancelWizard:      'Abbrechen',
+    stepOf:            'Schritt',
+    nextStep:          'Weiter',
+    wouldReturnQ:      'Wiederkommen?',
+    wouldReturnYes:    'Ja',
+    wouldReturnNo:     'Nein',
 
     // Review / edit form
     reviewPageTitle:    'Lokal bewerten',
@@ -209,13 +215,19 @@ export const tr = {
     venueNotFound:'Venue not found.',
 
     // Wizard steps
-    step1Title:     'Where are you?',
-    step2Title:     'How was it?',
-    step3Title:     'In one sentence?',
-    nextStep:       'Next',
-    wouldReturnQ:   'Would I come back?',
-    wouldReturnYes: 'Yes',
-    wouldReturnNo:  'No',
+    step1Title:        'Where are you?',
+    step2Title:        'How was it?',
+    step3Title:        'In one sentence?',
+    step1Subtitle:     'Enter café, address and city.',
+    step1SubtitleGPS:  'Detected via GPS — please confirm.',
+    step2Subtitle:     'Four criteria. Slide. Continue.',
+    step3Subtitle:     'Optional — but the best part.',
+    cancelWizard:      'Cancel',
+    stepOf:            'Step',
+    nextStep:          'Next',
+    wouldReturnQ:      'Come back?',
+    wouldReturnYes:    'Yes',
+    wouldReturnNo:     'No',
 
     // Review / edit form
     reviewPageTitle:    'Rate a venue',

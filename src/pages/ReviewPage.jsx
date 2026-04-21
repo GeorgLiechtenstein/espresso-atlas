@@ -8,24 +8,56 @@ import LangToggle from '../components/LangToggle';
 
 const CURRENCIES = ['EUR', 'CHF', 'USD', 'GBP', 'TRY', 'IQD'];
 
+const INPUT_BG   = '#EDE4D3';
+const SURFACE    = '#FAF0E6';
+const INK        = '#1a1714';
+const MUTED      = '#8a837e';
+const COFFEE     = '#6B4A2A';
+const AVOID      = '#8B2A2A';
+const BORDER_C   = '#E0D8CC';
+
 function bucketColor(score) {
   if (score === null || score === undefined) return '#9CA3AF';
   const n = parseFloat(score);
-  if (n >= 8.5) return '#1a1714';
-  if (n >= 7)   return '#6B4A2A';
+  if (n >= 8.5) return INK;
+  if (n >= 7)   return COFFEE;
   if (n >= 4)   return '#8a7a62';
-  return '#8B2A2A';
+  return AVOID;
+}
+
+// Beige card with a CAPS label + arbitrary children
+function InputCard({ label, children, style }) {
+  return (
+    <div style={{ background: INPUT_BG, borderRadius: 14, padding: '12px 16px', ...style }}>
+      <div style={{ fontSize: 9, letterSpacing: '2.5px', textTransform: 'uppercase', color: MUTED, fontWeight: 700, fontFamily: '"DM Sans", system-ui, sans-serif', marginBottom: 6 }}>
+        {label}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function CardInput({ value, onChange, placeholder, onKeyDown }) {
+  return (
+    <input
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      onKeyDown={onKeyDown}
+      style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%', fontSize: 16, color: INK, fontFamily: '"DM Sans", system-ui, sans-serif', padding: 0 }}
+    />
+  );
 }
 
 async function geocode(name, city, country) {
   const q = [name, city, country].filter(Boolean).join(', ');
   try {
-    const res  = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`);
-    const data = await res.json();
-    if (data?.length > 0) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-    const res2  = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent([city, country].join(', '))}&format=json&limit=1`);
-    const data2 = await res2.json();
-    if (data2?.length > 0) return { lat: parseFloat(data2[0].lat), lng: parseFloat(data2[0].lon) };
+    const r1 = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`);
+    const d1 = await r1.json();
+    if (d1?.length > 0) return { lat: parseFloat(d1[0].lat), lng: parseFloat(d1[0].lon) };
+    const r2 = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent([city, country].join(', '))}&format=json&limit=1`);
+    const d2 = await r2.json();
+    if (d2?.length > 0) return { lat: parseFloat(d2[0].lat), lng: parseFloat(d2[0].lon) };
   } catch { /* silent */ }
   return { lat: 0, lng: 0 };
 }
@@ -36,7 +68,6 @@ export default function ReviewPage() {
   const { user, loading: authLoading } = useAuth();
   const { lang } = useLang();
   const tr = t(lang);
-
   const isEdit = Boolean(preVenueId);
 
   const [step, setStep] = useState(1);
@@ -47,7 +78,6 @@ export default function ReviewPage() {
   const [country, setCountry] = useState('');
   const [lat,     setLat]     = useState(null);
   const [lng,     setLng]     = useState(null);
-
   const [locSearch, setLocSearch] = useState('');
   const [locSugg,   setLocSugg]   = useState([]);
   const [locating,  setLocating]  = useState(false);
@@ -69,22 +99,20 @@ export default function ReviewPage() {
   const [price,    setPrice]    = useState('');
   const [currency, setCurrency] = useState('EUR');
   const [photo,    setPhoto]    = useState(null);
-  const [photoPreview,      setPhotoPreview]      = useState('');
-  const [existingPhotoUrl,  setExistingPhotoUrl]  = useState(null);
-  const [showDetails,       setShowDetails]       = useState(false);
+  const [photoPreview,     setPhotoPreview]     = useState('');
+  const [existingPhotoUrl, setExistingPhotoUrl] = useState(null);
+  const [showDetails,      setShowDetails]      = useState(false);
 
   // ── Submit state ────────────────────────────────────────────────────────────
   const [saving,    setSaving]    = useState(false);
   const [geocoding, setGeocoding] = useState(false);
   const [error,     setError]     = useState('');
-
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/login', { replace: true });
   }, [user, authLoading, navigate]);
 
-  // Load existing venue when editing
   useEffect(() => {
     if (!preVenueId) return;
     supabase.from('venues').select('*').eq('id', preVenueId).single()
@@ -112,7 +140,6 @@ export default function ReviewPage() {
       });
   }, [preVenueId]);
 
-  // Nominatim autocomplete
   useEffect(() => {
     if (locJustSelected.current) { locJustSelected.current = false; return; }
     if (locSearch.length < 3 || locSearch.startsWith('📍')) { setLocSugg([]); return; }
@@ -132,8 +159,7 @@ export default function ReviewPage() {
   function applyLocSuggestion(s) {
     locJustSelected.current = true;
     const addr     = s.address || {};
-    const vName    = addr.amenity || addr.name || addr.shop || addr.cafe || addr.restaurant
-                     || s.display_name.split(',')[0].trim();
+    const vName    = addr.amenity || addr.name || addr.shop || addr.cafe || addr.restaurant || s.display_name.split(',')[0].trim();
     const vCity    = addr.city || addr.town || addr.village || addr.municipality || '';
     const vCountry = addr.country || '';
     setLat(parseFloat(s.lat));
@@ -154,10 +180,7 @@ export default function ReviewPage() {
         setLat(gLat); setLng(gLng);
         setLocSearch(`📍 ${gLat.toFixed(5)}, ${gLng.toFixed(5)}`);
         try {
-          const res  = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${gLat}&lon=${gLng}&format=json&addressdetails=1`,
-            { headers: { 'Accept-Language': lang === 'de' ? 'de' : 'en' } },
-          );
+          const res  = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${gLat}&lon=${gLng}&format=json&addressdetails=1`, { headers: { 'Accept-Language': lang === 'de' ? 'de' : 'en' } });
           const data = await res.json();
           const addr = data.address || {};
           if (!city    && (addr.city || addr.town || addr.village)) setCity(addr.city || addr.town || addr.village);
@@ -196,41 +219,34 @@ export default function ReviewPage() {
         setGeocoding(false);
         resolvedLat = coords.lat; resolvedLng = coords.lng;
       }
-
       let photoUrl = existingPhotoUrl;
       if (photo) {
         const ext  = photo.name.split('.').pop();
         const path = `${user.id}/${Date.now()}.${ext}`;
-        const { error: uploadErr } = await supabase.storage
-          .from('review-photos').upload(path, photo, { contentType: photo.type, upsert: false });
+        const { error: uploadErr } = await supabase.storage.from('review-photos').upload(path, photo, { contentType: photo.type, upsert: false });
         if (uploadErr) throw new Error(uploadErr.message);
         const { data: { publicUrl } } = supabase.storage.from('review-photos').getPublicUrl(path);
         photoUrl = publicUrl;
       }
-
       const addressVal = locSearch.startsWith('📍') ? null : locSearch.trim() || null;
       const payload = {
         name: name.trim(), city: city.trim(), country: country.trim(),
-        address: addressVal,
-        lat: resolvedLat, lng: resolvedLng,
+        address: addressVal, lat: resolvedLat, lng: resolvedLng,
         body, balance, crema, overall,
-        ceramic_cup:  ceramicCup || null,
+        ceramic_cup: ceramicCup || null,
         would_return: wouldReturn,
-        roastery:     roastery.trim() || null,
-        comment:      comment.trim() || null,
-        price:        price ? parseFloat(price) : null,
-        currency,
-        photo_url:    photoUrl,
-        rated_at:     new Date().toISOString(),
+        roastery: roastery.trim() || null,
+        comment:  comment.trim() || null,
+        price:    price ? parseFloat(price) : null,
+        currency, photo_url: photoUrl,
+        rated_at: new Date().toISOString(),
       };
-
       if (isEdit) {
         const { error: err } = await supabase.from('venues').update(payload).eq('id', preVenueId);
         if (err) throw new Error(err.message);
         navigate(`/venue/${preVenueId}`, { replace: true });
       } else {
-        const { data: newVenue, error: err } = await supabase
-          .from('venues').insert(payload).select().single();
+        const { data: newVenue, error: err } = await supabase.from('venues').insert(payload).select().single();
         if (err) throw new Error(err.message);
         navigate(`/venue/${newVenue.id}`, { replace: true });
       }
@@ -240,13 +256,15 @@ export default function ReviewPage() {
     }
   }
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-surface flex items-center justify-center">
-        <p className="text-gray-400 text-sm font-sans">{tr.loading}</p>
-      </div>
-    );
-  }
+  if (authLoading) return (
+    <div style={{ minHeight: '100vh', background: SURFACE, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <p style={{ color: MUTED, fontSize: 14 }}>{tr.loading}</p>
+    </div>
+  );
+
+  const stepSubtitle = step === 1
+    ? (lat && lng ? tr.step1SubtitleGPS : tr.step1Subtitle)
+    : step === 2 ? tr.step2Subtitle : tr.step3Subtitle;
 
   const subScores = [
     { key: 'body',    label: tr.bodyLabel,    hint: tr.bodyHint,    info: tr.bodyInfo,    val: body,    set: setBody },
@@ -255,85 +273,91 @@ export default function ReviewPage() {
     { key: 'overall', label: tr.overallLabel, hint: tr.overallHint, info: tr.overallInfo, val: overall, set: setOverall },
   ];
 
-  const stepTitles = [tr.step1Title, tr.step2Title, tr.step3Title];
-
   return (
-    <div className="min-h-screen bg-surface flex flex-col">
+    <div style={{ minHeight: '100vh', background: SURFACE, display: 'flex', flexDirection: 'column' }}>
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header
-        className="sticky top-0 z-50 bg-surface border-b border-border px-4 flex items-center gap-3"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 10px)', paddingBottom: '10px' }}
-      >
+      <header style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: `calc(env(safe-area-inset-top) + 12px) 20px 12px`,
+        background: SURFACE, borderBottom: `1px solid ${BORDER_C}`,
+        position: 'sticky', top: 0, zIndex: 50,
+      }}>
         <button
           type="button"
-          onClick={() => step > 1 ? setStep((s) => s - 1) : navigate(-1)}
-          className="min-w-[44px] min-h-[44px] -ml-2 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors"
-          aria-label="Back"
+          onClick={() => navigate(-1)}
+          style={{ fontSize: 14, color: MUTED, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', fontFamily: '"DM Sans", system-ui, sans-serif', minWidth: 70 }}
         >
-          <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
+          {tr.cancelWizard}
         </button>
 
-        {/* Step dots */}
-        <div className="flex-1 flex items-center justify-center gap-2">
-          {[1, 2, 3].map((n) => (
-            <div key={n} style={{
-              width: n === step ? 20 : 6,
-              height: 6,
-              borderRadius: 3,
-              background: n === step ? '#1a1714' : n < step ? '#6B4A2A' : 'rgba(26,23,20,0.18)',
-              transition: 'width 0.25s ease, background 0.25s ease',
-            }} />
-          ))}
-        </div>
+        <span style={{ fontSize: 15, fontWeight: 700, color: INK, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+          {isEdit ? tr.editPageTitle : (lang === 'de' ? 'Neuer Espresso' : 'New Espresso')}
+        </span>
 
-        <LangToggle />
+        <span style={{ fontSize: 13, color: MUTED, fontFamily: '"DM Sans", system-ui, sans-serif', minWidth: 70, textAlign: 'right' }}>
+          {tr.stepOf} {step}/3
+        </span>
       </header>
 
-      {/* ── Scrollable content ──────────────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-lg mx-auto px-5 pt-7 pb-32">
+      {/* ── Progress bar ───────────────────────────────────────────────────── */}
+      <div style={{ display: 'flex', gap: 4, padding: '0 20px', paddingTop: 12, paddingBottom: 4, background: SURFACE }}>
+        {[1, 2, 3].map((n) => (
+          <div key={n} style={{
+            flex: 1, height: 2, borderRadius: 2,
+            background: n <= step ? COFFEE : 'rgba(26,23,20,0.12)',
+            transition: 'background 0.3s',
+          }} />
+        ))}
+      </div>
 
+      {/* ── Scrollable content ──────────────────────────────────────────────── */}
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px 20px 120px' }}>
+
+          {/* Step title + subtitle */}
           <h1 style={{
             fontFamily: '"DM Serif Display", Georgia, serif',
-            fontSize: 32, fontWeight: 700, color: '#1a1714',
-            letterSpacing: -0.5, lineHeight: 1.1, marginBottom: 28,
+            fontSize: 34, fontWeight: 700, color: INK,
+            letterSpacing: -0.5, lineHeight: 1.1, marginBottom: 6,
           }}>
-            {stepTitles[step - 1]}
+            {[tr.step1Title, tr.step2Title, tr.step3Title][step - 1]}
           </h1>
+          <p style={{ fontSize: 13, color: MUTED, marginBottom: 28, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+            {stepSubtitle}
+          </p>
 
-          {/* ── STEP 1: Location ───────────────────────────────────────────── */}
+          {/* ── STEP 1 ─────────────────────────────────────────────────────── */}
           {step === 1 && (
-            <div className="flex flex-col gap-5">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-gray-500 font-sans font-medium">{tr.nameLabel}</label>
-                <input
-                  type="text" placeholder={tr.namePlaceholder}
-                  value={name} onChange={(e) => setName(e.target.value)}
-                  className="w-full border border-border rounded-xl px-3 py-3 text-sm text-ink placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-coffee/40 font-sans min-h-[48px]"
+              {/* CAFÉ */}
+              <InputCard label={lang === 'de' ? 'Café' : 'Café'}>
+                <CardInput
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={tr.namePlaceholder}
                 />
-              </div>
+              </InputCard>
 
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-gray-500 font-sans font-medium">
-                  {lang === 'de' ? 'Standort' : 'Location'}
-                </label>
-                <div className="relative">
+              {/* ADRESSE with GPS */}
+              <InputCard label={lang === 'de' ? 'Adresse' : 'Address'} style={{ position: 'relative' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <input
-                    type="text"
-                    placeholder={lang === 'de' ? 'Lokal oder Adresse suchen…' : 'Search venue or address…'}
                     value={locSearch}
                     onChange={(e) => setLocSearch(e.target.value)}
-                    className="w-full border border-border rounded-xl px-3 py-3 pr-12 text-sm text-ink placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-coffee/40 font-sans min-h-[48px]"
+                    placeholder={lang === 'de' ? 'Adresse suchen…' : 'Search address…'}
+                    style={{ background: 'transparent', border: 'none', outline: 'none', flex: 1, fontSize: 16, color: INK, fontFamily: '"DM Sans", system-ui, sans-serif', padding: 0 }}
                   />
-                  <button type="button" onClick={handleGPS} disabled={locating}
-                    title={lang === 'de' ? 'Aktueller Standort' : 'Use my location'}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-gray-400 hover:text-coffee transition-colors">
+                  <button
+                    type="button"
+                    onClick={handleGPS}
+                    disabled={locating}
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: lat && lng ? COFFEE : MUTED, flexShrink: 0 }}
+                    title={lang === 'de' ? 'GPS' : 'GPS'}
+                  >
                     {locating ? (
-                      <svg className="animate-spin" width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                      <svg style={{ animation: 'spin 1s linear infinite' }} width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                         <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                       </svg>
                     ) : (
@@ -342,92 +366,69 @@ export default function ReviewPage() {
                       </svg>
                     )}
                   </button>
-                  {locSugg.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 z-30 bg-white border border-border rounded-xl shadow-lg mt-1 overflow-hidden max-h-56 overflow-y-auto">
-                      {locSugg.map((s, i) => (
-                        <button key={i} type="button"
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() => applyLocSuggestion(s)}
-                          className="w-full text-left px-3 py-3 hover:bg-surface transition-colors border-b border-border last:border-0 min-h-[52px]">
-                          <p className="text-sm font-medium text-ink font-sans truncate">{s.display_name.split(',')[0]}</p>
-                          <p className="text-xs text-gray-400 font-sans truncate">{s.display_name.split(',').slice(1, 3).join(',').trim()}</p>
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
-                {lat && lng && (
-                  <p className="text-xs text-green-600 font-sans flex items-center gap-1">
-                    <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}><polyline points="20 6 9 17 4 12" /></svg>
-                    {lang === 'de' ? 'Standort gesetzt' : 'Location set'} ({lat.toFixed(4)}, {lng.toFixed(4)})
-                  </p>
+                {/* Autocomplete */}
+                {locSugg.length > 0 && (
+                  <div style={{ position: 'absolute', left: 0, right: 0, top: '100%', zIndex: 30, background: 'white', border: `1px solid ${BORDER_C}`, borderRadius: 12, boxShadow: '0 4px 16px rgba(0,0,0,0.10)', marginTop: 4, overflow: 'hidden', maxHeight: 220, overflowY: 'auto' }}>
+                    {locSugg.map((s, i) => (
+                      <button key={i} type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => applyLocSuggestion(s)}
+                        style={{ width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', borderBottom: `1px solid ${BORDER_C}`, cursor: 'pointer', fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+                        <p style={{ fontSize: 14, fontWeight: 600, color: INK, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.display_name.split(',')[0]}</p>
+                        <p style={{ fontSize: 12, color: MUTED, margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.display_name.split(',').slice(1, 3).join(',').trim()}</p>
+                      </button>
+                    ))}
+                  </div>
                 )}
+              </InputCard>
+
+              {/* STADT + LAND side by side */}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <InputCard label={lang === 'de' ? 'Stadt' : 'City'} style={{ flex: 1 }}>
+                  <CardInput value={city} onChange={(e) => setCity(e.target.value)} placeholder={tr.cityPlaceholder} />
+                </InputCard>
+                <InputCard label={lang === 'de' ? 'Land' : 'Country'} style={{ flex: 1 }}>
+                  <CardInput value={country} onChange={(e) => setCountry(e.target.value)} placeholder={tr.countryPlaceholder} />
+                </InputCard>
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-gray-500 font-sans font-medium">{tr.cityLabel}</label>
-                <input type="text" placeholder={tr.cityPlaceholder}
-                  value={city} onChange={(e) => setCity(e.target.value)}
-                  className="w-full border border-border rounded-xl px-3 py-3 text-sm text-ink placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-coffee/40 font-sans min-h-[48px]" />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-gray-500 font-sans font-medium">{tr.countryLabel}</label>
-                <input type="text" placeholder={tr.countryPlaceholder}
-                  value={country} onChange={(e) => setCountry(e.target.value)}
-                  className="w-full border border-border rounded-xl px-3 py-3 text-sm text-ink placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-coffee/40 font-sans min-h-[48px]" />
-              </div>
             </div>
           )}
 
-          {/* ── STEP 2: Rating sliders ─────────────────────────────────────── */}
+          {/* ── STEP 2 ─────────────────────────────────────────────────────── */}
           {step === 2 && (
-            <div className="flex flex-col gap-8">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
               {subScores.map(({ key, label, hint, info, val, set }) => {
                 const pct = (val / 10) * 100;
                 return (
                   <div key={key}>
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <div style={{
-                          fontFamily: '"DM Serif Display", Georgia, serif',
-                          fontSize: 20, fontWeight: 700, color: '#1a1714',
-                          display: 'flex', alignItems: 'center', gap: 6,
-                        }}>
-                          {label}
-                          <button
-                            type="button"
-                            onClick={() => setOpenInfo(openInfo === key ? null : key)}
-                            style={{ fontSize: 13, color: '#8a837e', background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 1 }}
-                            aria-label="Info"
-                          >ⓘ</button>
-                        </div>
-                        <div style={{ fontSize: 12, color: '#8a837e', marginTop: 2 }}>{hint}</div>
+                    {/* Label row */}
+                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontFamily: '"DM Serif Display", Georgia, serif', fontSize: 19, fontWeight: 700, color: INK }}>{label}</span>
+                        <button
+                          type="button"
+                          onClick={() => setOpenInfo(openInfo === key ? null : key)}
+                          style={{ fontSize: 13, color: MUTED, background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 1 }}
+                        >ⓘ</button>
                       </div>
-                      <div style={{
-                        fontFamily: '"DM Serif Display", Georgia, serif',
-                        fontSize: 28, fontWeight: 700, color: '#1a1714', lineHeight: 1, flexShrink: 0,
-                      }}>
-                        {val}<span style={{ fontSize: 14, color: '#8a837e', fontWeight: 400 }}>/10</span>
-                      </div>
+                      <span style={{ fontFamily: '"DM Serif Display", Georgia, serif', fontSize: 22, fontWeight: 700, color: INK, lineHeight: 1 }}>
+                        {val}<span style={{ fontSize: 13, color: MUTED, fontWeight: 400 }}>/10</span>
+                      </span>
                     </div>
 
                     {openInfo === key && (
-                      <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 text-xs text-amber-800 font-sans leading-snug mb-3">
+                      <div style={{ background: '#FEF9C3', border: '1px solid #FDE68A', borderRadius: 10, padding: '10px 12px', fontSize: 12, color: '#92400E', marginBottom: 8, fontFamily: '"DM Sans", system-ui, sans-serif', lineHeight: 1.5 }}>
                         {info}
                       </div>
                     )}
 
-                    <div className="relative flex items-center" style={{ height: 32 }}>
-                      <div style={{
-                        position: 'absolute', left: 0, right: 0,
-                        top: '50%', transform: 'translateY(-50%)',
-                        height: 3, borderRadius: 2, pointerEvents: 'none',
-                        background: `linear-gradient(to right, #6B4A2A ${pct}%, rgba(26,23,20,0.12) ${pct}%)`,
-                      }} />
+                    {/* Slider */}
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: 32 }}>
+                      <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', transform: 'translateY(-50%)', height: 3, borderRadius: 2, pointerEvents: 'none', background: `linear-gradient(to right, ${COFFEE} ${pct}%, rgba(26,23,20,0.12) ${pct}%)` }} />
                       <input
-                        type="range" min={1} max={10} step={1}
-                        value={val}
+                        type="range" min={1} max={10} step={1} value={val}
                         onChange={(e) => set(Number(e.target.value))}
                         className="ea-slider"
                         style={{ position: 'relative', zIndex: 1, width: '100%' }}
@@ -437,168 +438,179 @@ export default function ReviewPage() {
                 );
               })}
 
-              {/* Live score preview */}
-              <div style={{
-                textAlign: 'center', paddingTop: 16,
-                borderTop: '1px solid rgba(26,23,20,0.10)',
-              }}>
-                <div style={{
-                  fontFamily: '"DM Serif Display", Georgia, serif',
-                  fontSize: 56, fontWeight: 700, lineHeight: 0.9,
-                  color: bucketColor(liveScore), letterSpacing: -2,
-                }}>
+              {/* Live score */}
+              <div style={{ textAlign: 'center', padding: '16px 0 4px', borderTop: '1px solid rgba(26,23,20,0.10)' }}>
+                <div style={{ fontFamily: '"DM Serif Display", Georgia, serif', fontSize: 56, fontWeight: 700, lineHeight: 0.9, color: bucketColor(liveScore), letterSpacing: -2 }}>
                   {liveScore.toFixed(1)}
                 </div>
-                <div style={{
-                  fontSize: 10, color: '#8a837e', marginTop: 8,
-                  letterSpacing: '1.5px', textTransform: 'uppercase',
-                }}>
+                <div style={{ fontSize: 10, color: MUTED, marginTop: 8, letterSpacing: '1.5px', textTransform: 'uppercase', fontFamily: '"DM Sans", system-ui, sans-serif' }}>
                   {scoreLabel(liveScore, lang)}
                 </div>
               </div>
 
               {/* Ceramic cup */}
-              <div className="flex items-center gap-3 min-h-[44px]">
-                <input type="checkbox" id="ceramicCup" checked={ceramicCup}
-                  onChange={(e) => setCeramicCup(e.target.checked)}
-                  className="w-5 h-5 accent-coffee rounded shrink-0" />
-                <label htmlFor="ceramicCup" className="text-sm text-ink font-sans flex-1 cursor-pointer">
+              <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', minHeight: 44 }}>
+                <input type="checkbox" checked={ceramicCup} onChange={(e) => setCeramicCup(e.target.checked)} style={{ width: 20, height: 20, accentColor: COFFEE, flexShrink: 0 }} />
+                <span style={{ fontSize: 14, color: INK, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
                   {tr.ceramicCupLabel}
-                  <span className="block text-xs text-gray-400">{tr.ceramicCupHint}</span>
-                </label>
-              </div>
+                  <span style={{ display: 'block', fontSize: 12, color: MUTED }}>{tr.ceramicCupHint}</span>
+                </span>
+              </label>
             </div>
           )}
 
-          {/* ── STEP 3: Comment + would_return + details ───────────────────── */}
+          {/* ── STEP 3 ─────────────────────────────────────────────────────── */}
           {step === 3 && (
-            <div className="flex flex-col gap-7">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
               {/* Comment textarea */}
-              <div className="flex flex-col gap-1.5">
+              <div style={{ background: INPUT_BG, borderRadius: 14, padding: '14px 16px', minHeight: 140 }}>
                 <textarea
-                  rows={4} maxLength={500}
+                  rows={5}
+                  maxLength={500}
                   placeholder={tr.commentPlaceholder}
-                  value={comment} onChange={(e) => setComment(e.target.value)}
-                  className="w-full border border-border rounded-xl px-3 py-3 text-sm text-ink placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-coffee/40 font-sans resize-none"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  style={{
+                    width: '100%', background: 'transparent', border: 'none', outline: 'none', resize: 'none',
+                    fontSize: 18, color: INK, lineHeight: 1.5,
+                    fontFamily: '"DM Serif Display", Georgia, serif', fontStyle: 'italic',
+                    padding: 0,
+                  }}
                 />
-                <p className="text-xs text-gray-300 font-sans text-right">{comment.length}/500</p>
+                <div style={{ textAlign: 'right', fontSize: 11, color: MUTED, marginTop: 4, fontFamily: '"DM Sans", system-ui, sans-serif' }}>{comment.length}/500</div>
               </div>
 
               {/* Would return */}
               <div>
-                <p style={{
-                  fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
-                  color: '#8a837e', marginBottom: 10, fontWeight: 700, fontFamily: '"DM Sans", system-ui, sans-serif',
-                }}>{tr.wouldReturnQ}</p>
-                <div className="flex gap-3">
-                  {[
-                    { v: true,  label: tr.wouldReturnYes },
-                    { v: false, label: tr.wouldReturnNo },
-                  ].map(({ v, label }) => (
-                    <button
-                      key={String(v)}
-                      type="button"
-                      onClick={() => setWouldReturn(wouldReturn === v ? null : v)}
-                      style={{
-                        flex: 1, padding: '12px',
-                        borderRadius: 14, fontSize: 17, fontWeight: 700, letterSpacing: -0.3,
-                        fontFamily: '"DM Serif Display", Georgia, serif',
-                        fontStyle: 'italic',
-                        border: wouldReturn === v ? 'none' : '1px solid #E0D8CC',
-                        background: wouldReturn === v ? (v ? '#6B4A2A' : '#8B2A2A') : 'transparent',
-                        color: wouldReturn === v ? '#F7F3EC' : '#8a837e',
-                        cursor: 'pointer',
-                        transition: 'all 0.18s ease',
-                      }}
-                    >
-                      {label}.
-                    </button>
-                  ))}
+                <p style={{ fontSize: 9, letterSpacing: '2.5px', textTransform: 'uppercase', color: MUTED, fontWeight: 700, marginBottom: 12, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+                  {tr.wouldReturnQ}
+                </p>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  {[{ v: true, label: tr.wouldReturnYes, activeColor: COFFEE }, { v: false, label: tr.wouldReturnNo, activeColor: AVOID }].map(({ v, label, activeColor }) => {
+                    const active = wouldReturn === v;
+                    return (
+                      <button
+                        key={String(v)}
+                        type="button"
+                        onClick={() => setWouldReturn(wouldReturn === v ? null : v)}
+                        style={{
+                          flex: 1, padding: '14px 0',
+                          borderRadius: 14, fontSize: 18,
+                          fontFamily: '"DM Serif Display", Georgia, serif', fontStyle: 'italic', fontWeight: 700,
+                          border: `1.5px solid ${active ? activeColor : BORDER_C}`,
+                          background: active ? activeColor : 'transparent',
+                          color: active ? '#FAF0E6' : (v ? INK : AVOID),
+                          cursor: 'pointer', transition: 'all 0.18s ease',
+                          letterSpacing: -0.3,
+                        }}
+                      >
+                        {label}.
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Optional details */}
               {!showDetails ? (
                 <button type="button" onClick={() => setShowDetails(true)}
-                  className="text-sm text-coffee font-semibold font-sans hover:underline text-left py-1 min-h-[44px]">
+                  style={{ textAlign: 'left', fontSize: 14, color: COFFEE, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', fontFamily: '"DM Sans", system-ui, sans-serif' }}>
                   + {tr.addDetails}
                 </button>
               ) : (
-                <div className="flex flex-col gap-4">
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs text-gray-500 font-sans font-medium">{tr.roasteryLabel}</label>
-                    <input type="text" placeholder={tr.roasteryPlaceholder}
-                      value={roastery} onChange={(e) => setRoastery(e.target.value)}
-                      className="w-full border border-border rounded-xl px-3 py-3 text-sm text-ink placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-coffee/40 font-sans min-h-[48px]" />
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs text-gray-500 font-sans font-medium">{tr.priceLabel}</label>
-                    <div className="flex gap-2">
-                      <input type="number" step="0.10" min="0" max="99" placeholder="1.80"
-                        value={price} onChange={(e) => setPrice(e.target.value)}
-                        className="flex-1 border border-border rounded-xl px-3 py-3 text-sm text-ink placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-coffee/40 font-sans min-h-[48px]" />
-                      <select value={currency} onChange={(e) => setCurrency(e.target.value)}
-                        className="border border-border rounded-xl px-3 py-3 text-sm text-ink font-sans focus:outline-none focus:ring-2 focus:ring-coffee/40 bg-white min-h-[48px]">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <InputCard label={tr.roasteryLabel}>
+                    <CardInput value={roastery} onChange={(e) => setRoastery(e.target.value)} placeholder={tr.roasteryPlaceholder} />
+                  </InputCard>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <InputCard label={tr.priceLabel} style={{ flex: 1 }}>
+                      <CardInput value={price} onChange={(e) => setPrice(e.target.value)} placeholder="1.80" />
+                    </InputCard>
+                    <InputCard label={lang === 'de' ? 'Währung' : 'Currency'} style={{ flex: 1 }}>
+                      <select value={currency} onChange={(e) => setCurrency(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', fontSize: 16, color: INK, fontFamily: '"DM Sans", system-ui, sans-serif', width: '100%', padding: 0 }}>
                         {CURRENCIES.map((c) => <option key={c}>{c}</option>)}
                       </select>
-                    </div>
+                    </InputCard>
                   </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs text-gray-500 font-sans font-medium">{tr.photoLabel}</label>
+                  {/* Photo */}
+                  <div>
+                    <div style={{ fontSize: 9, letterSpacing: '2.5px', textTransform: 'uppercase', color: MUTED, fontWeight: 700, fontFamily: '"DM Sans", system-ui, sans-serif', marginBottom: 8 }}>
+                      {tr.photoLabel}
+                    </div>
                     {photoPreview ? (
-                      <div className="relative">
-                        <img src={photoPreview} alt="preview" className="w-full rounded-xl object-cover max-h-48" />
-                        <button type="button" onClick={removePhoto}
-                          className="absolute top-2 right-2 bg-black/60 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm hover:bg-black/80 transition-colors">
-                          ✕
-                        </button>
+                      <div style={{ position: 'relative' }}>
+                        <img src={photoPreview} alt="preview" style={{ width: '100%', borderRadius: 14, objectFit: 'cover', maxHeight: 200 }} />
+                        <button type="button" onClick={removePhoto} style={{ position: 'absolute', top: 10, right: 10, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', color: 'white', border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                       </div>
                     ) : (
                       <button type="button" onClick={() => fileInputRef.current?.click()}
-                        className="w-full border-2 border-dashed border-border rounded-xl py-8 flex flex-col items-center gap-2 text-gray-400 hover:border-coffee hover:text-coffee transition-colors min-h-[80px]">
-                        <span className="text-3xl">📷</span>
-                        <span className="text-sm font-sans">{tr.addPhoto}</span>
+                        style={{ width: '100%', background: INPUT_BG, border: '2px dashed #C4B9A8', borderRadius: 14, padding: '28px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer', color: MUTED, fontFamily: '"DM Sans", system-ui, sans-serif', fontSize: 14 }}>
+                        <span style={{ fontSize: 28 }}>📷</span>
+                        {tr.addPhoto}
                       </button>
                     )}
-                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+                    <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoChange} />
                   </div>
                 </div>
               )}
 
               {error && (
-                <p className="text-sm text-score-red bg-red-50 border border-red-100 rounded-xl px-4 py-3 font-sans">
+                <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 12, padding: '12px 16px', fontSize: 13, color: '#991B1B', fontFamily: '"DM Sans", system-ui, sans-serif' }}>
                   {error}
-                </p>
+                </div>
               )}
             </div>
           )}
         </div>
       </div>
 
-      {/* ── Sticky footer ───────────────────────────────────────────────────── */}
-      <div
-        className="sticky bottom-0 bg-surface border-t border-border px-5 py-4"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}
-      >
+      {/* ── Footer ──────────────────────────────────────────────────────────── */}
+      <div style={{
+        position: 'sticky', bottom: 0, background: SURFACE,
+        borderTop: `1px solid ${BORDER_C}`,
+        padding: `14px 20px calc(env(safe-area-inset-bottom) + 14px)`,
+        display: 'flex', alignItems: 'center',
+        justifyContent: step === 1 ? 'flex-end' : 'space-between',
+      }}>
+        {step > 1 && (
+          <button
+            type="button"
+            onClick={() => setStep((s) => s - 1)}
+            style={{ fontSize: 15, color: MUTED, background: 'none', border: 'none', cursor: 'pointer', fontFamily: '"DM Sans", system-ui, sans-serif', padding: '10px 0' }}
+          >
+            ← {lang === 'de' ? 'Zurück' : 'Back'}
+          </button>
+        )}
+
         {step < 3 ? (
           <button
             type="button"
             onClick={() => setStep((s) => s + 1)}
             disabled={step === 1 && !step1Valid}
-            className="w-full bg-coffee text-white rounded-2xl py-4 text-base font-semibold font-sans disabled:opacity-40 transition-opacity hover:opacity-90 shadow-md min-h-[52px]"
+            style={{
+              background: step === 1 && !step1Valid ? 'rgba(26,23,20,0.25)' : INK,
+              color: '#FAF0E6', border: 'none', borderRadius: 14,
+              padding: '14px 28px', fontSize: 15, fontWeight: 700,
+              fontFamily: '"DM Sans", system-ui, sans-serif',
+              cursor: step === 1 && !step1Valid ? 'default' : 'pointer',
+              transition: 'background 0.15s',
+            }}
           >
-            {tr.nextStep}
+            {tr.nextStep} →
           </button>
         ) : (
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!step1Valid || saving}
-            className="w-full bg-coffee text-white rounded-2xl py-4 text-base font-semibold font-sans disabled:opacity-40 transition-opacity hover:opacity-90 shadow-md min-h-[52px]"
+            style={{
+              background: !step1Valid || saving ? 'rgba(26,23,20,0.25)' : INK,
+              color: '#FAF0E6', border: 'none', borderRadius: 14,
+              padding: '14px 28px', fontSize: 15, fontWeight: 700,
+              fontFamily: '"DM Sans", system-ui, sans-serif',
+              cursor: !step1Valid || saving ? 'default' : 'pointer',
+            }}
           >
             {geocoding ? tr.geocoding : saving ? tr.saving : tr.submitReview}
           </button>

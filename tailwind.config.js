@@ -6,7 +6,7 @@ export default {
       colors: {
         coffee: '#6B4A2A',
         ink:    '#1a1714',
-        surface:'#F7F3EC',
+        surface:'#FAF0E6',
         border: '#E0D8CC',
         score: {
           red:   '#E53935',
