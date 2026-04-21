@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { t } from '../lib/i18n';
-import { useState } from 'react';
 import LangToggle from '../components/LangToggle';
 import MapComponent from '../components/MapComponent';
 import BottomSheet from '../components/BottomSheet';
@@ -23,8 +22,9 @@ export default function HomePage() {
   const [loading,    setLoading]    = useState(true);
   const [cityFilter, setCityFilter] = useState('all');
 
-  const [sheetVenue, setSheetVenue] = useState(null);
-  const [sheetOpen,  setSheetOpen]  = useState(false);
+  const [sheetVenue,  setSheetVenue]  = useState(null);
+  const [sheetOpen,   setSheetOpen]   = useState(false);
+  const [legendOpen,  setLegendOpen]  = useState(false);
 
   // ── Fetch + realtime ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -180,6 +180,67 @@ export default function HomePage() {
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* ── Map legend (collapsible) ─────────────────────────────────────────── */}
+      {tab === 'map' && (
+        <div style={{
+          position: 'fixed', zIndex: 420, left: 12,
+          top: showCityChips
+            ? 'calc(env(safe-area-inset-top) + 50px + 42px + 10px)'
+            : 'calc(env(safe-area-inset-top) + 50px + 10px)',
+        }}>
+          <button
+            type="button"
+            onClick={() => setLegendOpen((o) => !o)}
+            aria-label="Legende"
+            style={{
+              width: 28, height: 28, borderRadius: '50%',
+              background: legendOpen ? '#1a1714' : 'rgba(250,240,230,0.95)',
+              border: '1px solid rgba(26,23,20,0.18)',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.15)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer',
+              color: legendOpen ? '#FAF0E6' : '#6B4A2A',
+              fontSize: 13, fontStyle: 'italic', fontWeight: 700,
+              fontFamily: '"DM Serif Display", Georgia, serif',
+              transition: 'background 0.15s, color 0.15s',
+            }}
+          >
+            i
+          </button>
+          {legendOpen && (
+            <div style={{
+              marginTop: 6,
+              background: 'rgba(250,240,230,0.97)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              border: '1px solid rgba(224,216,204,0.8)',
+              borderRadius: 10,
+              padding: '8px 10px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            }}>
+              <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: '1.8px', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: 6, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+                Urteil
+              </div>
+              {[
+                { fill: '#1a1714', stroke: null,      label: 'Exzellent' },
+                { fill: '#6B4A2A', stroke: null,      label: 'Gut' },
+                { fill: '#F7F3EC', stroke: '#8a7a62', label: 'Mittel' },
+                { fill: '#8B2A2A', stroke: null,      label: 'Meiden' },
+              ].map(({ fill, stroke, label }) => (
+                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
+                  <div style={{
+                    width: 9, height: 9, borderRadius: '50%', flexShrink: 0,
+                    background: fill,
+                    border: stroke ? `1.5px solid ${stroke}` : '1px solid rgba(255,255,255,0.2)',
+                  }} />
+                  <span style={{ fontSize: 10, fontFamily: '"DM Sans", system-ui, sans-serif', color: '#6B7280' }}>{label}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
