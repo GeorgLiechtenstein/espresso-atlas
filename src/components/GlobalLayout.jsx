@@ -2,6 +2,7 @@ import { Outlet, useNavigate, useLocation, useSearchParams } from 'react-router-
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { t } from '../lib/i18n';
+import { supabase } from '../lib/supabase';
 
 function NavTab({ active, onClick, icon, label }) {
   return (
@@ -47,6 +48,11 @@ export default function GlobalLayout() {
     } else {
       navigate(`/?tab=${tab}`);
     }
+  }
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    navigate('/');
   }
 
   return (
@@ -118,6 +124,31 @@ export default function GlobalLayout() {
             </svg>
           }
         />
+
+        {/* Sign out — small, right edge, only when logged in */}
+        {user && (
+          <button
+            onClick={handleSignOut}
+            title={tr.signOut}
+            style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              justifyContent: 'center', gap: 3,
+              paddingTop: 8, paddingBottom: 8, paddingLeft: 10, paddingRight: 14,
+              background: 'none', border: 'none', borderTop: '2px solid transparent',
+              cursor: 'pointer', color: '#C4BAB2',
+            }}
+          >
+            {/* door-exit icon */}
+            <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            <span style={{ fontSize: 9, fontWeight: 400, fontFamily: '"DM Sans", system-ui, sans-serif', letterSpacing: '0.02em' }}>
+              {tr.signOut}
+            </span>
+          </button>
+        )}
       </nav>
     </>
   );
