@@ -129,10 +129,14 @@ export default function IndexPanel({ venues, isOpen }) {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <CupLogo />
-          <span style={{
-            fontFamily: '"DM Serif Display", Georgia, serif',
-            fontSize: 19, fontWeight: 400, color: '#1a1714', lineHeight: 1,
-          }}>
+          <span
+            onClick={() => navigate('/?tab=map')}
+            style={{
+              fontFamily: '"DM Serif Display", Georgia, serif',
+              fontSize: 19, fontWeight: 400, color: '#1a1714', lineHeight: 1,
+              cursor: 'pointer',
+            }}
+          >
             Espresso Atlas
           </span>
           <span style={{

@@ -102,7 +102,7 @@ export default function HomePage() {
       >
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <CupLogo />
-          <span className="font-serif text-[19px] text-ink leading-tight">Espresso Atlas</span>
+          <span className="font-serif text-[19px] text-ink leading-tight" style={{ cursor: 'pointer' }} onClick={() => setSearchParams({ tab: 'map' }, { replace: true })}>Espresso Atlas</span>
         </div>
         <div className="flex items-center gap-2">
           {!user && (
