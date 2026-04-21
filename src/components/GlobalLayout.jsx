@@ -4,24 +4,22 @@ import { useLang } from '../context/LangContext';
 import { t } from '../lib/i18n';
 import { supabase } from '../lib/supabase';
 
-function NavTab({ active, onClick, icon, label }) {
+function NavTab({ active, onClick, label }) {
   return (
     <button
       onClick={onClick}
       style={{
-        flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', gap: 3,
-        minHeight: 44, paddingTop: 8, paddingBottom: 8,
+        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        minHeight: 44,
         background: 'none', border: 'none', cursor: 'pointer',
-        color: active ? '#6B4A2A' : '#9CA3AF',
-        borderTop: active ? '2px solid #6B4A2A' : '2px solid transparent',
+        color: active ? '#6F4E37' : '#555555',
+        borderTop: active ? '2px solid #6F4E37' : '2px solid transparent',
         transition: 'color 0.15s, border-color 0.15s',
       }}
     >
-      {icon}
       <span style={{
-        fontSize: 10, fontWeight: 400, fontFamily: '"DM Sans", system-ui, sans-serif',
-        letterSpacing: '0.02em',
+        fontSize: 12, fontWeight: 400, fontFamily: '"DM Sans", system-ui, sans-serif',
+        letterSpacing: '0.04em',
       }}>
         {label}
       </span>
@@ -85,68 +83,25 @@ export default function GlobalLayout() {
         display: 'flex', alignItems: 'stretch',
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}>
-        <NavTab
-          active={activeTab === 'map'}
-          onClick={() => goTab('map')}
-          label={tr.mapTab}
-          icon={
-            <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
-              <line x1="9" y1="3" x2="9" y2="18" />
-              <line x1="15" y1="6" x2="15" y2="21" />
-            </svg>
-          }
-        />
-        <NavTab
-          active={activeTab === 'index'}
-          onClick={() => goTab('index')}
-          label={tr.indexTab}
-          icon={
-            <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <line x1="8" y1="6"  x2="21" y2="6" />
-              <line x1="8" y1="12" x2="21" y2="12" />
-              <line x1="8" y1="18" x2="21" y2="18" />
-              <line x1="3" y1="6"  x2="3.01" y2="6" />
-              <line x1="3" y1="12" x2="3.01" y2="12" />
-              <line x1="3" y1="18" x2="3.01" y2="18" />
-            </svg>
-          }
-        />
-        <NavTab
-          active={activeTab === 'about'}
-          onClick={() => goTab('about')}
-          label={tr.aboutTab}
-          icon={
-            <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="8.01" />
-              <line x1="12" y1="12" x2="12" y2="16" />
-            </svg>
-          }
-        />
+        <NavTab active={activeTab === 'map'}   onClick={() => goTab('map')}   label={tr.mapTab} />
+        <NavTab active={activeTab === 'index'} onClick={() => goTab('index')} label={tr.indexTab} />
+        <NavTab active={activeTab === 'about'} onClick={() => goTab('about')} label={tr.aboutTab} />
 
-        {/* Sign out — small, right edge, only when logged in */}
+        {/* Sign out — right edge, only when logged in */}
         {user && (
           <button
             onClick={handleSignOut}
-            title={tr.signOut}
             style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center',
-              justifyContent: 'center', gap: 3,
-              paddingTop: 8, paddingBottom: 8, paddingLeft: 10, paddingRight: 14,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              paddingLeft: 10, paddingRight: 14,
               background: 'none', border: 'none', borderTop: '2px solid transparent',
-              cursor: 'pointer', color: '#C4BAB2',
+              cursor: 'pointer',
+              fontSize: 12, fontWeight: 400,
+              fontFamily: '"DM Sans", system-ui, sans-serif',
+              letterSpacing: '0.04em', color: '#888',
             }}
           >
-            {/* door-exit icon */}
-            <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-            <span style={{ fontSize: 9, fontWeight: 400, fontFamily: '"DM Sans", system-ui, sans-serif', letterSpacing: '0.02em' }}>
-              {tr.signOut}
-            </span>
+            {tr.signOut}
           </button>
         )}
       </nav>
