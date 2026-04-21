@@ -131,9 +131,9 @@ export default function IndexPanel({ venues, isOpen }) {
           <CupLogo />
           <span style={{
             fontFamily: '"DM Serif Display", Georgia, serif',
-            fontSize: 22, fontWeight: 400, color: '#1a1714', lineHeight: 1,
+            fontSize: 19, fontWeight: 400, color: '#1a1714', lineHeight: 1,
           }}>
-            Index
+            Espresso Atlas
           </span>
           <span style={{
             fontSize: 12, color: '#555555',
