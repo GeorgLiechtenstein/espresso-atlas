@@ -127,7 +127,7 @@ export default function IndexPanel({ venues, isOpen }) {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 18, lineHeight: 1 }}>☕</span>
+          <button onClick={() => navigate('/?tab=map')} style={{ fontSize: 18, lineHeight: 1, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>☕</button>
           <span style={{
             fontFamily: '"DM Serif Display", Georgia, serif',
             fontSize: 22, fontWeight: 400, color: '#1a1714', lineHeight: 1,

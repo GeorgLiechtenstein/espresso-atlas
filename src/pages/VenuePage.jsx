@@ -99,7 +99,7 @@ export default function VenuePage() {
       {/* Header */}
       <header className="sticky top-0 z-50 flex items-center gap-2 px-4 py-3"
               style={{ background: '#F7F3EC', borderBottom: '1px solid rgba(26,23,20,0.10)' }}>
-        <span style={{ fontSize: 18, lineHeight: 1, marginRight: 2 }}>☕</span>
+        <button onClick={() => navigate('/?tab=map')} style={{ fontSize: 18, lineHeight: 1, marginRight: 2, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>☕</button>
         <button
           onClick={() => navigate('/?tab=map')}
           className="min-h-[44px] -ml-2 flex items-center gap-1 px-2 rounded-xl"

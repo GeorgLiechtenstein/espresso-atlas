@@ -291,7 +291,7 @@ export default function ReviewPage() {
         </button>
 
         <span style={{ fontSize: 15, fontWeight: 700, color: INK, fontFamily: '"DM Sans", system-ui, sans-serif', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 17 }}>☕</span>
+          <button type="button" onClick={() => navigate('/?tab=map')} style={{ fontSize: 17, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>☕</button>
           {isEdit ? tr.editPageTitle : (lang === 'de' ? 'Neuer Espresso' : 'New Espresso')}
         </span>
 
