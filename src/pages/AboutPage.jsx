@@ -37,7 +37,18 @@ export default function AboutPage() {
             <span className="font-serif text-base text-ink">Espresso Atlas</span>
           </div>
 
-          <LangToggle />
+          <div className="flex items-center gap-3">
+            <LangToggle />
+            {user && (
+              <button
+                onClick={handleSignOut}
+                style={{ fontSize: 12, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                className="font-sans hover:text-ink transition-colors"
+              >
+                {tr.signOut}
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -62,19 +73,10 @@ export default function AboutPage() {
 
         <p className="mt-12 font-serif text-xl text-ink">{tr.aboutSignature}</p>
 
-        <div className="mt-14 pt-8 border-t border-border flex items-center justify-between">
+        <div className="mt-14 pt-8 border-t border-border">
           <Link to="/" className="text-sm text-coffee hover:underline font-sans">
             {tr.backToMap}
           </Link>
-          {user && (
-            <button
-              onClick={handleSignOut}
-              style={{ fontSize: 13, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-              className="font-sans hover:text-ink transition-colors"
-            >
-              {tr.signOut}
-            </button>
-          )}
         </div>
       </main>
     </div>
