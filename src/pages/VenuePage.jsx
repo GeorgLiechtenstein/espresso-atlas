@@ -98,13 +98,13 @@ export default function VenuePage() {
   const divider = <div style={{ height: 1, background: 'rgba(26,23,20,0.10)', margin: '20px 0' }} />;
 
   return (
-    <div className="min-h-screen" style={{ background: '#F7F3EC' }}>
+    <div className="min-h-screen" style={{ background: '#F7F3EC', paddingBottom: 'calc(72px + env(safe-area-inset-bottom))' }}>
 
       {/* Header */}
       <header className="sticky top-0 z-50 flex items-center gap-2 px-4 py-3"
               style={{ background: '#F7F3EC', borderBottom: '1px solid rgba(26,23,20,0.10)' }}>
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/?tab=map')}
           className="min-h-[44px] -ml-2 flex items-center gap-1 px-2 rounded-xl"
           style={{ color: '#6B4A2A', fontSize: 13, fontWeight: 600 }}
           aria-label={tr.backToMap}

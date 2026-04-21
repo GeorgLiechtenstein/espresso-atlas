@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { LangProvider } from './context/LangContext';
+import GlobalLayout from './components/GlobalLayout';
 import HomePage from './pages/HomePage';
 import VenuePage from './pages/VenuePage';
 import ReviewPage from './pages/ReviewPage';
@@ -14,8 +15,13 @@ export default function App() {
       <LangProvider>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/venue/:id" element={<VenuePage />} />
+          {/* Pages that always show the bottom nav + FAB */}
+          <Route element={<GlobalLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/venue/:id" element={<VenuePage />} />
+          </Route>
+
+          {/* Pages with their own full-screen layout (no global nav) */}
           <Route path="/review" element={<ReviewPage />} />
           <Route path="/review/:venueId" element={<ReviewPage />} />
           <Route path="/login" element={<LoginPage />} />

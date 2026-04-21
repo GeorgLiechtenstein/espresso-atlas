@@ -1,23 +1,26 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { t } from '../lib/i18n';
+import { useState } from 'react';
 import LangToggle from '../components/LangToggle';
 import MapComponent from '../components/MapComponent';
 import BottomSheet from '../components/BottomSheet';
 import IndexPanel from '../components/IndexPanel';
 
 export default function HomePage() {
-  const navigate    = useNavigate();
-  const { user }    = useAuth();
-  const { lang }    = useLang();
-  const tr          = t(lang);
+  const navigate                        = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { user }                        = useAuth();
+  const { lang }                        = useLang();
+  const tr                              = t(lang);
 
-  const [venues,     setVenues]    = useState([]);
-  const [loading,    setLoading]   = useState(true);
-  const [tab,        setTab]       = useState('map');
+  const tab = searchParams.get('tab') || 'map';
+
+  const [venues,     setVenues]     = useState([]);
+  const [loading,    setLoading]    = useState(true);
   const [cityFilter, setCityFilter] = useState('all');
 
   const [sheetVenue, setSheetVenue] = useState(null);
@@ -56,21 +59,19 @@ export default function HomePage() {
     setSheetOpen(true);
   }, []);
 
-  // City counts for chips
   const cityCounts = useMemo(() => {
     const counts = {};
     venues.forEach((v) => { counts[v.city] = (counts[v.city] || 0) + 1; });
     return Object.entries(counts).sort((a, b) => b[1] - a[1]);
   }, [venues]);
 
-  // Map-filtered venues (city chip only)
   const mapVenues = useMemo(() => {
     if (cityFilter === 'all') return venues;
     return venues.filter((v) => v.city === cityFilter);
   }, [venues, cityFilter]);
 
-  const locateOnMount = !localStorage.getItem('em_geo_asked');
-  const showCityChips = tab === 'map' && cityCounts.length > 1;
+  const locateOnMount  = !localStorage.getItem('em_geo_asked');
+  const showCityChips  = tab === 'map' && cityCounts.length > 1;
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -108,11 +109,10 @@ export default function HomePage() {
           </svg>
           <span className="font-serif text-[19px] text-ink leading-tight">Espresso Atlas</span>
         </div>
-
         <LangToggle />
       </header>
 
-      {/* ── City filter chips (map tab, >1 city) ────────────────────────────── */}
+      {/* ── City filter chips ────────────────────────────────────────────────── */}
       {showCityChips && (
         <div
           className="fixed left-0 right-0 z-[410] overflow-x-auto no-scrollbar"
@@ -160,37 +160,15 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* ── Empty state overlay ──────────────────────────────────────────────── */}
+      {/* ── Empty state ──────────────────────────────────────────────────────── */}
       {!loading && venues.length === 0 && tab === 'map' && (
         <div className="absolute inset-0 flex items-center justify-center z-[300] pointer-events-none">
           <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-lg px-8 py-8 text-center pointer-events-auto mx-6 max-w-xs">
             <span className="text-5xl block mb-3">☕</span>
             <h2 className="font-serif text-xl text-ink mb-1">{tr.emptyLine1}</h2>
             <p className="text-sm font-sans mb-1" style={{ color: '#666' }}>{tr.emptyLine2}</p>
-            {user && (
-              <button
-                onClick={() => navigate('/review')}
-                className="mt-4 bg-coffee text-white rounded-xl px-5 py-2.5 text-sm font-semibold font-sans hover:opacity-90 transition-opacity"
-              >
-                {lang === 'de' ? '+ Ersten Espresso bewerten' : '+ Rate the first espresso'}
-              </button>
-            )}
           </div>
         </div>
-      )}
-
-      {/* ── Admin FAB ────────────────────────────────────────────────────────── */}
-      {user && tab === 'map' && (
-        <button
-          onClick={() => navigate('/review')}
-          aria-label={tr.addReview}
-          style={{ zIndex: 450, bottom: 'calc(72px + env(safe-area-inset-bottom))', right: 16 }}
-          className="fixed w-14 h-14 bg-coffee text-white rounded-full shadow-xl
-            flex items-center justify-center text-3xl font-light
-            hover:opacity-90 active:scale-95 transition-all focus:outline-none"
-        >
-          +
-        </button>
       )}
 
       {/* ── Index panel ──────────────────────────────────────────────────────── */}
@@ -225,8 +203,6 @@ export default function HomePage() {
             ))}
           </div>
           <p className="mt-10 font-serif text-xl text-ink">{tr.aboutSignature}</p>
-
-          {/* Auth in About tab */}
           <div className="mt-10 pt-6 border-t border-border">
             {user ? (
               <button
@@ -247,58 +223,7 @@ export default function HomePage() {
         </main>
       </div>
 
-      {/* ── Bottom navigation ────────────────────────────────────────────────── */}
-      <nav
-        className="fixed bottom-0 left-0 right-0 z-[500] bg-surface border-t border-border flex items-center"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-      >
-        {/* Karte */}
-        <button
-          onClick={() => setTab('map')}
-          className={`flex-1 flex flex-col items-center py-2 gap-0.5 transition-colors min-h-[44px]
-            ${tab === 'map' ? 'text-coffee' : 'text-gray-400'}`}
-        >
-          <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
-            <line x1="9" y1="3" x2="9" y2="18" />
-            <line x1="15" y1="6" x2="15" y2="21" />
-          </svg>
-          <span className="text-[10px] font-medium font-sans">{tr.mapTab}</span>
-        </button>
-
-        {/* Index */}
-        <button
-          onClick={() => setTab('index')}
-          className={`flex-1 flex flex-col items-center py-2 gap-0.5 transition-colors min-h-[44px]
-            ${tab === 'index' ? 'text-coffee' : 'text-gray-400'}`}
-        >
-          <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <line x1="8" y1="6"  x2="21" y2="6" />
-            <line x1="8" y1="12" x2="21" y2="12" />
-            <line x1="8" y1="18" x2="21" y2="18" />
-            <line x1="3" y1="6"  x2="3.01" y2="6" />
-            <line x1="3" y1="12" x2="3.01" y2="12" />
-            <line x1="3" y1="18" x2="3.01" y2="18" />
-          </svg>
-          <span className="text-[10px] font-medium font-sans">{tr.indexTab}</span>
-        </button>
-
-        {/* Über */}
-        <button
-          onClick={() => setTab('about')}
-          className={`flex-1 flex flex-col items-center py-2 gap-0.5 transition-colors min-h-[44px]
-            ${tab === 'about' ? 'text-coffee' : 'text-gray-400'}`}
-        >
-          <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="8.01" />
-            <line x1="12" y1="12" x2="12" y2="16" />
-          </svg>
-          <span className="text-[10px] font-medium font-sans">{tr.aboutTab}</span>
-        </button>
-      </nav>
-
-      {/* ── Bottom sheet (pin tap preview) ──────────────────────────────────── */}
+      {/* ── Bottom sheet ─────────────────────────────────────────────────────── */}
       <BottomSheet
         venue={sheetVenue}
         isOpen={sheetOpen}
