@@ -62,7 +62,7 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
   const score     = venue.avg_score != null ? parseFloat(venue.avg_score) : null;
   const b         = bucket(score);
   const meta      = b ? BUCKET_META[b] : null;
-  const hasRating = venue.body && venue.balance && venue.crema && venue.overall;
+  const hasRating = venue.body && venue.balance && venue.crema;
 
   const scoreColor = meta ? meta.color : '#9CA3AF';
   const chipLabel  = meta ? meta.label[lang] : null;

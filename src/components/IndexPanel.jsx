@@ -126,7 +126,8 @@ export default function IndexPanel({ venues, isOpen }) {
           gap: 8,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 18, lineHeight: 1 }}>☕</span>
           <span style={{
             fontFamily: '"DM Serif Display", Georgia, serif',
             fontSize: 22, fontWeight: 400, color: '#1a1714', lineHeight: 1,

@@ -68,7 +68,7 @@ export const tr = {
     step3Title:        'In einem Satz?',
     step1Subtitle:     'Café, Adresse und Stadt eingeben.',
     step1SubtitleGPS:  'Via GPS erkannt — bitte bestätigen.',
-    step2Subtitle:     'Vier Kriterien. Schieben. Weiter.',
+    step2Subtitle:     'Drei Kriterien. Schieben. Weiter.',
     step3Subtitle:     'Optional — aber das Beste am Atlas.',
     cancelWizard:      'Abbrechen',
     stepOf:            'Schritt',
@@ -115,7 +115,7 @@ export const tr = {
     geocoding:          'Geocodiere Standort…',
     saving:             'Speichern…',
     errFillVenue:       'Bitte fülle Name, Stadt und Land aus.',
-    errNoRating:        'Bitte bewerte alle vier Kategorien.',
+    errNoRating:        'Bitte bewerte alle drei Kriterien.',
 
     // Login
     loginSubtitle:   'Melde dich an, um Espressos zu bewerten.',
@@ -220,7 +220,7 @@ export const tr = {
     step3Title:        'In one sentence?',
     step1Subtitle:     'Enter café, address and city.',
     step1SubtitleGPS:  'Detected via GPS — please confirm.',
-    step2Subtitle:     'Four criteria. Slide. Continue.',
+    step2Subtitle:     'Three criteria. Slide. Continue.',
     step3Subtitle:     'Optional — but the best part.',
     cancelWizard:      'Cancel',
     stepOf:            'Step',
@@ -267,7 +267,7 @@ export const tr = {
     geocoding:          'Geocoding location…',
     saving:             'Saving…',
     errFillVenue:       'Please fill in name, city and country.',
-    errNoRating:        'Please rate all four categories.',
+    errNoRating:        'Please rate all three criteria.',
 
     // Login
     loginSubtitle:   'Sign in to rate espressos.',

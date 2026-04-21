@@ -88,7 +88,7 @@ export default function ReviewPage() {
   const [body,       setBody]       = useState(5);
   const [balance,    setBalance]    = useState(5);
   const [crema,      setCrema]      = useState(5);
-  const [overall,    setOverall]    = useState(5);
+  
   const [ceramicCup, setCeramicCup] = useState(false);
   const [wouldReturn, setWouldReturn] = useState(null);
   const [openInfo,   setOpenInfo]   = useState(null);
@@ -127,7 +127,7 @@ export default function ReviewPage() {
         setBody(data.body || 5);
         setBalance(data.balance || 5);
         setCrema(data.crema || 5);
-        setOverall(data.overall || 5);
+
         setCeramicCup(data.ceramic_cup || false);
         setWouldReturn(data.would_return != null ? data.would_return : null);
         setRoastery(data.roastery || '');
@@ -205,7 +205,7 @@ export default function ReviewPage() {
   }
 
   const step1Valid = Boolean(name.trim() && city.trim() && country.trim());
-  const liveScore  = Math.round(((body + balance + crema + overall) / 4) * 100) / 100;
+  const liveScore  = Math.round(((body + balance + crema) / 3) * 100) / 100;
 
   async function handleSubmit() {
     setError('');
@@ -232,7 +232,7 @@ export default function ReviewPage() {
       const payload = {
         name: name.trim(), city: city.trim(), country: country.trim(),
         address: addressVal, lat: resolvedLat, lng: resolvedLng,
-        body, balance, crema, overall,
+        body, balance, crema,
         ceramic_cup: ceramicCup || null,
         would_return: wouldReturn,
         roastery: roastery.trim() || null,
@@ -270,7 +270,6 @@ export default function ReviewPage() {
     { key: 'body',    label: tr.bodyLabel,    hint: tr.bodyHint,    info: tr.bodyInfo,    val: body,    set: setBody },
     { key: 'balance', label: tr.balanceLabel, hint: tr.balanceHint, info: tr.balanceInfo, val: balance, set: setBalance },
     { key: 'crema',   label: tr.cremaLabel,   hint: tr.cremaHint,   info: tr.cremaInfo,   val: crema,   set: setCrema },
-    { key: 'overall', label: tr.overallLabel, hint: tr.overallHint, info: tr.overallInfo, val: overall, set: setOverall },
   ];
 
   return (
@@ -291,7 +290,8 @@ export default function ReviewPage() {
           {tr.cancelWizard}
         </button>
 
-        <span style={{ fontSize: 15, fontWeight: 700, color: INK, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+        <span style={{ fontSize: 15, fontWeight: 700, color: INK, fontFamily: '"DM Sans", system-ui, sans-serif', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 17 }}>☕</span>
           {isEdit ? tr.editPageTitle : (lang === 'de' ? 'Neuer Espresso' : 'New Espresso')}
         </span>
 

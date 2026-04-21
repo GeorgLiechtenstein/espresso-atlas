@@ -71,12 +71,9 @@ export default function VenuePage() {
   const score      = venue.avg_score != null ? parseFloat(venue.avg_score) : null;
   const b          = bucket(score);
   const meta       = b ? BUCKET_META[b] : null;
-  const hasRating  = venue.body && venue.balance && venue.crema && venue.overall;
+  const hasRating  = venue.body && venue.balance && venue.crema;
   const scoreColor = meta ? meta.color : '#9CA3AF';
   const chipLabel  = meta ? meta.label[lang] : null;
-  const wouldReturn = venue.would_return != null
-    ? venue.would_return
-    : (venue.overall != null ? venue.overall >= 7 : null);
 
   const ratedDate = venue.rated_at
     ? new Date(venue.rated_at).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', {
@@ -89,10 +86,9 @@ export default function VenuePage() {
   )}`;
 
   const criteria = hasRating ? [
-    { label: lang === 'de' ? 'Körper'       : 'Body',    hint: lang === 'de' ? 'Vollmundig vs. dünn'     : 'Full-bodied vs. thin',    val: venue.body },
-    { label: 'Balance',                                   hint: lang === 'de' ? 'Bitter / Säure'          : 'Bitter / Acid',           val: venue.balance },
-    { label: 'Crema',                                     hint: lang === 'de' ? 'Dick, haselnussbraun'    : 'Thick, hazelnut-brown',   val: venue.crema },
-    { label: lang === 'de' ? 'Gesamturteil' : 'Overall', hint: lang === 'de' ? 'Würde ich wiederkommen?' : 'Would I come back?',      val: venue.overall },
+    { label: lang === 'de' ? 'Körper'  : 'Body',    hint: lang === 'de' ? 'Vollmundig vs. dünn'  : 'Full-bodied vs. thin',  val: venue.body },
+    { label: 'Balance',                              hint: lang === 'de' ? 'Bitter / Säure'       : 'Bitter / Acid',         val: venue.balance },
+    { label: 'Crema',                                hint: lang === 'de' ? 'Dick, haselnussbraun' : 'Thick, hazelnut-brown', val: venue.crema },
   ] : null;
 
   const divider = <div style={{ height: 1, background: 'rgba(26,23,20,0.10)', margin: '20px 0' }} />;
@@ -103,6 +99,7 @@ export default function VenuePage() {
       {/* Header */}
       <header className="sticky top-0 z-50 flex items-center gap-2 px-4 py-3"
               style={{ background: '#F7F3EC', borderBottom: '1px solid rgba(26,23,20,0.10)' }}>
+        <span style={{ fontSize: 18, lineHeight: 1, marginRight: 2 }}>☕</span>
         <button
           onClick={() => navigate('/?tab=map')}
           className="min-h-[44px] -ml-2 flex items-center gap-1 px-2 rounded-xl"
@@ -176,41 +173,19 @@ export default function VenuePage() {
 
         {divider}
 
-        {/* Big verdict + Wiederkommen? */}
+        {/* Big score */}
         {score !== null && (
-          <>
-            <div className="flex items-end gap-4"
-                 style={{ paddingBottom: 20, borderBottom: '1px solid rgba(26,23,20,0.10)', marginBottom: 20 }}>
-              <div>
-                <div style={{
-                  fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
-                  color: '#555555', marginBottom: 4,
-                }}>{lang === 'de' ? 'Gesamturteil' : 'Overall'}</div>
-                <div style={{
-                  fontFamily: '"DM Serif Display", Georgia, serif',
-                  fontSize: 72, fontWeight: 700, color: scoreColor,
-                  lineHeight: 0.9, letterSpacing: -2,
-                }}>{score.toFixed(1)}</div>
-              </div>
-              <div style={{ flex: 1 }} />
-              {wouldReturn !== null && (
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{
-                    fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
-                    color: '#555555', marginBottom: 4,
-                  }}>{lang === 'de' ? 'Wiederkommen?' : 'Come back?'}</div>
-                  <div style={{
-                    fontFamily: '"DM Serif Display", Georgia, serif',
-                    fontStyle: 'italic', fontSize: 22,
-                    color: wouldReturn ? '#6B4A2A' : '#8B2A2A', lineHeight: 1,
-                  }}>{wouldReturn
-                    ? (lang === 'de' ? 'Ja.' : 'Yes.')
-                    : (lang === 'de' ? 'Nein.' : 'No.')
-                  }</div>
-                </div>
-              )}
-            </div>
-          </>
+          <div style={{ paddingBottom: 20, borderBottom: '1px solid rgba(26,23,20,0.10)', marginBottom: 20 }}>
+            <div style={{
+              fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
+              color: '#555555', marginBottom: 4,
+            }}>{lang === 'de' ? 'Score' : 'Score'}</div>
+            <div style={{
+              fontFamily: '"DM Serif Display", Georgia, serif',
+              fontSize: 72, fontWeight: 700, color: scoreColor,
+              lineHeight: 0.9, letterSpacing: -2,
+            }}>{score.toFixed(1)}</div>
+          </div>
         )}
 
         {/* Pull quote */}
@@ -237,13 +212,13 @@ export default function VenuePage() {
             className="w-full rounded-xl object-cover max-h-64 mb-6" loading="lazy" />
         )}
 
-        {/* The four criteria */}
+        {/* The three criteria */}
         {criteria ? (
           <>
             <div style={{
               fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase',
               color: '#555555', marginBottom: 14, fontWeight: 700,
-            }}>{lang === 'de' ? 'Die vier Kriterien' : 'The four criteria'}</div>
+            }}>{lang === 'de' ? 'Die drei Kriterien' : 'The three criteria'}</div>
             <div className="flex flex-col gap-4 mb-6">
               {criteria.map(({ label, hint, val }) => (
                 <div key={label}>
