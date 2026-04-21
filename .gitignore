@@ -4,3 +4,5 @@ dist/
 .env
 .mcp.json
 .DS_Store
+.Rhistory
+.RData
