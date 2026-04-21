@@ -109,7 +109,7 @@ export default function HomePage() {
           </svg>
           <span className="font-serif text-[19px] text-ink leading-tight">Espresso Atlas</span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           {!user && (
             <button
               onClick={() => navigate('/login')}
@@ -120,6 +120,15 @@ export default function HomePage() {
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
+            </button>
+          )}
+          {user && tab === 'about' && (
+            <button
+              onClick={handleSignOut}
+              style={{ fontSize: 12, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              className="font-sans hover:text-ink transition-colors"
+            >
+              {tr.signOut}
             </button>
           )}
           <LangToggle />
