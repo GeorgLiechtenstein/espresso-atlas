@@ -74,7 +74,9 @@ export default function VenuePage() {
   const hasRating  = venue.body && venue.balance && venue.crema && venue.overall;
   const scoreColor = meta ? meta.color : '#9CA3AF';
   const chipLabel  = meta ? meta.label[lang] : null;
-  const wouldReturn = venue.overall != null ? venue.overall >= 7 : null;
+  const wouldReturn = venue.would_return != null
+    ? venue.would_return
+    : (venue.overall != null ? venue.overall >= 7 : null);
 
   const ratedDate = venue.rated_at
     ? new Date(venue.rated_at).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', {

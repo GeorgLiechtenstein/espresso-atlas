@@ -62,6 +62,15 @@ export const tr = {
     editRating:     '✏️ Bewertung bearbeiten',
     venueNotFound:  'Lokal nicht gefunden.',
 
+    // Wizard steps
+    step1Title:     'Wo bist du?',
+    step2Title:     'Wie war er?',
+    step3Title:     'In einem Satz?',
+    nextStep:       'Weiter',
+    wouldReturnQ:   'Würde ich wiederkommen?',
+    wouldReturnYes: 'Ja',
+    wouldReturnNo:  'Nein',
+
     // Review / edit form
     reviewPageTitle:    'Lokal bewerten',
     editPageTitle:      'Bewertung bearbeiten',
@@ -198,6 +207,15 @@ export const tr = {
     noRating:     'No rating yet.',
     editRating:   '✏️ Edit rating',
     venueNotFound:'Venue not found.',
+
+    // Wizard steps
+    step1Title:     'Where are you?',
+    step2Title:     'How was it?',
+    step3Title:     'In one sentence?',
+    nextStep:       'Next',
+    wouldReturnQ:   'Would I come back?',
+    wouldReturnYes: 'Yes',
+    wouldReturnNo:  'No',
 
     // Review / edit form
     reviewPageTitle:    'Rate a venue',
