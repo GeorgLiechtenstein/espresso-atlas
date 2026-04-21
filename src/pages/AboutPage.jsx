@@ -1,12 +1,21 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLang } from '../context/LangContext';
+import { useAuth } from '../context/AuthContext';
 import { t } from '../lib/i18n';
 import LangToggle from '../components/LangToggle';
+import { supabase } from '../lib/supabase';
 
 export default function AboutPage() {
   const { lang } = useLang();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const tr = t(lang);
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    navigate('/');
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -53,10 +62,19 @@ export default function AboutPage() {
 
         <p className="mt-12 font-serif text-xl text-ink">{tr.aboutSignature}</p>
 
-        <div className="mt-14 pt-8 border-t border-border">
+        <div className="mt-14 pt-8 border-t border-border flex items-center justify-between">
           <Link to="/" className="text-sm text-coffee hover:underline font-sans">
             {tr.backToMap}
           </Link>
+          {user && (
+            <button
+              onClick={handleSignOut}
+              style={{ fontSize: 13, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              className="font-sans hover:text-ink transition-colors"
+            >
+              {tr.signOut}
+            </button>
+          )}
         </div>
       </main>
     </div>

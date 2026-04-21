@@ -7,15 +7,20 @@ function NavTab({ active, onClick, icon, label }) {
   return (
     <button
       onClick={onClick}
-      style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, minHeight: 44, paddingTop: 8, paddingBottom: 8, background: 'none', border: 'none', cursor: 'pointer', color: active ? '#1a1714' : '#9CA3AF', transition: 'color 0.15s' }}
+      style={{
+        flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', gap: 3,
+        minHeight: 44, paddingTop: 8, paddingBottom: 8,
+        background: 'none', border: 'none', cursor: 'pointer',
+        color: active ? '#6B4A2A' : '#9CA3AF',
+        borderTop: active ? '2px solid #6B4A2A' : '2px solid transparent',
+        transition: 'color 0.15s, border-color 0.15s',
+      }}
     >
       {icon}
       <span style={{
-        fontSize: 10, fontWeight: 600, fontFamily: '"DM Sans", system-ui, sans-serif',
+        fontSize: 10, fontWeight: 400, fontFamily: '"DM Sans", system-ui, sans-serif',
         letterSpacing: '0.02em',
-        paddingBottom: 2,
-        borderBottom: active ? '1.5px solid #6B4A2A' : '1.5px solid transparent',
-        transition: 'border-color 0.15s',
       }}>
         {label}
       </span>
@@ -71,7 +76,7 @@ export default function GlobalLayout() {
       <nav style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 500,
         background: '#FAF0E6', borderTop: '1px solid #E0D8CC',
-        display: 'flex', alignItems: 'center',
+        display: 'flex', alignItems: 'stretch',
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}>
         <NavTab
