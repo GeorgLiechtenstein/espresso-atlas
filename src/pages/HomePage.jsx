@@ -160,31 +160,13 @@ export default function HomePage() {
       {/* ── Map legend (collapsible) ─────────────────────────────────────────── */}
       {tab === 'map' && (
         <div style={{
-          position: 'fixed', zIndex: 420, left: 12,
-          top: 'calc(env(safe-area-inset-top) + 50px + 10px)',
+          position: 'fixed', zIndex: 450, left: 16,
+          bottom: 'calc(72px + env(safe-area-inset-bottom))',
+          display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
         }}>
-          <button
-            type="button"
-            onClick={() => setLegendOpen((o) => !o)}
-            aria-label="Legende"
-            style={{
-              width: 28, height: 28, borderRadius: '50%',
-              background: legendOpen ? '#1a1714' : 'rgba(250,240,230,0.95)',
-              border: isFiltered && !legendOpen ? '1.5px solid #6B4A2A' : '1px solid rgba(26,23,20,0.18)',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.15)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer',
-              color: legendOpen ? '#FAF0E6' : '#6B4A2A',
-              fontSize: 13, fontStyle: 'italic', fontWeight: 700,
-              fontFamily: '"DM Serif Display", Georgia, serif',
-              transition: 'background 0.15s, color 0.15s',
-            }}
-          >
-            i
-          </button>
           {legendOpen && (
             <div style={{
-              marginTop: 6,
+              marginBottom: 8,
               background: 'rgba(250,240,230,0.97)',
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)',
@@ -221,6 +203,25 @@ export default function HomePage() {
               })}
             </div>
           )}
+          <button
+            type="button"
+            onClick={() => setLegendOpen((o) => !o)}
+            aria-label="Legende"
+            style={{
+              width: 56, height: 56, borderRadius: '50%',
+              background: legendOpen ? '#1a1714' : 'rgba(250,240,230,0.95)',
+              border: isFiltered && !legendOpen ? '1.5px solid #6B4A2A' : '1px solid rgba(26,23,20,0.18)',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.28)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer',
+              color: legendOpen ? '#FAF0E6' : '#6B4A2A',
+              fontSize: 20, fontStyle: 'italic', fontWeight: 700,
+              fontFamily: '"DM Serif Display", Georgia, serif',
+              transition: 'background 0.15s, color 0.15s',
+            }}
+          >
+            i
+          </button>
         </div>
       )}
 
