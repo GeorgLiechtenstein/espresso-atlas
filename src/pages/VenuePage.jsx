@@ -19,7 +19,7 @@ function bucket(score) {
 const BUCKET_META = {
   excellent: { color: '#1a1714', label: { de: 'Exzellent', en: 'Excellent' } },
   good:      { color: '#6B4A2A', label: { de: 'Gut',       en: 'Good' } },
-  meh:       { color: '#6B4A2A', label: { de: 'Mittel',    en: 'Mediocre' } },
+  meh:       { color: '#C4B5A0', label: { de: 'Mittel',    en: 'Mediocre' } },
   avoid:     { color: '#8B2A2A', label: { de: 'Meiden',    en: 'Avoid' } },
 };
 

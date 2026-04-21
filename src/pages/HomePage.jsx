@@ -10,6 +10,24 @@ import MapComponent from '../components/MapComponent';
 import BottomSheet from '../components/BottomSheet';
 import IndexPanel from '../components/IndexPanel';
 
+const BUCKETS = [
+  { key: 'excellent', fill: '#1a1714', label: 'Exzellent' },
+  { key: 'good',      fill: '#6B4A2A', label: 'Gut' },
+  { key: 'meh',       fill: '#C4B5A0', label: 'Mittel' },
+  { key: 'avoid',     fill: '#8B2A2A', label: 'Meiden' },
+];
+
+function scoreBucket(score) {
+  if (score == null) return null;
+  const n = parseFloat(score);
+  if (n >= 8.5) return 'excellent';
+  if (n >= 7)   return 'good';
+  if (n >= 4)   return 'meh';
+  return 'avoid';
+}
+
+const ALL_KEYS = new Set(['excellent', 'good', 'meh', 'avoid']);
+
 export default function HomePage() {
   const navigate                        = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,11 +39,10 @@ export default function HomePage() {
 
   const [venues,     setVenues]     = useState([]);
   const [loading,    setLoading]    = useState(true);
-  const [cityFilter, setCityFilter] = useState('all');
-
   const [sheetVenue,  setSheetVenue]  = useState(null);
   const [sheetOpen,   setSheetOpen]   = useState(false);
-  const [legendOpen,  setLegendOpen]  = useState(false);
+  const [legendOpen,    setLegendOpen]    = useState(false);
+  const [activeBuckets, setActiveBuckets] = useState(new Set(ALL_KEYS));
 
   // ── Fetch + realtime ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -60,19 +77,29 @@ export default function HomePage() {
     setSheetOpen(true);
   }, []);
 
-  const cityCounts = useMemo(() => {
-    const counts = {};
-    venues.forEach((v) => { counts[v.city] = (counts[v.city] || 0) + 1; });
-    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  }, [venues]);
+  function toggleBucket(key) {
+    setActiveBuckets((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+        if (next.size === 0) return new Set(ALL_KEYS);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  }
 
+  const isFiltered = activeBuckets.size < 4;
   const mapVenues = useMemo(() => {
-    if (cityFilter === 'all') return venues;
-    return venues.filter((v) => v.city === cityFilter);
-  }, [venues, cityFilter]);
+    if (!isFiltered) return venues;
+    return venues.filter((v) => {
+      const b = scoreBucket(v.avg_score);
+      return b !== null && activeBuckets.has(b);
+    });
+  }, [venues, activeBuckets, isFiltered]);
 
-  const locateOnMount  = !localStorage.getItem('em_geo_asked');
-  const showCityChips  = tab === 'map' && cityCounts.length > 1;
+  const locateOnMount = !localStorage.getItem('em_geo_asked');
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -130,61 +157,11 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* ── City filter chips ────────────────────────────────────────────────── */}
-      {showCityChips && (
-        <div
-          className="fixed left-0 right-0 z-[410] overflow-x-auto no-scrollbar"
-          style={{
-            top: 'calc(env(safe-area-inset-top) + 50px)',
-            background: 'rgba(247,243,236,0.92)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            borderBottom: '1px solid rgba(224,216,204,0.6)',
-          }}
-        >
-          <div className="flex gap-2 px-3 py-2">
-            <button
-              onClick={() => setCityFilter('all')}
-              style={{
-                padding: '5px 11px', borderRadius: 20, fontSize: 12, whiteSpace: 'nowrap',
-                fontWeight: cityFilter === 'all' ? 700 : 500,
-                fontFamily: '"DM Sans", system-ui, sans-serif',
-                border: cityFilter === 'all' ? '1.5px solid #1a1714' : '1px solid rgba(26,23,20,0.2)',
-                background: cityFilter === 'all' ? '#1a1714' : 'transparent',
-                color: cityFilter === 'all' ? '#F7F3EC' : '#4a4340',
-                cursor: 'pointer', flexShrink: 0,
-              }}
-            >
-              {lang === 'de' ? 'Alle' : 'All'} {venues.length}
-            </button>
-            {cityCounts.map(([city, count]) => (
-              <button
-                key={city}
-                onClick={() => setCityFilter(city)}
-                style={{
-                  padding: '5px 11px', borderRadius: 20, fontSize: 12, whiteSpace: 'nowrap',
-                  fontWeight: cityFilter === city ? 700 : 500,
-                  fontFamily: '"DM Sans", system-ui, sans-serif',
-                  border: cityFilter === city ? '1.5px solid #6B4A2A' : '1px solid rgba(26,23,20,0.2)',
-                  background: cityFilter === city ? '#6B4A2A' : 'transparent',
-                  color: cityFilter === city ? '#F7F3EC' : '#4a4340',
-                  cursor: 'pointer', flexShrink: 0,
-                }}
-              >
-                {city} {count}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* ── Map legend (collapsible) ─────────────────────────────────────────── */}
       {tab === 'map' && (
         <div style={{
           position: 'fixed', zIndex: 420, left: 12,
-          top: showCityChips
-            ? 'calc(env(safe-area-inset-top) + 50px + 42px + 10px)'
-            : 'calc(env(safe-area-inset-top) + 50px + 10px)',
+          top: 'calc(env(safe-area-inset-top) + 50px + 10px)',
         }}>
           <button
             type="button"
@@ -193,7 +170,7 @@ export default function HomePage() {
             style={{
               width: 28, height: 28, borderRadius: '50%',
               background: legendOpen ? '#1a1714' : 'rgba(250,240,230,0.95)',
-              border: '1px solid rgba(26,23,20,0.18)',
+              border: isFiltered && !legendOpen ? '1.5px solid #6B4A2A' : '1px solid rgba(26,23,20,0.18)',
               boxShadow: '0 1px 4px rgba(0,0,0,0.15)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer',
@@ -219,21 +196,29 @@ export default function HomePage() {
               <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: '1.8px', textTransform: 'uppercase', color: '#666666', marginBottom: 6, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
                 Urteil
               </div>
-              {[
-                { fill: '#1a1714', stroke: null,      label: 'Exzellent' },
-                { fill: '#6B4A2A', stroke: null,      label: 'Gut' },
-                { fill: '#F7F3EC', stroke: '#8a7a62', label: 'Mittel' },
-                { fill: '#8B2A2A', stroke: null,      label: 'Meiden' },
-              ].map(({ fill, stroke, label }) => (
-                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
-                  <div style={{
-                    width: 9, height: 9, borderRadius: '50%', flexShrink: 0,
-                    background: fill,
-                    border: stroke ? `1.5px solid ${stroke}` : '1px solid rgba(255,255,255,0.2)',
-                  }} />
-                  <span style={{ fontSize: 10, fontFamily: '"DM Sans", system-ui, sans-serif', color: '#555555' }}>{label}</span>
-                </div>
-              ))}
+              {BUCKETS.map(({ key, fill, label }) => {
+                const active = activeBuckets.has(key);
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => toggleBucket(key)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 7,
+                      marginBottom: 4, width: '100%',
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      padding: 0, opacity: active ? 1 : 0.3,
+                      transition: 'opacity 0.15s',
+                    }}
+                  >
+                    <div style={{
+                      width: 9, height: 9, borderRadius: '50%', flexShrink: 0,
+                      background: fill,
+                    }} />
+                    <span style={{ fontSize: 10, fontFamily: '"DM Sans", system-ui, sans-serif', color: '#444444' }}>{label}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

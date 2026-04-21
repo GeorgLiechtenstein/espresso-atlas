@@ -14,7 +14,7 @@ function pinBucket(score) {
   const n = parseFloat(score);
   if (n >= 8.5) return { fill: '#1a1714', stroke: '#1a1714', text: '#F7F3EC', hollow: false };
   if (n >= 7)   return { fill: '#6B4A2A', stroke: '#6B4A2A', text: '#F7F3EC', hollow: false };
-  if (n >= 4)   return { fill: '#F7F3EC', stroke: '#8a7a62', text: '#4a3a28', hollow: true };
+  if (n >= 4)   return { fill: '#C4B5A0', stroke: '#C4B5A0', text: '#4a3a28', hollow: false };
   return { fill: '#8B2A2A', stroke: '#8B2A2A', text: '#F7F3EC', hollow: false };
 }
 

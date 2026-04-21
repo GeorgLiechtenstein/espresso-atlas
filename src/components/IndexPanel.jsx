@@ -10,7 +10,7 @@ function bucketColor(score) {
   const n = parseFloat(score);
   if (n >= 8.5) return '#1a1714';
   if (n >= 7)   return '#6B4A2A';
-  if (n >= 4)   return '#8a7a62';
+  if (n >= 4)   return '#C4B5A0';
   return '#8B2A2A';
 }
 
