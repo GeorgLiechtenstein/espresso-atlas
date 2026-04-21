@@ -4,6 +4,7 @@ import { useLang } from '../context/LangContext';
 import { useAuth } from '../context/AuthContext';
 import { t } from '../lib/i18n';
 import LangToggle from '../components/LangToggle';
+import CupLogo from '../components/CupLogo';
 import { supabase } from '../lib/supabase';
 
 export default function AboutPage() {
@@ -23,7 +24,7 @@ export default function AboutPage() {
       <header className="sticky top-0 z-10 bg-white border-b border-border">
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/?tab=map" style={{ fontSize: 18, lineHeight: 1, textDecoration: 'none' }}>☕</Link>
+            <CupLogo />
             <Link
               to="/"
               className="flex items-center gap-1.5 text-sm hover:text-ink transition-colors font-sans" style={{ color: '#555555' }}

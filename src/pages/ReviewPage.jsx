@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { t, scoreLabel } from '../lib/i18n';
 import LangToggle from '../components/LangToggle';
+import CupLogo from '../components/CupLogo';
 
 const CURRENCIES = ['EUR', 'CHF', 'USD', 'GBP', 'TRY', 'IQD'];
 
@@ -291,7 +292,7 @@ export default function ReviewPage() {
         </button>
 
         <span style={{ fontSize: 15, fontWeight: 700, color: INK, fontFamily: '"DM Sans", system-ui, sans-serif', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <button type="button" onClick={() => navigate('/?tab=map')} style={{ fontSize: 17, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>☕</button>
+          <CupLogo />
           {isEdit ? tr.editPageTitle : (lang === 'de' ? 'Neuer Espresso' : 'New Espresso')}
         </span>
 

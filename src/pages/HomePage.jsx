@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { t } from '../lib/i18n';
 import LangToggle from '../components/LangToggle';
+import CupLogo from '../components/CupLogo';
 import MapComponent from '../components/MapComponent';
 import BottomSheet from '../components/BottomSheet';
 import IndexPanel from '../components/IndexPanel';
@@ -100,13 +101,7 @@ export default function HomePage() {
         }}
       >
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <svg width={22} height={18} viewBox="0 0 26 22" className="shrink-0 text-ink">
-            <path d="M9 2 Q10.5 4 9 6" fill="none" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" opacity="0.5"/>
-            <path d="M13 2 Q14.5 4 13 6" fill="none" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" opacity="0.5"/>
-            <path d="M4.5 8 L5.5 17 Q5.8 19 8 19 L14 19 Q16.2 19 16.5 17 L17.5 8 Z" fill="currentColor" stroke="currentColor" strokeWidth="1" strokeLinejoin="round"/>
-            <path d="M17.5 10 Q21 10 21 12.5 Q21 15 17.5 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-            <ellipse cx="11" cy="20.2" rx="9" ry="1.2" fill="none" stroke="currentColor" strokeWidth="1"/>
-          </svg>
+          <CupLogo />
           <span className="font-serif text-[19px] text-ink leading-tight">Espresso Atlas</span>
         </div>
         <div className="flex items-center gap-2">
