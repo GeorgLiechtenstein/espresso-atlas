@@ -4,15 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        coffee: '#6F4E37',
-        ink:    '#1A1A1A',
-        surface:'#F7F7F8',
-        border: '#E5E5E7',
+        coffee: '#6B4A2A',
+        ink:    '#1a1714',
+        surface:'#F7F3EC',
+        border: '#E0D8CC',
         score: {
           red:   '#E53935',
           amber: '#FFC107',
           green: '#43A047',
           gold:  '#F59E0B',
+          avoid: '#8B2A2A',
         },
       },
       fontFamily: {

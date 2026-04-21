@@ -2,43 +2,44 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
-import { t } from '../lib/i18n';
-import ScoreBadge from './ScoreBadge';
 
-/**
- * BottomSheet — venue detail panel that slides up from the bottom.
- *
- * @param {object}      props
- * @param {object|null} props.venue       – venue object (or null)
- * @param {object|null} props.lastReview  – most recent review (or null)
- * @param {boolean}     props.isOpen
- * @param {function}    props.onClose
- */
+function bucket(score) {
+  if (score === null || score === undefined) return null;
+  const n = parseFloat(score);
+  if (n >= 8.5) return 'excellent';
+  if (n >= 7)   return 'good';
+  if (n >= 4)   return 'meh';
+  return 'avoid';
+}
+
+const BUCKET_META = {
+  excellent: { color: '#1a1714', label: { de: 'Exzellent', en: 'Excellent' } },
+  good:      { color: '#6B4A2A', label: { de: 'Gut',       en: 'Good' } },
+  meh:       { color: '#6B4A2A', label: { de: 'Mittel',    en: 'Mediocre' } },
+  avoid:     { color: '#8B2A2A', label: { de: 'Meiden',    en: 'Avoid' } },
+};
+
 export default function BottomSheet({ venue, isOpen, onClose }) {
-  const navigate     = useNavigate();
-  const { user }     = useAuth();
-  const { lang }     = useLang();
-  const tr           = t(lang);
-  const sheetRef     = useRef(null);
-  const dragStart    = useRef(null);
-  const [dragging, setDragging] = useState(false);
+  const navigate  = useNavigate();
+  const { user }  = useAuth();
+  const { lang }  = useLang();
+  const sheetRef  = useRef(null);
+  const dragStart = useRef(null);
+  const [dragging,   setDragging]   = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
 
-  // Lock body scroll when open
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = '';
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  // Close on Escape
   useEffect(() => {
     function onKey(e) { if (e.key === 'Escape') onClose(); }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  // ── Drag to dismiss ───────────────────────────────────────────────────────
   function onTouchStart(e) {
     dragStart.current = e.touches[0].clientY;
     setDragging(true);
@@ -58,21 +59,23 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
 
   if (!venue) return null;
 
-  const score    = venue.avg_score != null ? parseFloat(venue.avg_score) : null;
+  const score     = venue.avg_score != null ? parseFloat(venue.avg_score) : null;
+  const b         = bucket(score);
+  const meta      = b ? BUCKET_META[b] : null;
   const hasRating = venue.body && venue.balance && venue.crema && venue.overall;
+
+  const scoreColor = meta ? meta.color : '#9CA3AF';
+  const chipLabel  = meta ? meta.label[lang] : null;
+
+  const subScores = hasRating ? [
+    { label: lang === 'de' ? 'Körper'  : 'Body',    val: venue.body },
+    { label: 'Balance',                               val: venue.balance },
+    { label: 'Crema',                                 val: venue.crema },
+  ] : null;
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${venue.name} ${venue.city} ${venue.country}`
   )}`;
-
-  const subScores = hasRating
-    ? [
-        { label: tr.body,    val: venue.body },
-        { label: tr.balance, val: venue.balance },
-        { label: tr.crema,   val: venue.crema },
-        { label: tr.overall, val: venue.overall },
-      ]
-    : null;
 
   return (
     <>
@@ -96,111 +99,143 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
           paddingBottom: 'calc(72px + env(safe-area-inset-bottom))',
           maxHeight: '88vh',
           overflowY: 'auto',
+          background: '#F7F3EC',
         }}
-        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl"
+        className="fixed bottom-0 left-0 right-0 rounded-t-2xl shadow-2xl"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
         {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-1 sticky top-0 bg-white z-10">
-          <div className="w-9 h-1 bg-gray-200 rounded-full" />
+        <div className="flex justify-center pt-3 pb-2 sticky top-0 z-10"
+             style={{ background: '#F7F3EC' }}>
+          <div className="w-9 h-1 rounded-full"
+               style={{ background: 'rgba(26,23,20,0.18)' }} />
         </div>
 
-        <div className="px-5 pt-2 pb-4">
+        <div className="px-5 pb-5">
 
-          {/* ── Header: name + score ─────────────────────────────────── */}
-          <div className="flex items-start gap-3 mb-1">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-serif text-[22px] text-ink leading-tight">{venue.name}</h3>
-              {venue.address && (
-                <p className="text-sm font-sans mt-0.5" style={{ color: '#666' }}>{venue.address}</p>
-              )}
-              <p className="text-sm font-sans mt-0.5" style={{ color: '#666' }}>
-                {venue.city}, {venue.country}
-              </p>
-              {venue.roastery && (
-                <p className="text-xs text-gray-400 font-sans mt-0.5">☕ {venue.roastery}</p>
-              )}
+          {/* Bucket chip */}
+          {chipLabel && (
+            <div className="mb-2">
+              <span style={{
+                display: 'inline-block', padding: '2px 8px',
+                fontSize: 9, fontWeight: 700, letterSpacing: '1.5px',
+                textTransform: 'uppercase', color: scoreColor,
+                border: `1px solid ${scoreColor}`, borderRadius: 2,
+              }}>{chipLabel}</span>
             </div>
-            <ScoreBadge score={score} size={58} showLabel />
+          )}
+
+          {/* Name + score */}
+          <div className="flex items-baseline gap-3 mb-0.5">
+            <h3 style={{
+              fontFamily: '"DM Serif Display", Georgia, serif',
+              fontSize: 26, fontWeight: 700, color: '#1a1714',
+              lineHeight: 1.1, letterSpacing: -0.3,
+              flex: 1, minWidth: 0, margin: 0,
+            }}>{venue.name}</h3>
+            {score !== null && (
+              <div style={{
+                fontFamily: '"DM Serif Display", Georgia, serif',
+                fontSize: 42, fontWeight: 700, color: scoreColor,
+                lineHeight: 0.9, letterSpacing: -1, flexShrink: 0,
+              }}>{score.toFixed(1)}</div>
+            )}
           </div>
 
-          {/* ── Sub-scores breakdown ─────────────────────────────────── */}
+          {/* Location */}
+          <p style={{ fontSize: 13, color: '#8a837e', marginBottom: 14, marginTop: 4 }}>
+            {venue.address ? `${venue.address} · ` : ''}{venue.city}
+          </p>
+
+          {/* Pull quote */}
+          {venue.comment && (
+            <div style={{ borderLeft: '2px solid #6B4A2A', paddingLeft: 12, marginBottom: 14 }}>
+              <p style={{
+                fontFamily: '"DM Serif Display", Georgia, serif',
+                fontStyle: 'italic', fontSize: 15, lineHeight: 1.45,
+                color: '#1a1714', margin: 0,
+              }}>„{venue.comment}"</p>
+            </div>
+          )}
+
+          {/* Three sub-score bars */}
           {subScores ? (
-            <div className="bg-surface rounded-xl px-4 py-3 mt-4 flex flex-col gap-2.5">
+            <div className="flex flex-col gap-1.5 mb-4">
               {subScores.map(({ label, val }) => (
                 <div key={label} className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-gray-500 font-sans w-20 shrink-0">{label}</span>
-                  <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-coffee rounded-full" style={{ width: `${((val ?? 0) / 10) * 100}%` }} />
+                  <span style={{ fontSize: 11, color: '#8a837e', width: 52, flexShrink: 0, letterSpacing: 0.2 }}>
+                    {label}
+                  </span>
+                  <div className="flex-1 rounded-full overflow-hidden"
+                       style={{ height: 3, background: 'rgba(26,23,20,0.10)' }}>
+                    <div className="h-full rounded-full"
+                         style={{ width: `${((val ?? 0) / 10) * 100}%`, background: '#6B4A2A' }} />
                   </div>
-                  <span className="text-xs font-bold text-coffee font-sans w-8 text-right shrink-0">{val ?? '—'}/10</span>
+                  <span style={{
+                    fontFamily: '"DM Serif Display", Georgia, serif',
+                    fontSize: 11, color: '#4a4340',
+                    width: 28, textAlign: 'right', flexShrink: 0,
+                  }}>{val}<span style={{ color: '#8a837e', fontWeight: 400 }}>/10</span></span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="bg-surface rounded-xl px-4 py-3 mt-4">
-              <p className="text-sm text-gray-400 font-sans italic">{tr.noRating}</p>
-            </div>
+            <p style={{ fontSize: 13, color: '#8a837e', fontStyle: 'italic', marginBottom: 14 }}>
+              {lang === 'de' ? 'Noch keine Bewertung.' : 'No rating yet.'}
+            </p>
           )}
 
-          {/* Comment + price */}
-          {(venue.comment || venue.price != null) && (
-            <div className="mt-3 px-4 py-3 bg-surface rounded-xl">
-              {venue.comment && (
-                <p className="text-sm text-gray-600 font-sans italic leading-snug">„{venue.comment}"</p>
-              )}
-              {venue.price != null && (
-                <p className="text-xs text-coffee font-sans font-medium mt-2">
-                  {parseFloat(venue.price).toFixed(2)} {venue.currency || 'EUR'}
-                </p>
-              )}
-            </div>
+          {/* Price */}
+          {venue.price != null && (
+            <p style={{ fontSize: 12, color: '#6B4A2A', fontWeight: 600, marginBottom: 12 }}>
+              {parseFloat(venue.price).toFixed(2)} {venue.currency || 'EUR'}
+            </p>
           )}
 
-          {/* ── Google Maps link ─────────────────────────────────────── */}
-          <a
-            href={mapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 flex items-center gap-2 px-4 py-3 border border-border rounded-xl
-              text-sm font-semibold font-sans text-ink hover:bg-surface active:bg-gray-100
-              transition-colors min-h-[44px]"
-          >
-            <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-400">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-            {lang === 'de' ? 'Auf Google Maps öffnen' : 'Open in Google Maps'}
-            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="ml-auto shrink-0 text-gray-300">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              <polyline points="15 3 21 3 21 9" />
-              <line x1="10" y1="14" x2="21" y2="3" />
-            </svg>
-          </a>
-
-          {/* ── CTAs ─────────────────────────────────────────────────── */}
-          <div className={`mt-3 grid gap-2.5 ${user ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          {/* Footer: text links */}
+          <div style={{
+            display: 'flex', alignItems: 'center',
+            borderTop: '1px solid rgba(26,23,20,0.10)',
+            paddingTop: 14, gap: 16,
+          }}>
             <button
               onClick={() => { onClose(); navigate(`/venue/${venue.id}`); }}
-              className="flex items-center justify-center gap-1.5 bg-ink text-white rounded-xl py-3.5
-                text-sm font-semibold font-sans hover:opacity-90 active:opacity-80 transition-opacity min-h-[44px]"
+              style={{
+                fontSize: 13, fontWeight: 600, color: '#1a1714',
+                textDecoration: 'underline', textUnderlineOffset: 3,
+                background: 'none', border: 'none', padding: 0,
+                cursor: 'pointer', letterSpacing: 0.3,
+              }}
             >
-              {lang === 'de' ? 'Details' : 'Details'}
-              <svg width={14} height={14} viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M7.293 4.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L11.586 10 7.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
+              {lang === 'de' ? 'Ganze Notiz →' : 'Full note →'}
             </button>
+
             {user && (
               <button
                 onClick={() => { onClose(); navigate(`/review/${venue.id}`); }}
-                className="flex items-center justify-center gap-1.5 bg-coffee text-white rounded-xl py-3.5
-                  text-sm font-semibold font-sans hover:opacity-90 active:opacity-80 transition-opacity min-h-[44px]"
+                style={{
+                  fontSize: 13, fontWeight: 600, color: '#6B4A2A',
+                  textDecoration: 'underline', textUnderlineOffset: 3,
+                  background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                }}
               >
-                ✏️ {lang === 'de' ? 'Bearbeiten' : 'Edit'}
+                {lang === 'de' ? 'Bearbeiten' : 'Edit'}
               </button>
             )}
+
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                marginLeft: 'auto', fontSize: 13, color: '#8a837e',
+                letterSpacing: 0.3, textDecoration: 'none',
+              }}
+            >
+              Maps ↗
+            </a>
           </div>
 
         </div>

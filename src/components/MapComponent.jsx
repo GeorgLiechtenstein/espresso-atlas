@@ -1,11 +1,21 @@
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
-import { scoreColor } from './ScoreBadge';
 
 function escapeHtml(str) {
   return String(str ?? '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function pinBucket(score) {
+  if (score === null || score === undefined) {
+    return { fill: '#9CA3AF', stroke: '#9CA3AF', text: '#fff', hollow: false };
+  }
+  const n = parseFloat(score);
+  if (n >= 8.5) return { fill: '#1a1714', stroke: '#1a1714', text: '#F7F3EC', hollow: false };
+  if (n >= 7)   return { fill: '#6B4A2A', stroke: '#6B4A2A', text: '#F7F3EC', hollow: false };
+  if (n >= 4)   return { fill: '#F7F3EC', stroke: '#8a7a62', text: '#4a3a28', hollow: true };
+  return { fill: '#8B2A2A', stroke: '#8B2A2A', text: '#F7F3EC', hollow: false };
 }
 
 /**
@@ -92,21 +102,25 @@ export default function MapComponent({
       if (!lat || !lng) return;
 
       const score = venue.avg_score !== null ? parseFloat(venue.avg_score) : null;
-      const color = scoreColor(score);
+      const { fill, stroke, text, hollow } = pinBucket(score);
       const label = score !== null ? score.toFixed(1) : '·';
+
+      const border = hollow
+        ? `2px solid ${stroke}`
+        : `2px solid rgba(255,255,255,0.25)`;
 
       const icon = L.divIcon({
         className: '',
         html: `<div style="
           width:40px;height:40px;
-          background:${color};
-          color:#fff;
-          border:2.5px solid #fff;
+          background:${fill};
+          color:${text};
+          border:${border};
           border-radius:50%;
           display:flex;align-items:center;justify-content:center;
           font-size:12px;font-weight:700;
           font-family:'DM Sans',system-ui,sans-serif;
-          box-shadow:0 4px 14px rgba(0,0,0,.28);
+          box-shadow:0 3px 10px rgba(0,0,0,.22);
           cursor:pointer;
           user-select:none;
         ">${escapeHtml(label)}</div>`,
@@ -144,6 +158,28 @@ export default function MapComponent({
   return (
     <div className="relative w-full" style={{ height }}>
       <div ref={containerRef} className="w-full h-full" />
+
+      {/* Pin legend */}
+      <div style={{ zIndex: 1000, top: 12, left: 12 }}
+           className="absolute bg-white/90 backdrop-blur-sm border border-border rounded-lg px-2.5 py-2 shadow-sm">
+        <div className="text-[8px] font-semibold font-sans tracking-widest text-gray-400 uppercase mb-1.5">Urteil</div>
+        {[
+          { fill: '#1a1714', stroke: null, label: 'Exzellent' },
+          { fill: '#6B4A2A', stroke: null, label: 'Gut' },
+          { fill: '#F7F3EC', stroke: '#8a7a62', label: 'Mittel' },
+          { fill: '#8B2A2A', stroke: null, label: 'Meiden' },
+        ].map(({ fill, stroke, label }) => (
+          <div key={label} className="flex items-center gap-1.5 mb-0.5 last:mb-0">
+            <div style={{
+              width: 9, height: 9, borderRadius: '50%',
+              background: fill,
+              border: stroke ? `1.5px solid ${stroke}` : '1px solid rgba(255,255,255,0.2)',
+              flexShrink: 0,
+            }}/>
+            <span className="text-[10px] font-sans text-gray-500">{label}</span>
+          </div>
+        ))}
+      </div>
 
       {/* Google Maps-style locate FAB */}
       <button
