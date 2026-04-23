@@ -47,6 +47,15 @@ export default function VenuePage() {
     fetchData();
   }, [id]);
 
+  useEffect(() => {
+    if (!openInfo) return;
+    function onDocClick(e) {
+      if (!e.target.closest('[data-info-ui]')) setOpenInfo(null);
+    }
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, [openInfo]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#F7F3EC' }}>
@@ -230,6 +239,7 @@ export default function VenuePage() {
                       }}>{label}</span>
                       <button
                         type="button"
+                        data-info-ui
                         onClick={() => setOpenInfo(openInfo === key ? null : key)}
                         aria-label="Info"
                         style={{
@@ -252,11 +262,12 @@ export default function VenuePage() {
                     }}>{val}<span style={{ color: '#555555', fontWeight: 400, fontSize: 13 }}>/10</span></span>
                   </div>
                   {openInfo === key && (
-                    <div style={{
-                      background: '#FEF9C3', border: '1px solid #FDE68A',
-                      borderRadius: 10, padding: '10px 12px', marginBottom: 8,
-                      fontSize: 12, color: '#92400E', lineHeight: 1.5,
+                    <div data-info-ui style={{
+                      background: '#F5F0E8', border: '1px solid #E0D5C7',
+                      borderRadius: 12, padding: '12px 14px', marginBottom: 10,
+                      fontSize: 13, color: '#444444', lineHeight: 1.5,
                       fontFamily: '"DM Sans", system-ui, sans-serif',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                     }}>
                       {info}
                     </div>

@@ -159,6 +159,15 @@ export default function ReviewPage() {
     return () => clearTimeout(locTimer.current);
   }, [locSearch, lang]);
 
+  useEffect(() => {
+    if (!openInfo) return;
+    function onDocClick(e) {
+      if (!e.target.closest('[data-info-ui]')) setOpenInfo(null);
+    }
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, [openInfo]);
+
   function applyLocSuggestion(s) {
     locJustSelected.current = true;
     const addr     = s.address || {};
@@ -412,6 +421,7 @@ export default function ReviewPage() {
                         <span style={{ fontFamily: '"DM Serif Display", Georgia, serif', fontSize: 19, fontWeight: 700, color: INK }}>{label}</span>
                         <button
                           type="button"
+                          data-info-ui
                           onClick={() => setOpenInfo(openInfo === key ? null : key)}
                           aria-label="Info"
                           style={{
@@ -433,7 +443,13 @@ export default function ReviewPage() {
                     </div>
 
                     {openInfo === key && (
-                      <div style={{ background: '#FEF9C3', border: '1px solid #FDE68A', borderRadius: 10, padding: '10px 12px', fontSize: 12, color: '#92400E', marginBottom: 8, fontFamily: '"DM Sans", system-ui, sans-serif', lineHeight: 1.5 }}>
+                      <div data-info-ui style={{
+                        background: '#F5F0E8', border: '1px solid #E0D5C7',
+                        borderRadius: 12, padding: '12px 14px', marginBottom: 10,
+                        fontSize: 13, color: '#444444', lineHeight: 1.5,
+                        fontFamily: '"DM Sans", system-ui, sans-serif',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                      }}>
                         {info}
                       </div>
                     )}
