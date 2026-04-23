@@ -5,12 +5,12 @@ import { t } from '../lib/i18n';
 import LangToggle from './LangToggle';
 import CupLogo from './CupLogo';
 
-function bucketColor(score) {
+function bucketTextColor(score) {
   if (score === null || score === undefined) return '#9CA3AF';
   const n = parseFloat(score);
   if (n >= 8.5) return '#1a1714';
   if (n >= 7)   return '#6B4A2A';
-  if (n >= 4)   return '#C4B5A0';
+  if (n >= 4)   return '#8A7A62';
   return '#8B2A2A';
 }
 
@@ -267,11 +267,10 @@ export default function IndexPanel({ venues, isOpen }) {
         )}
         {filtered.map((venue) => {
           const score   = venue.avg_score != null ? parseFloat(venue.avg_score) : null;
-          const color   = bucketColor(score);
+          const color   = bucketTextColor(score);
           const dateStr = venue.rated_at
             ? new Date(venue.rated_at).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', { month: 'short', year: 'numeric' })
             : '';
-          const textColor = score != null && score >= 4 ? '#FAF0E6' : '#FAF0E6';
           return (
             <button
               key={venue.id}
@@ -288,11 +287,13 @@ export default function IndexPanel({ venues, isOpen }) {
               {/* Score badge */}
               <div style={{
                 width: 44, height: 44, borderRadius: '50%',
-                background: color, flexShrink: 0, marginTop: 2,
+                border: `2px solid ${color}`,
+                background: 'transparent',
+                flexShrink: 0, marginTop: 2,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <span style={{
-                  color: textColor, fontSize: 13, fontWeight: 700,
+                  color, fontSize: 14, fontWeight: 700,
                   fontFamily: '"DM Serif Display", Georgia, serif', lineHeight: 1,
                 }}>
                   {score != null ? score.toFixed(1) : '—'}

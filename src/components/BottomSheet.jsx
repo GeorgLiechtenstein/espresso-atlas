@@ -13,10 +13,10 @@ function bucket(score) {
 }
 
 const BUCKET_META = {
-  excellent: { color: '#1a1714', label: { de: 'Exzellent', en: 'Excellent' } },
-  good:      { color: '#6B4A2A', label: { de: 'Gut',       en: 'Good' } },
-  meh:       { color: '#C4B5A0', label: { de: 'Mittel',    en: 'Mediocre' } },
-  avoid:     { color: '#8B2A2A', label: { de: 'Meiden',    en: 'Avoid' } },
+  excellent: { color: '#1a1714', textColor: '#1a1714', label: { de: 'Exzellent', en: 'Excellent' } },
+  good:      { color: '#6B4A2A', textColor: '#6B4A2A', label: { de: 'Gut',       en: 'Good' } },
+  meh:       { color: '#C4B5A0', textColor: '#8A7A62', label: { de: 'Mittel',    en: 'Mediocre' } },
+  avoid:     { color: '#8B2A2A', textColor: '#8B2A2A', label: { de: 'Meiden',    en: 'Avoid' } },
 };
 
 export default function BottomSheet({ venue, isOpen, onClose }) {
@@ -64,7 +64,7 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
   const meta      = b ? BUCKET_META[b] : null;
   const hasRating = venue.body && venue.balance && venue.crema;
 
-  const scoreColor = meta ? meta.color : '#9CA3AF';
+  const scoreColor = meta ? meta.textColor : '#9CA3AF';
   const chipLabel  = meta ? meta.label[lang] : null;
 
   const subScores = hasRating ? [

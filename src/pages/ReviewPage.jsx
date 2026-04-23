@@ -22,7 +22,7 @@ function bucketColor(score) {
   const n = parseFloat(score);
   if (n >= 8.5) return INK;
   if (n >= 7)   return COFFEE;
-  if (n >= 4)   return '#C4B5A0';
+  if (n >= 4)   return '#8A7A62';
   return AVOID;
 }
 
