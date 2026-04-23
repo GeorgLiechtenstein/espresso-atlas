@@ -119,10 +119,12 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
           {chipLabel && (
             <div className="mb-2">
               <span style={{
-                display: 'inline-block', padding: '2px 8px',
+                display: 'inline-block', padding: '3px 9px',
                 fontSize: 9, fontWeight: 700, letterSpacing: '1.5px',
-                textTransform: 'uppercase', color: scoreColor,
-                border: `1px solid ${scoreColor}`, borderRadius: 2,
+                textTransform: 'uppercase',
+                color: b === 'meh' ? '#1a1714' : '#FAF0E6',
+                background: meta.color,
+                borderRadius: 2,
               }}>{chipLabel}</span>
             </div>
           )}

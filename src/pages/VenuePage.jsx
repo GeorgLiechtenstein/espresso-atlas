@@ -133,10 +133,12 @@ export default function VenuePage() {
         {chipLabel && (
           <div className="mb-3">
             <span style={{
-              display: 'inline-block', padding: '3px 10px',
+              display: 'inline-block', padding: '4px 11px',
               fontSize: 10, fontWeight: 700, letterSpacing: '2px',
-              textTransform: 'uppercase', color: scoreColor,
-              border: `1px solid ${scoreColor}`, borderRadius: 2,
+              textTransform: 'uppercase',
+              color: b === 'meh' ? '#1a1714' : '#FAF0E6',
+              background: meta.color,
+              borderRadius: 2,
             }}>{chipLabel}</span>
           </div>
         )}
