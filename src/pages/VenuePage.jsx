@@ -33,6 +33,7 @@ export default function VenuePage() {
   const [venue,    setVenue]    = useState(null);
   const [loading,  setLoading]  = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [openInfo, setOpenInfo] = useState(null);
 
   useEffect(() => {
     if (!id) return;
@@ -87,9 +88,9 @@ export default function VenuePage() {
   )}`;
 
   const criteria = hasRating ? [
-    { label: lang === 'de' ? 'Körper'  : 'Body',    hint: lang === 'de' ? 'Sirupartig vs. wässrig'        : 'Syrupy vs. watery',         val: venue.body },
-    { label: 'Balance',                              hint: lang === 'de' ? 'Harmonisch vs. bitter/sauer'   : 'Balanced vs. bitter/sour',   val: venue.balance },
-    { label: 'Crema',                                hint: lang === 'de' ? 'Dicht und beständig vs. dünn' : 'Dense and lasting vs. thin', val: venue.crema },
+    { key: 'body',    label: lang === 'de' ? 'Körper'  : 'Body',    hint: lang === 'de' ? 'Sirupartig vs. wässrig'        : 'Syrupy vs. watery',         info: tr.bodyInfo,    val: venue.body },
+    { key: 'balance', label: 'Balance',                              hint: lang === 'de' ? 'Harmonisch vs. bitter/sauer'   : 'Balanced vs. bitter/sour',   info: tr.balanceInfo, val: venue.balance },
+    { key: 'crema',   label: 'Crema',                                hint: lang === 'de' ? 'Dicht und beständig vs. dünn' : 'Dense and lasting vs. thin', info: tr.cremaInfo,   val: venue.crema },
   ] : null;
 
   const divider = <div style={{ height: 1, background: 'rgba(26,23,20,0.10)', margin: '20px 0' }} />;
@@ -219,19 +220,47 @@ export default function VenuePage() {
               color: '#555555', marginBottom: 14, fontWeight: 700,
             }}>{lang === 'de' ? 'Die drei Kriterien' : 'The three criteria'}</div>
             <div className="flex flex-col gap-4 mb-6">
-              {criteria.map(({ label, hint, val }) => (
-                <div key={label}>
+              {criteria.map(({ key, label, hint, info, val }) => (
+                <div key={key}>
                   <div className="flex items-baseline mb-1.5">
-                    <span style={{
-                      fontFamily: '"DM Serif Display", Georgia, serif',
-                      fontSize: 17, fontWeight: 700, color: '#1a1714', flex: 1,
-                    }}>{label}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
+                      <span style={{
+                        fontFamily: '"DM Serif Display", Georgia, serif',
+                        fontSize: 17, fontWeight: 700, color: '#1a1714',
+                      }}>{label}</span>
+                      <button
+                        type="button"
+                        onClick={() => setOpenInfo(openInfo === key ? null : key)}
+                        aria-label="Info"
+                        style={{
+                          width: 22, height: 22, borderRadius: '50%',
+                          border: `1.5px solid ${openInfo === key ? '#6B4A2A' : '#555555'}`,
+                          background: openInfo === key ? '#6B4A2A' : 'transparent',
+                          color: openInfo === key ? '#FAF0E6' : '#555555',
+                          fontSize: 13, fontWeight: 700, fontStyle: 'italic',
+                          fontFamily: '"DM Serif Display", Georgia, serif',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          padding: 0, cursor: 'pointer', lineHeight: 1,
+                          transition: 'background 0.15s, color 0.15s, border-color 0.15s',
+                        }}
+                      >i</button>
+                    </div>
                     <span style={{ fontSize: 11, color: '#555555', marginRight: 10 }}>{hint}</span>
                     <span style={{
                       fontFamily: '"DM Serif Display", Georgia, serif',
                       fontSize: 16, color: '#1a1714', fontWeight: 700,
                     }}>{val}<span style={{ color: '#555555', fontWeight: 400, fontSize: 13 }}>/10</span></span>
                   </div>
+                  {openInfo === key && (
+                    <div style={{
+                      background: '#FEF9C3', border: '1px solid #FDE68A',
+                      borderRadius: 10, padding: '10px 12px', marginBottom: 8,
+                      fontSize: 12, color: '#92400E', lineHeight: 1.5,
+                      fontFamily: '"DM Sans", system-ui, sans-serif',
+                    }}>
+                      {info}
+                    </div>
+                  )}
                   <div style={{ height: 4, background: 'rgba(26,23,20,0.10)', borderRadius: 2, position: 'relative' }}>
                     <div style={{
                       position: 'absolute', left: 0, top: 0, bottom: 0,
