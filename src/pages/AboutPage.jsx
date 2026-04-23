@@ -72,9 +72,12 @@ export default function AboutPage() {
 
         <p className="mt-12 font-serif text-xl text-ink">{tr.aboutSignature}</p>
 
-        <div className="mt-14 pt-8 border-t border-border">
+        <div className="mt-14 pt-8 border-t border-border" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <Link to="/" className="text-sm text-coffee hover:underline font-sans">
             {tr.backToMap}
+          </Link>
+          <Link to="/privacy" className="text-sm font-sans hover:underline" style={{ color: '#9CA3AF' }}>
+            {tr.privacyLink}
           </Link>
         </div>
       </main>

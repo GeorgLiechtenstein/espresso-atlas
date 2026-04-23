@@ -81,6 +81,21 @@ body {
    Animations
    ============================================================ */
 
+@keyframes steamFloat {
+  0%, 100% { opacity: 0.12; transform: translateY(0); }
+  50%       { opacity: 0.5;  transform: translateY(-2px); }
+}
+
+.ea-steam {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: steamFloat 2.4s ease-in-out infinite;
+}
+
+.ea-steam-2 {
+  animation-delay: 0.85s;
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;

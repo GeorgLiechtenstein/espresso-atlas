@@ -95,6 +95,7 @@ export default function ReviewPage() {
   const [openInfo,   setOpenInfo]   = useState(null);
 
   // ── Details ─────────────────────────────────────────────────────────────────
+  const [ratedAt,  setRatedAt]  = useState(() => new Date().toISOString().split('T')[0]);
   const [comment,  setComment]  = useState('');
   const [roastery, setRoastery] = useState('');
   const [price,    setPrice]    = useState('');
@@ -132,6 +133,7 @@ export default function ReviewPage() {
         setCeramicCup(data.ceramic_cup || false);
         setWouldReturn(data.would_return != null ? data.would_return : null);
         setRoastery(data.roastery || '');
+        setRatedAt(data.rated_at ? data.rated_at.split('T')[0] : new Date().toISOString().split('T')[0]);
         setComment(data.comment || '');
         setPrice(data.price != null ? String(data.price) : '');
         setCurrency(data.currency || 'EUR');
@@ -240,7 +242,7 @@ export default function ReviewPage() {
         comment:  comment.trim() || null,
         price:    price ? parseFloat(price) : null,
         currency, photo_url: photoUrl,
-        rated_at: new Date().toISOString(),
+        rated_at: new Date(ratedAt + 'T12:00:00.000Z').toISOString(),
       };
       if (isEdit) {
         const { error: err } = await supabase.from('venues').update(payload).eq('id', preVenueId);
@@ -463,6 +465,16 @@ export default function ReviewPage() {
           {/* ── STEP 3 ─────────────────────────────────────────────────────── */}
           {step === 3 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+              {/* Date */}
+              <InputCard label={tr.dateLabel}>
+                <input
+                  type="date"
+                  value={ratedAt}
+                  onChange={(e) => setRatedAt(e.target.value)}
+                  style={{ background: 'transparent', border: 'none', outline: 'none', fontSize: 16, color: INK, fontFamily: '"DM Sans", system-ui, sans-serif', padding: 0, width: '100%' }}
+                />
+              </InputCard>
 
               {/* Comment textarea */}
               <div style={{ background: INPUT_BG, borderRadius: 14, padding: '14px 16px', minHeight: 140 }}>

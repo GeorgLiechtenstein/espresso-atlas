@@ -209,7 +209,7 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
                 cursor: 'pointer', letterSpacing: 0.3,
               }}
             >
-              {lang === 'de' ? 'Ganze Notiz lesen →' : 'Full note →'}
+              {lang === 'de' ? 'Ganze Bewertung lesen →' : 'Full review →'}
             </button>
 
             {user && (

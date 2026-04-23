@@ -87,9 +87,9 @@ export default function VenuePage() {
   )}`;
 
   const criteria = hasRating ? [
-    { label: lang === 'de' ? 'Körper'  : 'Body',    hint: lang === 'de' ? 'Vollmundig vs. dünn'  : 'Full-bodied vs. thin',  val: venue.body },
-    { label: 'Balance',                              hint: lang === 'de' ? 'Bitter / Säure'       : 'Bitter / Acid',         val: venue.balance },
-    { label: 'Crema',                                hint: lang === 'de' ? 'Dick, haselnussbraun' : 'Thick, hazelnut-brown', val: venue.crema },
+    { label: lang === 'de' ? 'Körper'  : 'Body',    hint: lang === 'de' ? 'Sirupartig vs. wässrig'        : 'Syrupy vs. watery',         val: venue.body },
+    { label: 'Balance',                              hint: lang === 'de' ? 'Harmonisch vs. bitter/sauer'   : 'Balanced vs. bitter/sour',   val: venue.balance },
+    { label: 'Crema',                                hint: lang === 'de' ? 'Dicht und beständig vs. dünn' : 'Dense and lasting vs. thin', val: venue.crema },
   ] : null;
 
   const divider = <div style={{ height: 1, background: 'rgba(26,23,20,0.10)', margin: '20px 0' }} />;

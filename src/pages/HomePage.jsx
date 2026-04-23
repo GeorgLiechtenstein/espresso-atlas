@@ -197,7 +197,7 @@ export default function HomePage() {
                       width: 9, height: 9, borderRadius: '50%', flexShrink: 0,
                       background: fill,
                     }} />
-                    <span style={{ fontSize: 10, fontFamily: '"DM Sans", system-ui, sans-serif', color: '#444444' }}>{label}</span>
+                    <span style={{ fontSize: 10, fontFamily: '"DM Sans", system-ui, sans-serif', color: fill }}>{label}</span>
                   </button>
                 );
               })}
@@ -268,22 +268,29 @@ export default function HomePage() {
             ))}
           </div>
           <p className="mt-10 font-serif text-xl text-ink">{tr.aboutSignature}</p>
-          <div className="mt-10 pt-6 border-t border-border">
+          <div className="mt-10 pt-6 border-t border-border" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {user ? (
               <button
                 onClick={handleSignOut}
-                className="text-sm font-sans hover:text-ink transition-colors" style={{ color: '#555555' }}
+                className="text-sm font-sans hover:text-ink transition-colors" style={{ color: '#555555', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
               >
                 {tr.signOut}
               </button>
             ) : (
               <button
                 onClick={() => navigate('/login')}
-                className="text-sm font-sans hover:text-ink transition-colors" style={{ color: '#555555' }}
+                className="text-sm font-sans hover:text-ink transition-colors" style={{ color: '#555555', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
               >
                 Admin Login
               </button>
             )}
+            <button
+              onClick={() => navigate('/privacy')}
+              className="text-sm font-sans hover:text-ink transition-colors"
+              style={{ color: '#9CA3AF', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            >
+              {tr.privacyLink}
+            </button>
           </div>
         </main>
       </div>
