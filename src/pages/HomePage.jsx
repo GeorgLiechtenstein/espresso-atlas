@@ -115,6 +115,7 @@ export default function HomePage() {
           onPinClick={handlePinClick}
           flyToId={null}
           locateOnMount={locateOnMount}
+          lang={lang}
           height="100%"
         />
       </div>

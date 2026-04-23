@@ -28,17 +28,25 @@ function pinBucket(score) {
  * @param {boolean}     [props.locateOnMount] – request geolocation immediately on first init
  * @param {string}      [props.height='100%']
  */
+function tileUrl(lang) {
+  return lang === 'de'
+    ? 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png'
+    : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+}
+
 export default function MapComponent({
   venues = [],
   onPinClick,
   flyToId,
   locateOnMount = false,
+  lang = 'de',
   height = '100%',
 }) {
-  const containerRef = useRef(null);
-  const mapRef       = useRef(null);
-  const markersRef   = useRef({});
-  const pinClickRef  = useRef(onPinClick); // stable ref — avoids stale closures
+  const containerRef   = useRef(null);
+  const mapRef         = useRef(null);
+  const tileLayerRef   = useRef(null);
+  const markersRef     = useRef({});
+  const pinClickRef    = useRef(onPinClick); // stable ref — avoids stale closures
 
   // Keep callback ref fresh
   useEffect(() => { pinClickRef.current = onPinClick; }, [onPinClick]);
@@ -53,10 +61,6 @@ export default function MapComponent({
       zoomControl: false,
       attributionControl: false,
     });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-    }).addTo(map);
 
     // Minimal attribution — bottom left, small
     L.control.attribution({ position: 'bottomleft', prefix: false })
@@ -80,9 +84,18 @@ export default function MapComponent({
     return () => {
       map.remove();
       mapRef.current = null;
+      tileLayerRef.current = null;
       markersRef.current = {};
     };
   }, []); // eslint-disable-line
+
+  // ── Swap tile layer on lang change ────────────────────────────────────────
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (tileLayerRef.current) map.removeLayer(tileLayerRef.current);
+    tileLayerRef.current = L.tileLayer(tileUrl(lang), { maxZoom: 19 }).addTo(map);
+  }, [lang]);
 
   // ── Sync markers ──────────────────────────────────────────────────────────
   useEffect(() => {
