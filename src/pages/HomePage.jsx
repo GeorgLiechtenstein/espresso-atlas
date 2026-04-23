@@ -11,10 +11,10 @@ import BottomSheet from '../components/BottomSheet';
 import IndexPanel from '../components/IndexPanel';
 
 const BUCKETS = [
-  { key: 'excellent', fill: '#1a1714', label: 'Exzellent' },
-  { key: 'good',      fill: '#6B4A2A', label: 'Gut' },
-  { key: 'meh',       fill: '#C4B5A0', label: 'Mittel' },
-  { key: 'avoid',     fill: '#8B2A2A', label: 'Meiden' },
+  { key: 'excellent', fill: '#1a1714', textColor: '#1a1714', label: 'Exzellent' },
+  { key: 'good',      fill: '#6B4A2A', textColor: '#6B4A2A', label: 'Gut' },
+  { key: 'meh',       fill: '#C4B5A0', textColor: '#8A7A62', label: 'Mittel' },
+  { key: 'avoid',     fill: '#8B2A2A', textColor: '#8B2A2A', label: 'Meiden' },
 ];
 
 function scoreBucket(score) {
@@ -178,7 +178,7 @@ export default function HomePage() {
               <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: '1.8px', textTransform: 'uppercase', color: '#666666', marginBottom: 6, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
                 Urteil
               </div>
-              {BUCKETS.map(({ key, fill, label }) => {
+              {BUCKETS.map(({ key, fill, textColor, label }) => {
                 const active = activeBuckets.has(key);
                 return (
                   <button
@@ -197,7 +197,7 @@ export default function HomePage() {
                       width: 9, height: 9, borderRadius: '50%', flexShrink: 0,
                       background: fill,
                     }} />
-                    <span style={{ fontSize: 10, fontFamily: '"DM Sans", system-ui, sans-serif', color: fill }}>{label}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, fontFamily: '"DM Sans", system-ui, sans-serif', color: textColor }}>{label}</span>
                   </button>
                 );
               })}

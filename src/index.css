@@ -82,18 +82,19 @@ body {
    ============================================================ */
 
 @keyframes steamFloat {
-  0%, 100% { opacity: 0.12; transform: translateY(0); }
-  50%       { opacity: 0.5;  transform: translateY(-2px); }
+  0%   { opacity: 0;   transform: translateY(2px) scaleY(0.7); }
+  25%  { opacity: 0.75; }
+  100% { opacity: 0;   transform: translateY(-4px) scaleY(1.15); }
 }
 
 .ea-steam {
   transform-box: fill-box;
   transform-origin: center bottom;
-  animation: steamFloat 2.4s ease-in-out infinite;
+  animation: steamFloat 2.2s ease-out infinite;
 }
 
 .ea-steam-2 {
-  animation-delay: 0.85s;
+  animation-delay: 1.1s;
 }
 
 @keyframes fadeUp {

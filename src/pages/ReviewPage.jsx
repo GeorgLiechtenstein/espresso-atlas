@@ -413,8 +413,19 @@ export default function ReviewPage() {
                         <button
                           type="button"
                           onClick={() => setOpenInfo(openInfo === key ? null : key)}
-                          style={{ fontSize: 13, color: MUTED, background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 1 }}
-                        >ⓘ</button>
+                          aria-label="Info"
+                          style={{
+                            width: 22, height: 22, borderRadius: '50%',
+                            border: `1.5px solid ${openInfo === key ? COFFEE : MUTED}`,
+                            background: openInfo === key ? COFFEE : 'transparent',
+                            color: openInfo === key ? '#FAF0E6' : MUTED,
+                            fontSize: 13, fontWeight: 700, fontStyle: 'italic',
+                            fontFamily: '"DM Serif Display", Georgia, serif',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            padding: 0, cursor: 'pointer', lineHeight: 1,
+                            transition: 'background 0.15s, color 0.15s, border-color 0.15s',
+                          }}
+                        >i</button>
                       </div>
                       <span style={{ fontFamily: '"DM Serif Display", Georgia, serif', fontSize: 22, fontWeight: 700, color: INK, lineHeight: 1 }}>
                         {val}<span style={{ fontSize: 13, color: MUTED, fontWeight: 400 }}>/10</span>
