@@ -304,51 +304,55 @@ export default function MapComponent({
 
       {showAskBanner && (
         <div style={{
-          position: 'fixed', zIndex: 1002,
-          top: 'calc(env(safe-area-inset-top) + 80px)',
-          left: 16, right: 16,
+          position: 'fixed', inset: 0, zIndex: 1002,
+          background: 'rgba(0,0,0,0.4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: 16,
         }}>
-          <div style={{
-            maxWidth: 360, marginInline: 'auto',
-            background: '#FAF0E6',
-            border: '1px solid #E0D8CC', borderRadius: 16,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
-            padding: '14px 16px',
-            display: 'flex', flexDirection: 'column', gap: 12,
-          }}>
+          <div
+            role="dialog"
+            aria-modal="true"
+            style={{
+              maxWidth: 360, width: '100%',
+              background: '#FAF0E6', borderRadius: 16,
+              boxShadow: '0 12px 32px rgba(0,0,0,0.25)',
+              padding: '22px',
+              display: 'flex', flexDirection: 'column', gap: 18,
+            }}
+          >
             <p style={{
-              margin: 0, fontSize: 14, lineHeight: 1.4, color: '#1a1714',
+              margin: 0, fontSize: 15, lineHeight: 1.45, color: '#1a1714',
               fontFamily: '"DM Sans", system-ui, sans-serif',
             }}>
               {lang === 'de'
-                ? 'Standort nutzen, um die Karte auf deine Region zu zentrieren?'
-                : 'Use your location to centre the map on your region?'}
+                ? 'Darf Espresso Atlas Deinen Standort verwenden? So findest Du Bewertungen in Deiner Nähe.'
+                : 'Can Espresso Atlas use your location? This helps you find reviews nearby.'}
             </p>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <button
                 type="button"
                 onClick={handleDismissAsk}
                 style={{
-                  padding: '8px 14px', minHeight: 36,
+                  padding: '10px 16px', minHeight: 44,
                   background: 'none', border: 'none', cursor: 'pointer',
-                  fontSize: 13, color: '#555555',
+                  fontSize: 14, color: '#555555',
                   fontFamily: '"DM Sans", system-ui, sans-serif',
                 }}
               >
-                {lang === 'de' ? 'Nicht jetzt' : 'Not now'}
+                {lang === 'de' ? 'Nein danke' : 'No thanks'}
               </button>
               <button
                 type="button"
                 onClick={handleAllowLocation}
                 style={{
-                  padding: '8px 14px', minHeight: 36,
+                  padding: '10px 18px', minHeight: 44,
                   background: '#6B4A2A', color: '#FAF0E6',
                   border: 'none', borderRadius: 10, cursor: 'pointer',
-                  fontSize: 13, fontWeight: 600,
+                  fontSize: 14, fontWeight: 600,
                   fontFamily: '"DM Sans", system-ui, sans-serif',
                 }}
               >
-                {lang === 'de' ? 'Erlauben' : 'Allow'}
+                {lang === 'de' ? 'Ja' : 'Yes'}
               </button>
             </div>
           </div>
