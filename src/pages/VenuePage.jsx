@@ -208,27 +208,38 @@ export default function VenuePage() {
 
         {/* Big score */}
         {score !== null && (
-          <div style={{ paddingBottom: 20, borderBottom: '1px solid rgba(26,23,20,0.10)', marginBottom: 20 }}>
+          <div style={{
+            paddingBottom: 20, borderBottom: '1px solid rgba(26,23,20,0.10)', marginBottom: 20,
+            display: 'grid',
+            gridTemplateColumns: wrMeta ? 'auto auto' : 'auto',
+            columnGap: 32, rowGap: 4,
+            alignItems: 'start',
+          }}>
             <div style={{
               fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
-              color: '#555555', marginBottom: 4,
-            }}>{lang === 'de' ? 'Score' : 'Score'}</div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
-              <div className="animate-score-pulse" style={{
+              color: '#555555',
+            }}>Score</div>
+            {wrMeta && (
+              <div style={{
+                fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
+                color: '#555555',
+              }}>{lang === 'de' ? 'Wiederkommen?' : 'Return?'}</div>
+            )}
+            <div className="animate-score-pulse" style={{
+              fontFamily: '"DM Serif Display", Georgia, serif',
+              fontSize: 72, fontWeight: 700, color: scoreColor,
+              lineHeight: 0.9, letterSpacing: -2,
+            }}>{score.toFixed(1)}</div>
+            {wrMeta && (
+              <span style={{
                 fontFamily: '"DM Serif Display", Georgia, serif',
-                fontSize: 72, fontWeight: 700, color: scoreColor,
-                lineHeight: 0.9, letterSpacing: -2,
-              }}>{score.toFixed(1)}</div>
-              {wrMeta && (
-                <span style={{
-                  fontFamily: '"DM Serif Display", Georgia, serif',
-                  fontStyle: 'italic', fontSize: 24, fontWeight: 400,
-                  color: wrMeta.color, lineHeight: 1.1,
-                }}>
-                  {wrMeta.label[lang]}
-                </span>
-              )}
-            </div>
+                fontStyle: 'italic', fontSize: 24, fontWeight: 400,
+                color: wrMeta.color, lineHeight: 1.1,
+                alignSelf: 'center',
+              }}>
+                {wrMeta.label[lang]}
+              </span>
+            )}
           </div>
         )}
 
