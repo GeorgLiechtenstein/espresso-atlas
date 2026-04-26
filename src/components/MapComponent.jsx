@@ -84,34 +84,38 @@ export default function MapComponent({
 
     mapRef.current = map;
 
-    // Geolocation flow — three branches based on the Permissions API:
-    //   granted → fetch position silently
-    //   prompt  → show our friendly in-app banner; the browser's native
-    //             dialog only fires when the user taps "Allow", giving us
-    //             a chance to explain why first
-    //   denied  → silent (user previously chose; locate FAB still works
-    //             with the help toast)
-    // Older browsers without Permissions API: fall back to a direct
-    // getCurrentPosition call, which triggers the native dialog.
+    // Geolocation flow:
+    //   granted → silent fetch (no dialog needed, no gesture needed)
+    //   denied  → silent (don't nag; locate FAB still works with help toast)
+    //   prompt / API broken / no API → show modal; user's tap on "Ja"
+    //     becomes the gesture that's required on iOS Safari for
+    //     getCurrentPosition to actually trigger the native dialog
     const supportsGeo = typeof navigator !== 'undefined'
       && navigator.geolocation
       && (typeof window === 'undefined' || window.isSecureContext !== false);
     if (supportsGeo) {
+      const offerModal = () => {
+        try {
+          if (!sessionStorage.getItem('em_geo_dismissed')) setShowAskBanner(true);
+        } catch { setShowAskBanner(true); }
+      };
       if (navigator.permissions?.query) {
         navigator.permissions.query({ name: 'geolocation' })
           .then((res) => {
             if (res.state === 'granted') {
               requestInitPosition();
             } else if (res.state === 'prompt') {
-              try {
-                if (!sessionStorage.getItem('em_geo_dismissed')) setShowAskBanner(true);
-              } catch { setShowAskBanner(true); }
+              offerModal();
             }
             // 'denied' → silent
           })
-          .catch(() => requestInitPosition());
+          // Older Safari (pre-16.4) rejects geolocation queries — and on
+          // iOS Safari calling getCurrentPosition outside a user gesture
+          // is silently dropped. Show the modal instead and let the
+          // user's tap supply the gesture.
+          .catch(offerModal);
       } else {
-        requestInitPosition();
+        offerModal();
       }
     } else {
       console.warn('[map init geolocation] not supported (geo=' + !!navigator.geolocation + ', secureCtx=' + (typeof window === 'undefined' ? 'n/a' : window.isSecureContext) + ')');
