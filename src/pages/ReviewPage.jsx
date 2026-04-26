@@ -521,31 +521,36 @@ export default function ReviewPage() {
                 <div style={{ textAlign: 'right', fontSize: 11, color: MUTED, marginTop: 4, fontFamily: '"DM Sans", system-ui, sans-serif' }}>{comment.length}/500</div>
               </div>
 
-              {/* Would return */}
+              {/* Would return — 4 levels */}
               <div>
                 <p style={{ fontSize: 9, letterSpacing: '2.5px', textTransform: 'uppercase', color: MUTED, fontWeight: 700, marginBottom: 12, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
                   {tr.wouldReturnQ}
                 </p>
-                <div style={{ display: 'flex', gap: 12 }}>
-                  {[{ v: true, label: tr.wouldReturnYes, activeColor: COFFEE }, { v: false, label: tr.wouldReturnNo, activeColor: AVOID }].map(({ v, label, activeColor }) => {
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  {[
+                    { v: 1, label: tr.wouldReturn1, color: '#43A047' },
+                    { v: 2, label: tr.wouldReturn2, color: '#F59E0B' },
+                    { v: 3, label: tr.wouldReturn3, color: '#E67E22' },
+                    { v: 4, label: tr.wouldReturn4, color: '#8B2A2A' },
+                  ].map(({ v, label, color }) => {
                     const active = wouldReturn === v;
                     return (
                       <button
-                        key={String(v)}
+                        key={v}
                         type="button"
-                        onClick={() => setWouldReturn(wouldReturn === v ? null : v)}
+                        onClick={() => setWouldReturn(active ? null : v)}
                         style={{
-                          flex: 1, padding: '14px 0',
-                          borderRadius: 14, fontSize: 18,
+                          padding: '14px 10px', minHeight: 48,
+                          borderRadius: 14, fontSize: 16,
                           fontFamily: '"DM Serif Display", Georgia, serif', fontStyle: 'italic', fontWeight: 700,
-                          border: `1.5px solid ${active ? activeColor : BORDER_C}`,
-                          background: active ? activeColor : 'transparent',
-                          color: active ? '#FAF0E6' : (v ? INK : AVOID),
+                          border: `1.5px solid ${active ? color : BORDER_C}`,
+                          background: active ? color : 'transparent',
+                          color: active ? '#FAF0E6' : color,
                           cursor: 'pointer', transition: 'all 0.18s ease',
-                          letterSpacing: -0.3,
+                          letterSpacing: -0.3, lineHeight: 1.2,
                         }}
                       >
-                        {label}.
+                        {label}
                       </button>
                     );
                   })}

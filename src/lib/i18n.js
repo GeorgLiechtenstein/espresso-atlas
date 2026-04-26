@@ -76,8 +76,10 @@ export const tr = {
     stepOf:            'Schritt',
     nextStep:          'Weiter',
     wouldReturnQ:      'Wiederkommen?',
-    wouldReturnYes:    'Ja',
-    wouldReturnNo:     'Nein',
+    wouldReturn1:      'Jederzeit',
+    wouldReturn2:      "Wenn's sein muss",
+    wouldReturn3:      'Eher nicht',
+    wouldReturn4:      'Um Gottes Willen',
 
     // Review / edit form
     reviewPageTitle:    'Lokal bewerten',
@@ -233,8 +235,10 @@ export const tr = {
     stepOf:            'Step',
     nextStep:          'Next',
     wouldReturnQ:      'Come back?',
-    wouldReturnYes:    'Yes',
-    wouldReturnNo:     'No',
+    wouldReturn1:      'Anytime',
+    wouldReturn2:      'If I must',
+    wouldReturn3:      'Rather not',
+    wouldReturn4:      'God forbid',
 
     // Review / edit form
     reviewPageTitle:    'Rate a venue',

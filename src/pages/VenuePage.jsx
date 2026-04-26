@@ -23,6 +23,13 @@ const BUCKET_META = {
   avoid:     { color: '#8B2A2A', textColor: '#8B2A2A', label: { de: 'Meiden',    en: 'Avoid' } },
 };
 
+const WOULD_RETURN_META = {
+  1: { color: '#43A047', label: { de: 'Jederzeit',         en: 'Anytime' } },
+  2: { color: '#F59E0B', label: { de: "Wenn's sein muss",  en: 'If I must' } },
+  3: { color: '#E67E22', label: { de: 'Eher nicht',         en: 'Rather not' } },
+  4: { color: '#8B2A2A', label: { de: 'Um Gottes Willen',   en: 'God forbid' } },
+};
+
 export default function VenuePage() {
   const { id }   = useParams();
   const navigate = useNavigate();
@@ -85,6 +92,7 @@ export default function VenuePage() {
   const hasRating  = venue.body && venue.balance && venue.crema;
   const scoreColor = meta ? meta.textColor : '#9CA3AF';
   const chipLabel  = meta ? meta.label[lang] : null;
+  const wrMeta     = venue.would_return ? WOULD_RETURN_META[venue.would_return] : null;
 
   const ratedDate = venue.rated_at
     ? new Date(venue.rated_at).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', {
@@ -189,11 +197,22 @@ export default function VenuePage() {
               fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
               color: '#555555', marginBottom: 4,
             }}>{lang === 'de' ? 'Score' : 'Score'}</div>
-            <div className="animate-score-pulse" style={{
-              fontFamily: '"DM Serif Display", Georgia, serif',
-              fontSize: 72, fontWeight: 700, color: scoreColor,
-              lineHeight: 0.9, letterSpacing: -2,
-            }}>{score.toFixed(1)}</div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
+              <div className="animate-score-pulse" style={{
+                fontFamily: '"DM Serif Display", Georgia, serif',
+                fontSize: 72, fontWeight: 700, color: scoreColor,
+                lineHeight: 0.9, letterSpacing: -2,
+              }}>{score.toFixed(1)}</div>
+              {wrMeta && (
+                <span style={{
+                  fontFamily: '"DM Serif Display", Georgia, serif',
+                  fontStyle: 'italic', fontSize: 24, fontWeight: 400,
+                  color: wrMeta.color, lineHeight: 1.1,
+                }}>
+                  {wrMeta.label[lang]}
+                </span>
+              )}
+            </div>
           </div>
         )}
 
