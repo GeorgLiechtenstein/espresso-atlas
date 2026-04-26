@@ -52,6 +52,21 @@ function balanceMeta(val) {
   return val > 0 ? BALANCE_META.tooBitter : BALANCE_META.tooAcidic;
 }
 
+// Bar fill colour for body / crema (1..10) — directly value-based.
+function criteriaBarColor(val) {
+  if (val >= 8) return '#6F4E37'; // brown
+  if (val >= 4) return '#C4B5A0'; // sand
+  return '#A94442';               // muted red
+}
+
+// Bar fill colour for balance (-5..+5) — based on distance from 0.
+function balanceBarColor(val) {
+  const a = Math.abs(val ?? 0);
+  if (a <= 1) return '#6F4E37';
+  if (a <= 3) return '#C4B5A0';
+  return '#A94442';
+}
+
 export default function VenuePage() {
   const { id }   = useParams();
   const navigate = useNavigate();
@@ -347,11 +362,11 @@ export default function VenuePage() {
                         background: '#E0E0E0',
                       }}>
                         <div style={{
-                          position: 'absolute',
-                          left: `${(((val ?? 0) + 5) / 10) * 100}%`,
-                          top: -2, bottom: -2,
-                          width: 4, transform: 'translateX(-50%)',
-                          background: '#6B4A2A', borderRadius: 2,
+                          position: 'absolute', top: 0, bottom: 0,
+                          left: (val ?? 0) < 0 ? `${50 - Math.abs(val) * 10}%` : '50%',
+                          width: `${Math.abs(val ?? 0) * 10}%`,
+                          background: balanceBarColor(val),
+                          borderRadius: 4,
                         }} />
                       </div>
                     ) : (
@@ -359,7 +374,7 @@ export default function VenuePage() {
                         <div style={{
                           position: 'absolute', left: 0, top: 0, bottom: 0,
                           width: `${((val ?? 0) / 10) * 100}%`,
-                          background: BUCKET_META[bucket(val)]?.color ?? '#9CA3AF',
+                          background: criteriaBarColor(val),
                           borderRadius: 4,
                         }} />
                       </div>
