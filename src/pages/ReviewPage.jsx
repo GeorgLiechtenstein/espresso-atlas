@@ -107,7 +107,6 @@ export default function ReviewPage() {
   const [crema,      setCrema]      = useState(5);
   
   const [ceramicCup, setCeramicCup] = useState(false);
-  const [wouldReturn, setWouldReturn] = useState(null);
   const [openInfo,   setOpenInfo]   = useState(null);
 
   // ── Details ─────────────────────────────────────────────────────────────────
@@ -147,7 +146,6 @@ export default function ReviewPage() {
         setCrema(data.crema || 5);
 
         setCeramicCup(data.ceramic_cup || false);
-        setWouldReturn(data.would_return != null ? data.would_return : null);
         setRoastery(data.roastery || '');
         setRatedAt(data.rated_at ? data.rated_at.split('T')[0] : new Date().toISOString().split('T')[0]);
         setComment(data.comment || '');
@@ -263,7 +261,6 @@ export default function ReviewPage() {
         address: addressVal, lat: resolvedLat, lng: resolvedLng,
         body, balance, crema,
         ceramic_cup: ceramicCup || null,
-        would_return: wouldReturn,
         roastery: roastery.trim() || null,
         comment:  comment.trim() || null,
         price:    price ? parseFloat(price) : null,
@@ -575,41 +572,6 @@ export default function ReviewPage() {
                   }}
                 />
                 <div style={{ textAlign: 'right', fontSize: 11, color: MUTED, marginTop: 4, fontFamily: '"DM Sans", system-ui, sans-serif' }}>{comment.length}/500</div>
-              </div>
-
-              {/* Would return — 4 levels */}
-              <div>
-                <p style={{ fontSize: 9, letterSpacing: '2.5px', textTransform: 'uppercase', color: MUTED, fontWeight: 700, marginBottom: 12, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
-                  {tr.wouldReturnQ}
-                </p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-                  {[
-                    { v: 1, label: tr.wouldReturn1, color: '#6F4E37' },
-                    { v: 2, label: tr.wouldReturn2, color: '#888888' },
-                    { v: 3, label: tr.wouldReturn3, color: '#B71C1C' },
-                  ].map(({ v, label, color }) => {
-                    const active = wouldReturn === v;
-                    return (
-                      <button
-                        key={v}
-                        type="button"
-                        onClick={() => setWouldReturn(active ? null : v)}
-                        style={{
-                          padding: '12px 6px', minHeight: 56,
-                          borderRadius: 14, fontSize: 14,
-                          fontFamily: '"DM Serif Display", Georgia, serif', fontStyle: 'italic', fontWeight: 700,
-                          border: `1.5px solid ${active ? color : BORDER_C}`,
-                          background: active ? color : 'transparent',
-                          color: active ? '#FAF0E6' : color,
-                          cursor: 'pointer', transition: 'all 0.18s ease',
-                          letterSpacing: -0.3, lineHeight: 1.25,
-                        }}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
 
               {/* Optional details */}

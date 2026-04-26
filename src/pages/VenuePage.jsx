@@ -24,10 +24,17 @@ const BUCKET_META = {
 };
 
 const WOULD_RETURN_META = {
-  1: { color: '#6F4E37', label: { de: 'Jederzeit',          en: 'Anytime' } },
-  2: { color: '#888888', label: { de: 'Geht so',             en: 'So-so' } },
-  3: { color: '#B71C1C', label: { de: 'Um Gottes Willen',    en: 'God forbid' } },
+  good:  { color: '#1a1714', label: { de: 'Jederzeit', en: 'Anytime' } },
+  meh:   { color: '#F59E0B', label: { de: 'Geht so',   en: 'So-so' } },
+  avoid: { color: '#B71C1C', label: { de: 'Meiden',    en: 'Avoid' } },
 };
+
+function wouldReturnFromScore(score) {
+  if (score == null) return null;
+  if (score >= 7) return WOULD_RETURN_META.good;
+  if (score >= 4) return WOULD_RETURN_META.meh;
+  return WOULD_RETURN_META.avoid;
+}
 
 const BALANCE_META = {
   balanced:     { color: '#1a1714', label: { de: 'Ausgewogen',    en: 'Balanced' } },
@@ -107,7 +114,7 @@ export default function VenuePage() {
   const hasRating  = venue.body != null && venue.balance != null && venue.crema != null;
   const scoreColor = meta ? meta.textColor : '#9CA3AF';
   const chipLabel  = meta ? meta.label[lang] : null;
-  const wrMeta     = venue.would_return ? WOULD_RETURN_META[venue.would_return] : null;
+  const wrMeta     = wouldReturnFromScore(score);
 
   const ratedDate = venue.rated_at
     ? new Date(venue.rated_at).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', {
