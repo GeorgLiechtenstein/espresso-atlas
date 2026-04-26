@@ -12,13 +12,13 @@ function NavTab({ active, onClick, label }) {
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
         minHeight: 44,
         background: 'none', border: 'none', cursor: 'pointer',
-        color: active ? '#6F4E37' : '#888888',
-        borderTop: active ? '2px solid #6F4E37' : '2px solid transparent',
+        color: active ? '#6F4E37' : '#999999',
+        borderTop: active ? '3px solid #6F4E37' : '3px solid transparent',
         transition: 'color 0.15s, border-color 0.15s',
       }}
     >
       <span style={{
-        fontSize: 12, fontWeight: active ? 700 : 400, fontFamily: '"DM Sans", system-ui, sans-serif',
+        fontSize: 12, fontWeight: active ? 600 : 400, fontFamily: '"DM Sans", system-ui, sans-serif',
         letterSpacing: '0.04em',
       }}>
         {label}
@@ -94,11 +94,11 @@ export default function GlobalLayout() {
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               paddingLeft: 10, paddingRight: 14,
-              background: 'none', border: 'none', borderTop: '2px solid transparent',
+              background: 'none', border: 'none', borderTop: '3px solid transparent',
               cursor: 'pointer',
               fontSize: 12, fontWeight: 400,
               fontFamily: '"DM Sans", system-ui, sans-serif',
-              letterSpacing: '0.04em', color: '#888',
+              letterSpacing: '0.04em', color: '#999999',
             }}
           >
             {tr.signOut}
