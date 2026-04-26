@@ -232,7 +232,7 @@ export default function ReviewPage() {
 
   const step1Valid = Boolean(name.trim() && city.trim() && country.trim());
   const balanceScore = 10 - 2 * Math.abs(balance);
-  const liveScore  = Math.round(((body + balanceScore + crema) / 3) * 100) / 100;
+  const liveScore  = Math.round(((body + balanceScore + crema) / 3) * 10) / 10;
 
   async function handleSubmit() {
     setError('');
