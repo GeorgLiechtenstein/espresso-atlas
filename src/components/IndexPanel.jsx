@@ -122,7 +122,7 @@ export default function IndexPanel({ venues, isOpen }) {
           paddingLeft: 20,
           paddingRight: 16,
           display: 'flex',
-          alignItems: 'baseline',
+          alignItems: 'center',
           justifyContent: 'space-between',
           gap: 8,
         }}
@@ -133,17 +133,11 @@ export default function IndexPanel({ venues, isOpen }) {
             onClick={() => navigate('/?tab=map')}
             style={{
               fontFamily: '"DM Serif Display", Georgia, serif',
-              fontSize: 19, fontWeight: 400, color: '#1a1714', lineHeight: 1,
+              fontSize: 19, fontWeight: 400, color: '#1a1714', lineHeight: 1.1,
               cursor: 'pointer',
             }}
           >
             Espresso Atlas
-          </span>
-          <span style={{
-            fontSize: 12, color: '#555555',
-            fontFamily: '"DM Sans", system-ui, sans-serif',
-          }}>
-            {filtered.length}
           </span>
         </div>
         <LangToggle />
