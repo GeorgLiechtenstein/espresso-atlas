@@ -31,9 +31,9 @@ const WOULD_RETURN_META = {
 };
 
 const BALANCE_META = {
-  balanced:     { color: '#43A047', label: { de: 'Ausgewogen',    en: 'Balanced' } },
-  slightAcidic: { color: '#F59E0B', label: { de: 'Leicht sauer',  en: 'Slightly acidic' } },
-  slightBitter: { color: '#F59E0B', label: { de: 'Leicht bitter', en: 'Slightly bitter' } },
+  balanced:     { color: '#1a1714', label: { de: 'Ausgewogen',    en: 'Balanced' } },
+  slightAcidic: { color: '#555555', label: { de: 'Leicht sauer',  en: 'Slightly acidic' } },
+  slightBitter: { color: '#555555', label: { de: 'Leicht bitter', en: 'Slightly bitter' } },
   tooAcidic:    { color: '#E53935', label: { de: 'Zu sauer',      en: 'Too acidic' } },
   tooBitter:    { color: '#E53935', label: { de: 'Zu bitter',     en: 'Too bitter' } },
 };
@@ -249,7 +249,7 @@ export default function VenuePage() {
 
         {/* Price */}
         {venue.price != null && (
-          <p style={{ fontSize: 14, fontWeight: 600, color: '#6B4A2A', marginBottom: 20 }}>
+          <p style={{ fontSize: 14, color: '#555555', marginBottom: 20 }}>
             {parseFloat(venue.price).toFixed(2)} {venue.currency || 'EUR'}
           </p>
         )}
@@ -327,15 +327,14 @@ export default function VenuePage() {
                     {isBalance ? (
                       <div style={{
                         position: 'relative', height: 8, borderRadius: 4,
-                        background: 'linear-gradient(to right, #F59E0B 0%, #43A047 50%, #6B4A2A 100%)',
+                        background: '#E0E0E0',
                       }}>
                         <div style={{
                           position: 'absolute',
                           left: `${(((val ?? 0) + 5) / 10) * 100}%`,
-                          top: -3, bottom: -3,
+                          top: -2, bottom: -2,
                           width: 4, transform: 'translateX(-50%)',
-                          background: '#1a1714', borderRadius: 2,
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
+                          background: '#6B4A2A', borderRadius: 2,
                         }} />
                       </div>
                     ) : (
