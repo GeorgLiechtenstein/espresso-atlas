@@ -24,10 +24,9 @@ const BUCKET_META = {
 };
 
 const WOULD_RETURN_META = {
-  1: { color: '#43A047', label: { de: 'Jederzeit',         en: 'Anytime' } },
-  2: { color: '#F59E0B', label: { de: "Wenn's sein muss",  en: 'If I must' } },
-  3: { color: '#E67E22', label: { de: 'Eher nicht',         en: 'Rather not' } },
-  4: { color: '#8B2A2A', label: { de: 'Um Gottes Willen',   en: 'God forbid' } },
+  1: { color: '#6F4E37', label: { de: 'Jederzeit',          en: 'Anytime' } },
+  2: { color: '#888888', label: { de: 'Geht so',             en: 'So-so' } },
+  3: { color: '#B71C1C', label: { de: 'Um Gottes Willen',    en: 'God forbid' } },
 };
 
 const BALANCE_META = {

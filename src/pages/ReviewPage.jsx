@@ -582,12 +582,11 @@ export default function ReviewPage() {
                 <p style={{ fontSize: 9, letterSpacing: '2.5px', textTransform: 'uppercase', color: MUTED, fontWeight: 700, marginBottom: 12, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
                   {tr.wouldReturnQ}
                 </p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
                   {[
-                    { v: 1, label: tr.wouldReturn1, color: '#43A047' },
-                    { v: 2, label: tr.wouldReturn2, color: '#F59E0B' },
-                    { v: 3, label: tr.wouldReturn3, color: '#E67E22' },
-                    { v: 4, label: tr.wouldReturn4, color: '#8B2A2A' },
+                    { v: 1, label: tr.wouldReturn1, color: '#6F4E37' },
+                    { v: 2, label: tr.wouldReturn2, color: '#888888' },
+                    { v: 3, label: tr.wouldReturn3, color: '#B71C1C' },
                   ].map(({ v, label, color }) => {
                     const active = wouldReturn === v;
                     return (
@@ -596,14 +595,14 @@ export default function ReviewPage() {
                         type="button"
                         onClick={() => setWouldReturn(active ? null : v)}
                         style={{
-                          padding: '14px 10px', minHeight: 48,
-                          borderRadius: 14, fontSize: 16,
+                          padding: '12px 6px', minHeight: 56,
+                          borderRadius: 14, fontSize: 14,
                           fontFamily: '"DM Serif Display", Georgia, serif', fontStyle: 'italic', fontWeight: 700,
                           border: `1.5px solid ${active ? color : BORDER_C}`,
                           background: active ? color : 'transparent',
                           color: active ? '#FAF0E6' : color,
                           cursor: 'pointer', transition: 'all 0.18s ease',
-                          letterSpacing: -0.3, lineHeight: 1.2,
+                          letterSpacing: -0.3, lineHeight: 1.25,
                         }}
                       >
                         {label}

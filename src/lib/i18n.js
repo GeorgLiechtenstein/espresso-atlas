@@ -77,9 +77,8 @@ export const tr = {
     nextStep:          'Weiter',
     wouldReturnQ:      'Wiederkommen?',
     wouldReturn1:      'Jederzeit',
-    wouldReturn2:      "Wenn's sein muss",
-    wouldReturn3:      'Eher nicht',
-    wouldReturn4:      'Um Gottes Willen',
+    wouldReturn2:      'Geht so',
+    wouldReturn3:      'Um Gottes Willen',
 
     // Review / edit form
     reviewPageTitle:    'Lokal bewerten',
@@ -236,9 +235,8 @@ export const tr = {
     nextStep:          'Next',
     wouldReturnQ:      'Come back?',
     wouldReturn1:      'Anytime',
-    wouldReturn2:      'If I must',
-    wouldReturn3:      'Rather not',
-    wouldReturn4:      'God forbid',
+    wouldReturn2:      'So-so',
+    wouldReturn3:      'God forbid',
 
     // Review / edit form
     reviewPageTitle:    'Rate a venue',
