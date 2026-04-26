@@ -25,7 +25,7 @@ function pinBucket(score) {
  * @param {Array}       props.venues          – venue rows from Supabase
  * @param {function}    props.onPinClick      – called with full venue object on pin tap
  * @param {string|null} props.flyToId         – venue id to fly to
- * @param {boolean}     [props.locateOnMount] – request geolocation immediately on first init
+ * @param {string}      [props.lang='de']
  * @param {string}      [props.height='100%']
  */
 function tileUrl(lang) {
@@ -38,7 +38,6 @@ export default function MapComponent({
   venues = [],
   onPinClick,
   flyToId,
-  locateOnMount = false,
   lang = 'de',
   height = '100%',
 }) {
@@ -57,7 +56,7 @@ export default function MapComponent({
     if (mapRef.current || !containerRef.current) return;
 
     const map = L.map(containerRef.current, {
-      center: [46, 15],
+      center: [48.5, 10],   // Europe-centred fallback
       zoom: 5,
       zoomControl: false,
       attributionControl: false,
@@ -70,15 +69,20 @@ export default function MapComponent({
 
     mapRef.current = map;
 
-    // First-visit geolocation
-    if (locateOnMount && navigator.geolocation) {
+    // Coarse centring on the user's region. Fires every mount; the browser
+    // caches the permission decision and the position itself, so this is
+    // cheap on subsequent visits. If the user denies or it fails, the
+    // Europe-centred view above stays put — no error UI on init.
+    const supportsGeo = typeof navigator !== 'undefined'
+      && navigator.geolocation
+      && (typeof window === 'undefined' || window.isSecureContext !== false);
+    if (supportsGeo) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          map.flyTo([pos.coords.latitude, pos.coords.longitude], 13, { duration: 1.5 });
-          localStorage.setItem('em_geo_asked', '1');
+          map.flyTo([pos.coords.latitude, pos.coords.longitude], 9, { duration: 1.5 });
         },
-        () => { localStorage.setItem('em_geo_asked', '1'); },
-        { timeout: 8000 }
+        () => {},
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 }
       );
     }
 

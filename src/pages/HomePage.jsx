@@ -99,8 +99,6 @@ export default function HomePage() {
     });
   }, [venues, activeBuckets, isFiltered]);
 
-  const locateOnMount = !localStorage.getItem('em_geo_asked');
-
   async function handleSignOut() {
     await supabase.auth.signOut();
   }
@@ -114,7 +112,6 @@ export default function HomePage() {
           venues={mapVenues}
           onPinClick={handlePinClick}
           flyToId={null}
-          locateOnMount={locateOnMount}
           lang={lang}
           height="100%"
         />
