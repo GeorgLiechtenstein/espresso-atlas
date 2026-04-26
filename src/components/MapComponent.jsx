@@ -208,8 +208,29 @@ export default function MapComponent({
   }, [locateError]);
 
   function handleAllowLocation() {
-    setShowAskBanner(false);
-    requestInitPosition();
+    if (!mapRef.current || !navigator.geolocation) {
+      setShowAskBanner(false);
+      return;
+    }
+    // Inline the call so it runs synchronously inside this user-gesture
+    // click handler — Safari is strict about the gesture chain.
+    console.log('[modal allow] requesting position…');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        console.log('[modal allow] success', pos.coords.latitude, pos.coords.longitude);
+        mapRef.current?.flyTo(
+          [pos.coords.latitude, pos.coords.longitude],
+          9,
+          { duration: 1.5 }
+        );
+        setShowAskBanner(false);
+      },
+      (err) => {
+        console.warn('[modal allow] code=' + err.code + ' message=' + err.message);
+        setShowAskBanner(false);
+      },
+      { enableHighAccuracy: false, timeout: 15000, maximumAge: 5 * 60 * 1000 }
+    );
   }
 
   function handleDismissAsk() {
