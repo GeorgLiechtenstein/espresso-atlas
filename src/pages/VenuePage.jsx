@@ -23,19 +23,6 @@ const BUCKET_META = {
   avoid:     { color: '#8B2A2A', textColor: '#8B2A2A', label: { de: 'Meiden',    en: 'Avoid' } },
 };
 
-const WOULD_RETURN_META = {
-  good:  { color: '#1a1714', label: { de: 'Jederzeit', en: 'Anytime' } },
-  meh:   { color: '#F59E0B', label: { de: 'Geht so',   en: 'So-so' } },
-  avoid: { color: '#B71C1C', label: { de: 'Meiden',    en: 'Avoid' } },
-};
-
-function wouldReturnFromScore(score) {
-  if (score == null) return null;
-  if (score >= 7) return WOULD_RETURN_META.good;
-  if (score >= 4) return WOULD_RETURN_META.meh;
-  return WOULD_RETURN_META.avoid;
-}
-
 const BALANCE_META = {
   balanced:     { color: '#1a1714', label: { de: 'Ausgewogen',    en: 'Balanced' } },
   slightAcidic: { color: '#555555', label: { de: 'Leicht sauer',  en: 'Slightly acidic' } },
@@ -129,7 +116,6 @@ export default function VenuePage() {
   const hasRating  = venue.body != null && venue.balance != null && venue.crema != null;
   const scoreColor = meta ? meta.textColor : '#9CA3AF';
   const chipLabel  = meta ? meta.label[lang] : null;
-  const wrMeta     = wouldReturnFromScore(score);
 
   const ratedDate = venue.rated_at
     ? new Date(venue.rated_at).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', {
@@ -229,38 +215,16 @@ export default function VenuePage() {
 
         {/* Big score */}
         {score !== null && (
-          <div style={{
-            paddingBottom: 20, borderBottom: '1px solid rgba(26,23,20,0.10)', marginBottom: 20,
-            display: 'grid',
-            gridTemplateColumns: wrMeta ? 'auto auto' : 'auto',
-            columnGap: 32, rowGap: 4,
-            alignItems: 'start',
-          }}>
+          <div style={{ paddingBottom: 20, borderBottom: '1px solid rgba(26,23,20,0.10)', marginBottom: 20 }}>
             <div style={{
               fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
-              color: '#555555',
+              color: '#555555', marginBottom: 4,
             }}>Score</div>
-            {wrMeta && (
-              <div style={{
-                fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
-                color: '#555555',
-              }}>{lang === 'de' ? 'Wiederkommen?' : 'Return?'}</div>
-            )}
             <div className="animate-score-pulse" style={{
               fontFamily: '"DM Serif Display", Georgia, serif',
               fontSize: 72, fontWeight: 700, color: scoreColor,
               lineHeight: 0.9, letterSpacing: -2,
             }}>{score.toFixed(1)}</div>
-            {wrMeta && (
-              <span style={{
-                fontFamily: '"DM Serif Display", Georgia, serif',
-                fontStyle: 'italic', fontSize: 24, fontWeight: 400,
-                color: wrMeta.color, lineHeight: 1.1,
-                alignSelf: 'center',
-              }}>
-                {wrMeta.label[lang]}
-              </span>
-            )}
           </div>
         )}
 
