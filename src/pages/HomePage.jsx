@@ -122,39 +122,28 @@ export default function HomePage() {
 
       {/* ── Top overlay bar ─────────────────────────────────────────────────── */}
       <header
-        className="fixed left-0 right-0 top-0 z-[400] bg-surface shadow-sm flex items-center justify-between px-4"
+        className="fixed left-0 right-0 top-0 z-[400] bg-surface shadow-sm"
         style={{
-          paddingTop: 'calc(env(safe-area-inset-top) + 14px)',
-          paddingBottom: '14px',
+          paddingTop: 'calc(env(safe-area-inset-top) + 12px)',
+          paddingBottom: 10,
         }}
       >
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <CupLogo />
-          <span className="font-serif text-[19px] text-ink leading-tight" style={{ cursor: 'pointer' }} onClick={() => setSearchParams({ tab: 'map' }, { replace: true })}>Espresso Atlas</span>
-        </div>
-        <div className="flex items-center gap-2">
-          {!user && (
-            <button
-              onClick={() => navigate('/login')}
-              className="w-10 h-10 flex items-center justify-center rounded-xl text-gray-400 hover:text-ink transition-colors"
-              aria-label="Login"
-            >
-              <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-            </button>
-          )}
-          {user && tab === 'about' && (
-            <button
-              onClick={handleSignOut}
-              style={{ fontSize: 12, color: '#555555', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-              className="font-sans hover:text-ink transition-colors"
-            >
-              {tr.signOut}
-            </button>
-          )}
+        <div className="flex items-center justify-between px-4">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <CupLogo />
+            <span className="font-serif text-[19px] text-ink leading-tight" style={{ cursor: 'pointer' }} onClick={() => setSearchParams({ tab: 'map' }, { replace: true })}>Espresso Atlas</span>
+          </div>
           <LangToggle />
+        </div>
+        <div className="px-4 pt-1">
+          <p style={{
+            fontSize: 14, color: '#555555',
+            fontFamily: '"DM Sans", system-ui, sans-serif',
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            margin: 0,
+          }}>
+            {tr.taglineShort}
+          </p>
         </div>
       </header>
 
@@ -227,12 +216,27 @@ export default function HomePage() {
       )}
 
       {/* ── Empty state ──────────────────────────────────────────────────────── */}
-      {!loading && venues.length === 0 && tab === 'map' && (
+      {!loading && tab === 'map' && (venues.length === 0 || (isFiltered && mapVenues.length === 0)) && (
         <div className="absolute inset-0 flex items-center justify-center z-[300] pointer-events-none">
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-lg px-8 py-8 text-center pointer-events-auto mx-6 max-w-xs">
-            <span className="text-5xl block mb-3">☕</span>
-            <h2 className="font-serif text-xl text-ink mb-1">{tr.emptyLine1}</h2>
-            <p className="text-sm font-sans mb-1" style={{ color: '#666' }}>{tr.emptyLine2}</p>
+          <div className="rounded-2xl shadow-lg px-8 py-8 text-center pointer-events-auto mx-6 max-w-xs"
+               style={{ background: '#FAF0E6' }}>
+            <span style={{ fontSize: 64, display: 'block', marginBottom: 12, lineHeight: 1 }}>☕</span>
+            <p className="font-serif text-xl text-ink mb-1">{tr.noReviewsHere}</p>
+            {user && (
+              <button
+                onClick={() => navigate('/review')}
+                style={{
+                  marginTop: 14, padding: '12px 20px',
+                  background: '#6B4A2A', color: '#FAF0E6',
+                  border: 'none', borderRadius: 12,
+                  fontFamily: '"DM Sans", system-ui, sans-serif',
+                  fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                  minHeight: 44,
+                }}
+              >
+                + {tr.addFirstReview}
+              </button>
+            )}
           </div>
         </div>
       )}
