@@ -207,16 +207,19 @@ export default function HomePage() {
             onClick={() => setLegendOpen((o) => !o)}
             aria-label="Legende"
             style={{
-              width: 56, height: 56, borderRadius: '50%',
-              background: legendOpen ? '#1a1714' : 'rgba(250,240,230,0.95)',
-              border: isFiltered && !legendOpen ? '1.5px solid #6B4A2A' : '1px solid rgba(26,23,20,0.18)',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.28)',
+              width: 36, height: 36, borderRadius: '50%',
+              background: legendOpen ? '#1a1714' : 'rgba(255,255,255,0.7)',
+              backdropFilter: 'blur(6px)',
+              WebkitBackdropFilter: 'blur(6px)',
+              border: isFiltered && !legendOpen ? '1px solid #6B4A2A' : '1px solid rgba(26,23,20,0.12)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer',
               color: legendOpen ? '#FAF0E6' : '#6B4A2A',
-              fontSize: 20, fontStyle: 'italic', fontWeight: 700,
+              fontSize: 14, fontStyle: 'italic', fontWeight: 400,
               fontFamily: '"DM Serif Display", Georgia, serif',
               transition: 'background 0.15s, color 0.15s',
+              padding: 0, lineHeight: 1,
             }}
           >
             i
