@@ -272,11 +272,12 @@ export default function VenuePage() {
                       {info}
                     </div>
                   )}
-                  <div style={{ height: 4, background: 'rgba(26,23,20,0.10)', borderRadius: 2, position: 'relative' }}>
+                  <div style={{ height: 8, background: '#E0E0E0', borderRadius: 4, position: 'relative' }}>
                     <div style={{
                       position: 'absolute', left: 0, top: 0, bottom: 0,
                       width: `${((val ?? 0) / 10) * 100}%`,
-                      background: '#6B4A2A', borderRadius: 2,
+                      background: BUCKET_META[bucket(val)]?.color ?? '#9CA3AF',
+                      borderRadius: 4,
                     }} />
                   </div>
                 </div>

@@ -171,9 +171,9 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
                     {label}
                   </span>
                   <div className="flex-1 rounded-full overflow-hidden"
-                       style={{ height: 3, background: 'rgba(26,23,20,0.10)' }}>
+                       style={{ height: 8, background: '#E0E0E0' }}>
                     <div className="h-full rounded-full"
-                         style={{ width: `${((val ?? 0) / 10) * 100}%`, background: '#6B4A2A' }} />
+                         style={{ width: `${((val ?? 0) / 10) * 100}%`, background: BUCKET_META[bucket(val)]?.color ?? '#9CA3AF' }} />
                   </div>
                   <span style={{
                     fontFamily: '"DM Serif Display", Georgia, serif',
