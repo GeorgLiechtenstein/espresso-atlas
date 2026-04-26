@@ -58,7 +58,7 @@ export default function VenuePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F7F3EC' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAF0E6' }}>
         <p style={{ color: '#555555', fontSize: 14 }} className="font-sans">{tr.loading}</p>
       </div>
     );
@@ -67,7 +67,7 @@ export default function VenuePage() {
   if (notFound || !venue) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4"
-           style={{ background: '#F7F3EC' }}>
+           style={{ background: '#FAF0E6' }}>
         <p className="text-5xl">☕</p>
         <p className="font-semibold font-sans" style={{ color: '#1a1714' }}>{tr.venueNotFound}</p>
         <button onClick={() => navigate('/')}
@@ -105,11 +105,11 @@ export default function VenuePage() {
   const divider = <div style={{ height: 1, background: 'rgba(26,23,20,0.10)', margin: '20px 0' }} />;
 
   return (
-    <div className="min-h-screen" style={{ background: '#F7F3EC', paddingBottom: 'calc(72px + env(safe-area-inset-bottom))' }}>
+    <div className="min-h-screen" style={{ background: '#FAF0E6', paddingBottom: 'calc(72px + env(safe-area-inset-bottom))' }}>
 
       {/* Header */}
       <header className="sticky top-0 z-50 flex items-center gap-2 px-4 py-3"
-              style={{ background: '#F7F3EC', borderBottom: '1px solid rgba(26,23,20,0.10)' }}>
+              style={{ background: '#FAF0E6', borderBottom: '1px solid rgba(26,23,20,0.10)' }}>
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <CupLogo />
           <span
@@ -291,7 +291,7 @@ export default function VenuePage() {
               <button
                 onClick={() => navigate(`/review/${id}`)}
                 className="mt-4 rounded-xl px-5 py-3 text-sm font-semibold font-sans hover:opacity-90 transition-opacity min-h-[48px]"
-                style={{ background: '#6B4A2A', color: '#F7F3EC' }}
+                style={{ background: '#6B4A2A', color: '#FAF0E6' }}
               >
                 {tr.editRating}
               </button>
@@ -317,7 +317,7 @@ export default function VenuePage() {
             <button
               onClick={() => navigate(`/review/${id}`)}
               className="w-full rounded-xl px-5 py-3 text-sm font-semibold font-sans hover:opacity-90 transition-opacity min-h-[48px]"
-              style={{ background: '#6B4A2A', color: '#F7F3EC' }}
+              style={{ background: '#6B4A2A', color: '#FAF0E6' }}
             >
               {tr.editRating}
             </button>

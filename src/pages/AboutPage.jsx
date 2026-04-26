@@ -19,9 +19,9 @@ export default function AboutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ background: '#FAF0E6' }}>
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-white border-b border-border">
+      <header className="sticky top-0 z-10 border-b border-border" style={{ background: '#FAF0E6' }}>
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <CupLogo />

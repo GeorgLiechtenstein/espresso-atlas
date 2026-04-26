@@ -246,9 +246,10 @@ export default function HomePage() {
 
       {/* ── About panel ──────────────────────────────────────────────────────── */}
       <div
-        className="absolute inset-0 bg-white overflow-y-auto"
+        className="absolute inset-0 overflow-y-auto"
         style={{
           zIndex: 350,
+          background: '#FAF0E6',
           transform: tab === 'about' ? 'translateY(0)' : 'translateY(100%)',
           transition: 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
           pointerEvents: tab === 'about' ? 'auto' : 'none',
