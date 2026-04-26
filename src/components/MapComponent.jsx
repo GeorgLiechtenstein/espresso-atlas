@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 
 function escapeHtml(str) {
@@ -47,6 +47,7 @@ export default function MapComponent({
   const tileLayerRef   = useRef(null);
   const markersRef     = useRef({});
   const pinClickRef    = useRef(onPinClick); // stable ref — avoids stale closures
+  const [locateError, setLocateError] = useState(null);
 
   // Keep callback ref fresh
   useEffect(() => { pinClickRef.current = onPinClick; }, [onPinClick]);
@@ -160,11 +161,37 @@ export default function MapComponent({
   }, [flyToId]);
 
   // ── Locate ────────────────────────────────────────────────────────────────
+  // Auto-clear the toast after 3s.
+  useEffect(() => {
+    if (!locateError) return;
+    const t = setTimeout(() => setLocateError(null), 3000);
+    return () => clearTimeout(t);
+  }, [locateError]);
+
   function handleLocate() {
-    if (!mapRef.current || !navigator.geolocation) return;
+    if (!mapRef.current) return;
+    const fail = () => setLocateError(
+      lang === 'de' ? 'Standort nicht verfügbar' : 'Location not available'
+    );
+    // Geolocation needs a Secure Context — Firefox blocks it on plain HTTP
+    // without firing the error callback in some builds. Bail early.
+    if (!navigator.geolocation || (typeof window !== 'undefined' && window.isSecureContext === false)) {
+      fail();
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
-      (pos) => mapRef.current.flyTo([pos.coords.latitude, pos.coords.longitude], 14, { duration: 1.2 }),
-      () => {}
+      (pos) => {
+        mapRef.current?.flyTo(
+          [pos.coords.latitude, pos.coords.longitude],
+          14,
+          { duration: 1.2 }
+        );
+      },
+      // err.code: 1 PERMISSION_DENIED, 2 POSITION_UNAVAILABLE, 3 TIMEOUT.
+      // Same enum across Chrome / Safari / Firefox — single message covers
+      // all three.
+      fail,
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
     );
   }
 
@@ -172,13 +199,19 @@ export default function MapComponent({
     <div className="relative w-full" style={{ height }}>
       <div ref={containerRef} className="w-full h-full" />
 
-      {/* Google Maps-style locate FAB */}
+      {/* Google Maps-style locate FAB — fixed to viewport so it's always
+          visible regardless of map state, sat above the +Review FAB. */}
       <button
         type="button"
         onClick={handleLocate}
         aria-label="Mein Standort"
-        style={{ zIndex: 1000, bottom: 'calc(72px + 16px + env(safe-area-inset-bottom))', right: 16 }}
-        className="absolute w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center
+        style={{
+          position: 'fixed', zIndex: 1000,
+          bottom: 'calc(72px + 56px + 16px + env(safe-area-inset-bottom))',
+          right: 16,
+          width: 48, height: 48,
+        }}
+        className="bg-white rounded-full shadow-lg flex items-center justify-center
           hover:bg-gray-50 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-coffee"
       >
         <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -187,6 +220,24 @@ export default function MapComponent({
           <circle cx="12" cy="12" r="8" strokeDasharray="2 2" strokeOpacity={0.3} />
         </svg>
       </button>
+
+      {locateError && (
+        <div style={{
+          position: 'fixed',
+          bottom: 'calc(72px + 56px + 16px + 48px + 12px + env(safe-area-inset-bottom))',
+          left: 16, right: 16,
+          textAlign: 'center', pointerEvents: 'none', zIndex: 1001,
+        }}>
+          <span style={{
+            display: 'inline-block',
+            background: 'rgba(26,23,20,0.92)', color: '#FAF0E6',
+            padding: '10px 18px', borderRadius: 24,
+            fontSize: 13, fontWeight: 500,
+            fontFamily: '"DM Sans", system-ui, sans-serif',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+          }}>{locateError}</span>
+        </div>
+      )}
     </div>
   );
 }
