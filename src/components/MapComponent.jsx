@@ -81,9 +81,13 @@ export default function MapComponent({
         (pos) => {
           map.flyTo([pos.coords.latitude, pos.coords.longitude], 9, { duration: 1.5 });
         },
-        () => {},
+        (err) => {
+          console.warn('[map init geolocation] code=' + err.code + ' message=' + err.message);
+        },
         { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 }
       );
+    } else {
+      console.warn('[map init geolocation] not supported (geo=' + !!navigator.geolocation + ', secureCtx=' + (typeof window === 'undefined' ? 'n/a' : window.isSecureContext) + ')');
     }
 
     return () => {
@@ -194,7 +198,10 @@ export default function MapComponent({
       // err.code: 1 PERMISSION_DENIED, 2 POSITION_UNAVAILABLE, 3 TIMEOUT.
       // Same enum across Chrome / Safari / Firefox — single message covers
       // all three.
-      fail,
+      (err) => {
+        console.warn('[locate FAB] code=' + err.code + ' message=' + err.message);
+        fail();
+      },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
     );
   }
