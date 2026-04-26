@@ -131,29 +131,29 @@ export default function HomePage() {
         <div className="flex items-center justify-between px-4">
           <div className="flex items-center" style={{ gap: 8, flex: 1, minWidth: 0 }}>
             <CupLogo />
-            <span
-              className="font-serif text-[19px] text-ink"
-              style={{ cursor: 'pointer', lineHeight: 1.1 }}
-              onClick={() => setSearchParams({ tab: 'map' }, { replace: true })}
-            >
-              Espresso Atlas
-            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+              <span
+                className="font-serif text-[19px] text-ink"
+                style={{ cursor: 'pointer', lineHeight: 1.1 }}
+                onClick={() => setSearchParams({ tab: 'map' }, { replace: true })}
+              >
+                Espresso Atlas
+              </span>
+              {tab === 'map' && (
+                <p style={{
+                  marginTop: 2, marginBottom: 0,
+                  fontSize: 13, color: '#777777',
+                  fontFamily: '"DM Sans", system-ui, sans-serif',
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                  lineHeight: 1.2,
+                }}>
+                  {tr.taglineShort}
+                </p>
+              )}
+            </div>
           </div>
           <LangToggle />
         </div>
-        {tab === 'map' && (
-          <p style={{
-            marginLeft: 'calc(16px + 30px + 8px)',
-            marginRight: 16,
-            marginTop: 2, marginBottom: 0,
-            fontSize: 13, color: '#777777',
-            fontFamily: '"DM Sans", system-ui, sans-serif',
-            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-            lineHeight: 1.2,
-          }}>
-            {tr.taglineShort}
-          </p>
-        )}
       </header>
 
       {/* ── Map legend (collapsible) ─────────────────────────────────────────── */}
