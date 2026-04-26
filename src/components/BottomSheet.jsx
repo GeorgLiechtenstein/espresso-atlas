@@ -138,7 +138,7 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
               flex: 1, minWidth: 0, margin: 0,
             }}>{venue.name}</h3>
             {score !== null && (
-              <div style={{
+              <div className="animate-score-pulse" style={{
                 fontFamily: '"DM Serif Display", Georgia, serif',
                 fontSize: 42, fontWeight: 700, color: scoreColor,
                 lineHeight: 0.9, letterSpacing: -1, flexShrink: 0,

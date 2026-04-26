@@ -189,7 +189,7 @@ export default function VenuePage() {
               fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
               color: '#555555', marginBottom: 4,
             }}>{lang === 'de' ? 'Score' : 'Score'}</div>
-            <div style={{
+            <div className="animate-score-pulse" style={{
               fontFamily: '"DM Serif Display", Georgia, serif',
               fontSize: 72, fontWeight: 700, color: scoreColor,
               lineHeight: 0.9, letterSpacing: -2,
