@@ -228,6 +228,19 @@ export default function MapComponent({
       (err) => {
         console.warn('[modal allow] code=' + err.code + ' message=' + err.message);
         setShowAskBanner(false);
+        // Surface the same help toast as the locate FAB so the user knows
+        // what to do — Safari can return code 1 even when its UI says
+        // "Ask" if the site has a cached deny or macOS Location Services
+        // is off for Safari.
+        const isDenied = err.code === 1;
+        setLocateError({
+          msg: isDenied
+            ? (lang === 'de'
+                ? 'Standort blockiert. In den Browser-Einstellungen für diese Seite erlauben.'
+                : 'Location blocked. Allow it in this site’s browser settings.')
+            : (lang === 'de' ? 'Standort nicht verfügbar' : 'Location not available'),
+          durationMs: isDenied ? 6000 : 3000,
+        });
       },
       { enableHighAccuracy: false, timeout: 15000, maximumAge: 5 * 60 * 1000 }
     );
