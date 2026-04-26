@@ -30,6 +30,22 @@ const WOULD_RETURN_META = {
   4: { color: '#8B2A2A', label: { de: 'Um Gottes Willen',   en: 'God forbid' } },
 };
 
+const BALANCE_META = {
+  balanced:     { color: '#43A047', label: { de: 'Ausgewogen',    en: 'Balanced' } },
+  slightAcidic: { color: '#F59E0B', label: { de: 'Leicht sauer',  en: 'Slightly acidic' } },
+  slightBitter: { color: '#F59E0B', label: { de: 'Leicht bitter', en: 'Slightly bitter' } },
+  tooAcidic:    { color: '#E53935', label: { de: 'Zu sauer',      en: 'Too acidic' } },
+  tooBitter:    { color: '#E53935', label: { de: 'Zu bitter',     en: 'Too bitter' } },
+};
+
+function balanceMeta(val) {
+  if (val == null) return null;
+  const a = Math.abs(val);
+  if (a <= 1) return BALANCE_META.balanced;
+  if (a <= 3) return val > 0 ? BALANCE_META.slightBitter : BALANCE_META.slightAcidic;
+  return val > 0 ? BALANCE_META.tooBitter : BALANCE_META.tooAcidic;
+}
+
 export default function VenuePage() {
   const { id }   = useParams();
   const navigate = useNavigate();
@@ -89,7 +105,7 @@ export default function VenuePage() {
   const score      = venue.avg_score != null ? parseFloat(venue.avg_score) : null;
   const b          = bucket(score);
   const meta       = b ? BUCKET_META[b] : null;
-  const hasRating  = venue.body && venue.balance && venue.crema;
+  const hasRating  = venue.body != null && venue.balance != null && venue.crema != null;
   const scoreColor = meta ? meta.textColor : '#9CA3AF';
   const chipLabel  = meta ? meta.label[lang] : null;
   const wrMeta     = venue.would_return ? WOULD_RETURN_META[venue.would_return] : null;
@@ -252,59 +268,89 @@ export default function VenuePage() {
               color: '#555555', marginBottom: 14, fontWeight: 700,
             }}>{lang === 'de' ? 'Die drei Kriterien' : 'The three criteria'}</div>
             <div className="flex flex-col gap-4 mb-6">
-              {criteria.map(({ key, label, hint, info, val }) => (
-                <div key={key}>
-                  <div className="flex items-baseline mb-1.5">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
-                      <span style={{
-                        fontFamily: '"DM Serif Display", Georgia, serif',
-                        fontSize: 17, fontWeight: 700, color: '#1a1714',
-                      }}>{label}</span>
-                      <button
-                        type="button"
-                        data-info-ui
-                        onClick={() => setOpenInfo(openInfo === key ? null : key)}
-                        aria-label="Info"
-                        style={{
-                          width: 22, height: 22, borderRadius: '50%',
-                          border: `1.5px solid ${openInfo === key ? '#6B4A2A' : '#555555'}`,
-                          background: openInfo === key ? '#6B4A2A' : 'transparent',
-                          color: openInfo === key ? '#FAF0E6' : '#555555',
-                          fontSize: 13, fontWeight: 700, fontStyle: 'italic',
+              {criteria.map(({ key, label, hint, info, val }) => {
+                const isBalance = key === 'balance';
+                const bMeta = isBalance ? balanceMeta(val) : null;
+                return (
+                  <div key={key}>
+                    <div className="flex items-baseline mb-1.5">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
+                        <span style={{
                           fontFamily: '"DM Serif Display", Georgia, serif',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          padding: 0, cursor: 'pointer', lineHeight: 1,
-                          transition: 'background 0.15s, color 0.15s, border-color 0.15s',
-                        }}
-                      >i</button>
+                          fontSize: 17, fontWeight: 700, color: '#1a1714',
+                        }}>{label}</span>
+                        <button
+                          type="button"
+                          data-info-ui
+                          onClick={() => setOpenInfo(openInfo === key ? null : key)}
+                          aria-label="Info"
+                          style={{
+                            width: 22, height: 22, borderRadius: '50%',
+                            border: `1.5px solid ${openInfo === key ? '#6B4A2A' : '#555555'}`,
+                            background: openInfo === key ? '#6B4A2A' : 'transparent',
+                            color: openInfo === key ? '#FAF0E6' : '#555555',
+                            fontSize: 13, fontWeight: 700, fontStyle: 'italic',
+                            fontFamily: '"DM Serif Display", Georgia, serif',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            padding: 0, cursor: 'pointer', lineHeight: 1,
+                            transition: 'background 0.15s, color 0.15s, border-color 0.15s',
+                          }}
+                        >i</button>
+                      </div>
+                      {isBalance ? (
+                        <span style={{
+                          fontFamily: '"DM Serif Display", Georgia, serif',
+                          fontStyle: 'italic', fontSize: 16, fontWeight: 700,
+                          color: bMeta.color,
+                        }}>{bMeta.label[lang]}</span>
+                      ) : (
+                        <>
+                          <span style={{ fontSize: 11, color: '#555555', marginRight: 10 }}>{hint}</span>
+                          <span style={{
+                            fontFamily: '"DM Serif Display", Georgia, serif',
+                            fontSize: 16, color: '#1a1714', fontWeight: 700,
+                          }}>{val}<span style={{ color: '#555555', fontWeight: 400, fontSize: 13 }}>/10</span></span>
+                        </>
+                      )}
                     </div>
-                    <span style={{ fontSize: 11, color: '#555555', marginRight: 10 }}>{hint}</span>
-                    <span style={{
-                      fontFamily: '"DM Serif Display", Georgia, serif',
-                      fontSize: 16, color: '#1a1714', fontWeight: 700,
-                    }}>{val}<span style={{ color: '#555555', fontWeight: 400, fontSize: 13 }}>/10</span></span>
+                    {openInfo === key && (
+                      <div data-info-ui style={{
+                        background: '#F5F0E8', border: '1px solid #E0D5C7',
+                        borderRadius: 12, padding: '12px 14px', marginBottom: 10,
+                        fontSize: 13, color: '#444444', lineHeight: 1.5,
+                        fontFamily: '"DM Sans", system-ui, sans-serif',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                      }}>
+                        {info}
+                      </div>
+                    )}
+                    {isBalance ? (
+                      <div style={{
+                        position: 'relative', height: 8, borderRadius: 4,
+                        background: 'linear-gradient(to right, #F59E0B 0%, #43A047 50%, #6B4A2A 100%)',
+                      }}>
+                        <div style={{
+                          position: 'absolute',
+                          left: `${(((val ?? 0) + 5) / 10) * 100}%`,
+                          top: -3, bottom: -3,
+                          width: 4, transform: 'translateX(-50%)',
+                          background: '#1a1714', borderRadius: 2,
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
+                        }} />
+                      </div>
+                    ) : (
+                      <div style={{ height: 8, background: '#E0E0E0', borderRadius: 4, position: 'relative' }}>
+                        <div style={{
+                          position: 'absolute', left: 0, top: 0, bottom: 0,
+                          width: `${((val ?? 0) / 10) * 100}%`,
+                          background: BUCKET_META[bucket(val)]?.color ?? '#9CA3AF',
+                          borderRadius: 4,
+                        }} />
+                      </div>
+                    )}
                   </div>
-                  {openInfo === key && (
-                    <div data-info-ui style={{
-                      background: '#F5F0E8', border: '1px solid #E0D5C7',
-                      borderRadius: 12, padding: '12px 14px', marginBottom: 10,
-                      fontSize: 13, color: '#444444', lineHeight: 1.5,
-                      fontFamily: '"DM Sans", system-ui, sans-serif',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                    }}>
-                      {info}
-                    </div>
-                  )}
-                  <div style={{ height: 8, background: '#E0E0E0', borderRadius: 4, position: 'relative' }}>
-                    <div style={{
-                      position: 'absolute', left: 0, top: 0, bottom: 0,
-                      width: `${((val ?? 0) / 10) * 100}%`,
-                      background: BUCKET_META[bucket(val)]?.color ?? '#9CA3AF',
-                      borderRadius: 4,
-                    }} />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </>
         ) : (

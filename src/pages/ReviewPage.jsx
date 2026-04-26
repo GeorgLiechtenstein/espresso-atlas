@@ -17,6 +17,22 @@ const COFFEE     = '#6B4A2A';
 const AVOID      = '#8B2A2A';
 const BORDER_C   = '#E0D8CC';
 
+const BALANCE_META = {
+  balanced:     { color: '#43A047', label: { de: 'Ausgewogen',    en: 'Balanced' } },
+  slightAcidic: { color: '#F59E0B', label: { de: 'Leicht sauer',  en: 'Slightly acidic' } },
+  slightBitter: { color: '#F59E0B', label: { de: 'Leicht bitter', en: 'Slightly bitter' } },
+  tooAcidic:    { color: '#E53935', label: { de: 'Zu sauer',      en: 'Too acidic' } },
+  tooBitter:    { color: '#E53935', label: { de: 'Zu bitter',     en: 'Too bitter' } },
+};
+
+function balanceMeta(val) {
+  if (val == null) return null;
+  const a = Math.abs(val);
+  if (a <= 1) return BALANCE_META.balanced;
+  if (a <= 3) return val > 0 ? BALANCE_META.slightBitter : BALANCE_META.slightAcidic;
+  return val > 0 ? BALANCE_META.tooBitter : BALANCE_META.tooAcidic;
+}
+
 function bucketColor(score) {
   if (score === null || score === undefined) return '#9CA3AF';
   const n = parseFloat(score);
@@ -87,7 +103,7 @@ export default function ReviewPage() {
 
   // ── Rating fields ───────────────────────────────────────────────────────────
   const [body,       setBody]       = useState(5);
-  const [balance,    setBalance]    = useState(5);
+  const [balance,    setBalance]    = useState(0);
   const [crema,      setCrema]      = useState(5);
   
   const [ceramicCup, setCeramicCup] = useState(false);
@@ -127,7 +143,7 @@ export default function ReviewPage() {
         setLng(data.lng ? parseFloat(data.lng) : null);
         if (data.address) setLocSearch(data.address);
         setBody(data.body || 5);
-        setBalance(data.balance || 5);
+        setBalance(data.balance ?? 0);
         setCrema(data.crema || 5);
 
         setCeramicCup(data.ceramic_cup || false);
@@ -217,7 +233,8 @@ export default function ReviewPage() {
   }
 
   const step1Valid = Boolean(name.trim() && city.trim() && country.trim());
-  const liveScore  = Math.round(((body + balance + crema) / 3) * 100) / 100;
+  const balanceScore = 10 - 2 * Math.abs(balance);
+  const liveScore  = Math.round(((body + balanceScore + crema) / 3) * 100) / 100;
 
   async function handleSubmit() {
     setError('');
@@ -412,7 +429,9 @@ export default function ReviewPage() {
           {step === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
               {subScores.map(({ key, label, hint, info, val, set }) => {
-                const pct = (val / 10) * 100;
+                const isBalance = key === 'balance';
+                const pct = isBalance ? null : (val / 10) * 100;
+                const bMeta = isBalance ? balanceMeta(val) : null;
                 return (
                   <div key={key}>
                     {/* Label row */}
@@ -437,9 +456,19 @@ export default function ReviewPage() {
                           }}
                         >i</button>
                       </div>
-                      <span style={{ fontFamily: '"DM Serif Display", Georgia, serif', fontSize: 22, fontWeight: 700, color: INK, lineHeight: 1 }}>
-                        {val}<span style={{ fontSize: 13, color: MUTED, fontWeight: 400 }}>/10</span>
-                      </span>
+                      {isBalance ? (
+                        <span style={{
+                          fontFamily: '"DM Serif Display", Georgia, serif',
+                          fontStyle: 'italic', fontSize: 19, fontWeight: 700,
+                          color: bMeta.color, lineHeight: 1,
+                        }}>
+                          {bMeta.label[lang]}
+                        </span>
+                      ) : (
+                        <span style={{ fontFamily: '"DM Serif Display", Georgia, serif', fontSize: 22, fontWeight: 700, color: INK, lineHeight: 1 }}>
+                          {val}<span style={{ fontSize: 13, color: MUTED, fontWeight: 400 }}>/10</span>
+                        </span>
+                      )}
                     </div>
 
                     {openInfo === key && (
@@ -454,16 +483,43 @@ export default function ReviewPage() {
                       </div>
                     )}
 
-                    {/* Slider */}
-                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: 32 }}>
-                      <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', transform: 'translateY(-50%)', height: 3, borderRadius: 2, pointerEvents: 'none', background: `linear-gradient(to right, ${COFFEE} ${pct}%, rgba(26,23,20,0.12) ${pct}%)` }} />
-                      <input
-                        type="range" min={1} max={10} step={1} value={val}
-                        onChange={(e) => set(Number(e.target.value))}
-                        className="ea-slider"
-                        style={{ position: 'relative', zIndex: 1, width: '100%' }}
-                      />
-                    </div>
+                    {isBalance ? (
+                      <>
+                        <div style={{
+                          display: 'flex', justifyContent: 'space-between',
+                          marginBottom: 6, fontSize: 11, color: MUTED, letterSpacing: 0.3,
+                          fontFamily: '"DM Sans", system-ui, sans-serif',
+                        }}>
+                          <span>{lang === 'de' ? 'Sauer' : 'Acidic'}</span>
+                          <span>{lang === 'de' ? 'Ausgewogen' : 'Balanced'}</span>
+                          <span>{lang === 'de' ? 'Bitter' : 'Bitter'}</span>
+                        </div>
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: 32 }}>
+                          <div style={{
+                            position: 'absolute', left: 0, right: 0, top: '50%',
+                            transform: 'translateY(-50%)', height: 4, borderRadius: 2,
+                            pointerEvents: 'none',
+                            background: 'linear-gradient(to right, #F59E0B 0%, #43A047 50%, #6B4A2A 100%)',
+                          }} />
+                          <input
+                            type="range" min={-5} max={5} step={1} value={val}
+                            onChange={(e) => set(Number(e.target.value))}
+                            className="ea-slider"
+                            style={{ position: 'relative', zIndex: 1, width: '100%' }}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: 32 }}>
+                        <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', transform: 'translateY(-50%)', height: 3, borderRadius: 2, pointerEvents: 'none', background: `linear-gradient(to right, ${COFFEE} ${pct}%, rgba(26,23,20,0.12) ${pct}%)` }} />
+                        <input
+                          type="range" min={1} max={10} step={1} value={val}
+                          onChange={(e) => set(Number(e.target.value))}
+                          className="ea-slider"
+                          style={{ position: 'relative', zIndex: 1, width: '100%' }}
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}
