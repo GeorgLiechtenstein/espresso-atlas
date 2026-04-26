@@ -47,6 +47,21 @@ export default function MapComponent({
   const markersRef     = useRef({});
   const pinClickRef    = useRef(onPinClick); // stable ref — avoids stale closures
   const [locateError, setLocateError] = useState(null);
+  const [showAskBanner, setShowAskBanner] = useState(false);
+
+  // Coarse initial centring on the user's region.
+  function requestInitPosition() {
+    if (!mapRef.current || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        mapRef.current?.flyTo([pos.coords.latitude, pos.coords.longitude], 9, { duration: 1.5 });
+      },
+      (err) => {
+        console.warn('[map init geolocation] code=' + err.code + ' message=' + err.message);
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 }
+    );
+  }
 
   // Keep callback ref fresh
   useEffect(() => { pinClickRef.current = onPinClick; }, [onPinClick]);
@@ -69,23 +84,35 @@ export default function MapComponent({
 
     mapRef.current = map;
 
-    // Coarse centring on the user's region. Fires every mount; the browser
-    // caches the permission decision and the position itself, so this is
-    // cheap on subsequent visits. If the user denies or it fails, the
-    // Europe-centred view above stays put — no error UI on init.
+    // Geolocation flow — three branches based on the Permissions API:
+    //   granted → fetch position silently
+    //   prompt  → show our friendly in-app banner; the browser's native
+    //             dialog only fires when the user taps "Allow", giving us
+    //             a chance to explain why first
+    //   denied  → silent (user previously chose; locate FAB still works
+    //             with the help toast)
+    // Older browsers without Permissions API: fall back to a direct
+    // getCurrentPosition call, which triggers the native dialog.
     const supportsGeo = typeof navigator !== 'undefined'
       && navigator.geolocation
       && (typeof window === 'undefined' || window.isSecureContext !== false);
     if (supportsGeo) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          map.flyTo([pos.coords.latitude, pos.coords.longitude], 9, { duration: 1.5 });
-        },
-        (err) => {
-          console.warn('[map init geolocation] code=' + err.code + ' message=' + err.message);
-        },
-        { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 }
-      );
+      if (navigator.permissions?.query) {
+        navigator.permissions.query({ name: 'geolocation' })
+          .then((res) => {
+            if (res.state === 'granted') {
+              requestInitPosition();
+            } else if (res.state === 'prompt') {
+              try {
+                if (!sessionStorage.getItem('em_geo_dismissed')) setShowAskBanner(true);
+              } catch { setShowAskBanner(true); }
+            }
+            // 'denied' → silent
+          })
+          .catch(() => requestInitPosition());
+      } else {
+        requestInitPosition();
+      }
     } else {
       console.warn('[map init geolocation] not supported (geo=' + !!navigator.geolocation + ', secureCtx=' + (typeof window === 'undefined' ? 'n/a' : window.isSecureContext) + ')');
     }
@@ -176,7 +203,18 @@ export default function MapComponent({
     return () => clearTimeout(t);
   }, [locateError]);
 
+  function handleAllowLocation() {
+    setShowAskBanner(false);
+    requestInitPosition();
+  }
+
+  function handleDismissAsk() {
+    setShowAskBanner(false);
+    try { sessionStorage.setItem('em_geo_dismissed', '1'); } catch {}
+  }
+
   function handleLocate() {
+    setShowAskBanner(false);
     if (!mapRef.current) return;
 
     const showError = (code) => {
@@ -261,6 +299,59 @@ export default function MapComponent({
             fontFamily: '"DM Sans", system-ui, sans-serif',
             boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
           }}>{locateError.msg}</span>
+        </div>
+      )}
+
+      {showAskBanner && (
+        <div style={{
+          position: 'fixed', zIndex: 1002,
+          top: 'calc(env(safe-area-inset-top) + 80px)',
+          left: 16, right: 16,
+        }}>
+          <div style={{
+            maxWidth: 360, marginInline: 'auto',
+            background: '#FAF0E6',
+            border: '1px solid #E0D8CC', borderRadius: 16,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
+            padding: '14px 16px',
+            display: 'flex', flexDirection: 'column', gap: 12,
+          }}>
+            <p style={{
+              margin: 0, fontSize: 14, lineHeight: 1.4, color: '#1a1714',
+              fontFamily: '"DM Sans", system-ui, sans-serif',
+            }}>
+              {lang === 'de'
+                ? 'Standort nutzen, um die Karte auf deine Region zu zentrieren?'
+                : 'Use your location to centre the map on your region?'}
+            </p>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={handleDismissAsk}
+                style={{
+                  padding: '8px 14px', minHeight: 36,
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontSize: 13, color: '#555555',
+                  fontFamily: '"DM Sans", system-ui, sans-serif',
+                }}
+              >
+                {lang === 'de' ? 'Nicht jetzt' : 'Not now'}
+              </button>
+              <button
+                type="button"
+                onClick={handleAllowLocation}
+                style={{
+                  padding: '8px 14px', minHeight: 36,
+                  background: '#6B4A2A', color: '#FAF0E6',
+                  border: 'none', borderRadius: 10, cursor: 'pointer',
+                  fontSize: 13, fontWeight: 600,
+                  fontFamily: '"DM Sans", system-ui, sans-serif',
+                }}
+              >
+                {lang === 'de' ? 'Erlauben' : 'Allow'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
