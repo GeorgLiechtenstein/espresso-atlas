@@ -19,6 +19,28 @@ const BUCKET_META = {
   avoid:     { color: '#8B2A2A', textColor: '#8B2A2A', label: { de: 'Meiden',    en: 'Avoid' } },
 };
 
+const BALANCE_META = {
+  balanced:     { color: '#6F4E37', label: { de: 'Ausgewogen',    en: 'Balanced' } },
+  slightAcidic: { color: '#888888', label: { de: 'Leicht sauer',  en: 'Slightly acidic' } },
+  slightBitter: { color: '#888888', label: { de: 'Leicht bitter', en: 'Slightly bitter' } },
+  tooAcidic:    { color: '#A94442', label: { de: 'Zu sauer',      en: 'Too acidic' } },
+  tooBitter:    { color: '#A94442', label: { de: 'Zu bitter',     en: 'Too bitter' } },
+};
+
+function balanceMeta(val) {
+  if (val == null) return null;
+  const a = Math.abs(val);
+  if (a <= 1) return BALANCE_META.balanced;
+  if (a <= 3) return val > 0 ? BALANCE_META.slightBitter : BALANCE_META.slightAcidic;
+  return val > 0 ? BALANCE_META.tooBitter : BALANCE_META.tooAcidic;
+}
+
+function criteriaBarColor(val) {
+  if (val >= 8) return '#6F4E37';
+  if (val >= 4) return '#C4B5A0';
+  return '#A94442';
+}
+
 export default function BottomSheet({ venue, isOpen, onClose }) {
   const navigate  = useNavigate();
   const { user }  = useAuth();
@@ -67,11 +89,11 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
   const scoreColor = meta ? meta.textColor : '#9CA3AF';
   const chipLabel  = meta ? meta.label[lang] : null;
 
-  const subScores = hasRating ? [
-    { label: lang === 'de' ? 'Körper'  : 'Body',    val: venue.body },
-    { label: 'Balance',                               val: 10 - 2 * Math.abs(venue.balance) },
-    { label: 'Crema',                                 val: venue.crema },
+  const barScores = hasRating ? [
+    { key: 'body',  label: lang === 'de' ? 'Körper' : 'Body', val: venue.body },
+    { key: 'crema', label: 'Crema',                            val: venue.crema },
   ] : null;
+  const bMeta = hasRating ? balanceMeta(venue.balance) : null;
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${venue.name} ${venue.city} ${venue.country}`
@@ -161,18 +183,18 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
             </div>
           )}
 
-          {/* Three sub-score bars */}
-          {subScores ? (
+          {/* Sub-scores */}
+          {hasRating ? (
             <div className="flex flex-col gap-1.5 mb-4">
-              {subScores.map(({ label, val }) => (
-                <div key={label} className="flex items-center gap-2">
+              {barScores.map(({ key, label, val }) => (
+                <div key={key} className="flex items-center gap-2">
                   <span style={{ fontSize: 11, color: '#555555', width: 52, flexShrink: 0, letterSpacing: 0.2 }}>
                     {label}
                   </span>
                   <div className="flex-1 rounded-full overflow-hidden"
                        style={{ height: 8, background: '#E0E0E0' }}>
                     <div className="h-full rounded-full"
-                         style={{ width: `${((val ?? 0) / 10) * 100}%`, background: BUCKET_META[bucket(val)]?.color ?? '#9CA3AF' }} />
+                         style={{ width: `${((val ?? 0) / 10) * 100}%`, background: criteriaBarColor(val) }} />
                   </div>
                   <span style={{
                     fontFamily: '"DM Serif Display", Georgia, serif',
@@ -181,6 +203,17 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
                   }}>{val}<span style={{ color: '#555555', fontWeight: 400 }}>/10</span></span>
                 </div>
               ))}
+              <div className="flex items-center gap-2">
+                <span style={{ fontSize: 11, color: '#555555', width: 52, flexShrink: 0, letterSpacing: 0.2 }}>
+                  Balance
+                </span>
+                <span style={{
+                  flex: 1,
+                  fontFamily: '"DM Serif Display", Georgia, serif',
+                  fontStyle: 'italic', fontSize: 13, fontWeight: 700,
+                  color: bMeta.color,
+                }}>{bMeta.label[lang]}</span>
+              </div>
             </div>
           ) : (
             <p style={{ fontSize: 13, color: '#555555', fontStyle: 'italic', marginBottom: 14 }}>

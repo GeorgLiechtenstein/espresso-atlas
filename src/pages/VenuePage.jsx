@@ -24,11 +24,11 @@ const BUCKET_META = {
 };
 
 const BALANCE_META = {
-  balanced:     { color: '#1a1714', label: { de: 'Ausgewogen',    en: 'Balanced' } },
-  slightAcidic: { color: '#555555', label: { de: 'Leicht sauer',  en: 'Slightly acidic' } },
-  slightBitter: { color: '#555555', label: { de: 'Leicht bitter', en: 'Slightly bitter' } },
-  tooAcidic:    { color: '#E53935', label: { de: 'Zu sauer',      en: 'Too acidic' } },
-  tooBitter:    { color: '#E53935', label: { de: 'Zu bitter',     en: 'Too bitter' } },
+  balanced:     { color: '#6F4E37', label: { de: 'Ausgewogen',    en: 'Balanced' } },
+  slightAcidic: { color: '#888888', label: { de: 'Leicht sauer',  en: 'Slightly acidic' } },
+  slightBitter: { color: '#888888', label: { de: 'Leicht bitter', en: 'Slightly bitter' } },
+  tooAcidic:    { color: '#A94442', label: { de: 'Zu sauer',      en: 'Too acidic' } },
+  tooBitter:    { color: '#A94442', label: { de: 'Zu bitter',     en: 'Too bitter' } },
 };
 
 function balanceMeta(val) {
@@ -44,14 +44,6 @@ function criteriaBarColor(val) {
   if (val >= 8) return '#6F4E37'; // brown
   if (val >= 4) return '#C4B5A0'; // sand
   return '#A94442';               // muted red
-}
-
-// Bar fill colour for balance (-5..+5) — based on distance from 0.
-function balanceBarColor(val) {
-  const a = Math.abs(val ?? 0);
-  if (a <= 1) return '#6F4E37';
-  if (a <= 3) return '#C4B5A0';
-  return '#A94442';
 }
 
 export default function VenuePage() {
@@ -129,8 +121,8 @@ export default function VenuePage() {
 
   const criteria = hasRating ? [
     { key: 'body',    label: lang === 'de' ? 'Körper'  : 'Body',    hint: lang === 'de' ? 'Sirupartig vs. wässrig'        : 'Syrupy vs. watery',         info: tr.bodyInfo,    val: venue.body },
-    { key: 'balance', label: 'Balance',                              hint: lang === 'de' ? 'Harmonisch vs. bitter/sauer'   : 'Balanced vs. bitter/sour',   info: tr.balanceInfo, val: venue.balance },
     { key: 'crema',   label: 'Crema',                                hint: lang === 'de' ? 'Dicht und beständig vs. dünn' : 'Dense and lasting vs. thin', info: tr.cremaInfo,   val: venue.crema },
+    { key: 'balance', label: 'Balance',                              hint: lang === 'de' ? 'Harmonisch vs. bitter/sauer'   : 'Balanced vs. bitter/sour',   info: tr.balanceInfo, val: venue.balance },
   ] : null;
 
   const divider = <div style={{ height: 1, background: 'rgba(26,23,20,0.10)', margin: '20px 0' }} />;
@@ -320,20 +312,7 @@ export default function VenuePage() {
                         {info}
                       </div>
                     )}
-                    {isBalance ? (
-                      <div style={{
-                        position: 'relative', height: 8, borderRadius: 4,
-                        background: '#E0E0E0',
-                      }}>
-                        <div style={{
-                          position: 'absolute', top: 0, bottom: 0,
-                          left: (val ?? 0) < 0 ? `${50 - Math.abs(val) * 10}%` : '50%',
-                          width: `${Math.abs(val ?? 0) * 10}%`,
-                          background: balanceBarColor(val),
-                          borderRadius: 4,
-                        }} />
-                      </div>
-                    ) : (
+                    {!isBalance && (
                       <div style={{ height: 8, background: '#E0E0E0', borderRadius: 4, position: 'relative' }}>
                         <div style={{
                           position: 'absolute', left: 0, top: 0, bottom: 0,
