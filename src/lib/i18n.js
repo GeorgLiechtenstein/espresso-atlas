@@ -6,7 +6,7 @@ export const tr = {
     // App
     appName:      'Espresso Atlas',
     taglineFull:  'Wo der Espresso gut ist. Und wo nicht.',
-    taglineShort: 'Georg zeigt, wo der Espresso gut ist.',
+    taglineShort: 'Georg zeigt Dir, wo der Espresso gut ist.',
 
     // Nav / common
     signIn:    'Anmelden',
@@ -44,6 +44,8 @@ export const tr = {
     noResultsFor: 'Keine Treffer für',
     emptyLine1:   'Noch leer hier.',
     emptyLine2:   'Trink einen Espresso. Bewerte ihn.',
+    noReviewsHere:  'Noch keine Bewertungen hier.',
+    addFirstReview: 'Erste Bewertung abgeben',
     filterCity:        'Stadt',
     filterScore:       'Urteil',
     filterPeriod:      'Zeitraum',
@@ -161,7 +163,7 @@ export const tr = {
     // App
     appName:      'Espresso Atlas',
     taglineFull:  'Where the espresso is good. And where it\'s not.',
-    taglineShort: "Georg's guide to great espresso.",
+    taglineShort: 'Georg shows you where the espresso is good.',
 
     // Nav / common
     signIn:    'Sign in',
@@ -199,6 +201,8 @@ export const tr = {
     noResultsFor: 'No results for',
     emptyLine1:   'Still empty here.',
     emptyLine2:   'Drink an espresso. Rate it.',
+    noReviewsHere:  'No reviews here yet.',
+    addFirstReview: 'Add first review',
     filterCity:        'City',
     filterScore:       'Score',
     filterPeriod:      'Period',
