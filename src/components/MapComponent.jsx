@@ -191,7 +191,7 @@ export default function MapComponent({
       (pos) => {
         mapRef.current?.flyTo(
           [pos.coords.latitude, pos.coords.longitude],
-          14,
+          13,                     // ~5km horizontal — user + nearby pins
           { duration: 1.2 }
         );
       },
@@ -202,7 +202,10 @@ export default function MapComponent({
         console.warn('[locate FAB] code=' + err.code + ' message=' + err.message);
         fail();
       },
-      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+      // High accuracy = GPS on mobile, Wi-Fi triangulation on desktop.
+      // Slower (2–10s warm-up) but the user explicitly tapped, so the
+      // wait is acceptable. 15s timeout to give GPS time to lock.
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
     );
   }
 
