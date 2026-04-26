@@ -125,25 +125,31 @@ export default function HomePage() {
         className="fixed left-0 right-0 top-0 z-[400] bg-surface shadow-sm"
         style={{
           paddingTop: 'calc(env(safe-area-inset-top) + 12px)',
-          paddingBottom: 10,
+          paddingBottom: 12,
         }}
       >
         <div className="flex items-center justify-between px-4">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="flex items-center" style={{ gap: 8, flex: 1, minWidth: 0 }}>
             <CupLogo />
-            <span className="font-serif text-[19px] text-ink leading-tight" style={{ cursor: 'pointer' }} onClick={() => setSearchParams({ tab: 'map' }, { replace: true })}>Espresso Atlas</span>
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+              <span
+                className="font-serif text-[19px] text-ink"
+                style={{ cursor: 'pointer', lineHeight: 1.1 }}
+                onClick={() => setSearchParams({ tab: 'map' }, { replace: true })}
+              >
+                Espresso Atlas
+              </span>
+              <p style={{
+                fontSize: 13, color: '#777777',
+                fontFamily: '"DM Sans", system-ui, sans-serif',
+                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                margin: 0, marginTop: 2, lineHeight: 1.2,
+              }}>
+                {tr.taglineShort}
+              </p>
+            </div>
           </div>
           <LangToggle />
-        </div>
-        <div className="px-4 pt-1">
-          <p style={{
-            fontSize: 14, color: '#555555',
-            fontFamily: '"DM Sans", system-ui, sans-serif',
-            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-            margin: 0,
-          }}>
-            {tr.taglineShort}
-          </p>
         </div>
       </header>
 
