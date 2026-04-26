@@ -199,10 +199,14 @@ export default function VenuePage() {
 
         {/* Pull quote */}
         {venue.comment && (
-          <div style={{ borderLeft: '3px solid #6B4A2A', paddingLeft: 14, marginBottom: 24 }}>
+          <div style={{
+            borderLeft: '3px solid #6B4A2A',
+            paddingLeft: 18, paddingTop: 4, paddingBottom: 4,
+            marginTop: 24, marginBottom: 24,
+          }}>
             <p style={{
               fontFamily: '"DM Serif Display", Georgia, serif',
-              fontStyle: 'italic', fontSize: 20, lineHeight: 1.35,
+              fontStyle: 'italic', fontSize: 22, lineHeight: 1.4,
               color: '#1a1714', margin: 0,
             }}>„{venue.comment}"</p>
           </div>

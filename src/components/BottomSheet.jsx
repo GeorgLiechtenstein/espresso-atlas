@@ -109,8 +109,7 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2 sticky top-0 z-10"
              style={{ background: '#FAF0E6' }}>
-          <div className="w-9 h-1 rounded-full"
-               style={{ background: 'rgba(26,23,20,0.18)' }} />
+          <div style={{ width: 48, height: 4, borderRadius: 4, background: 'rgba(26,23,20,0.18)' }} />
         </div>
 
         <div className="px-5 pb-5">
@@ -236,7 +235,7 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
                 letterSpacing: 0.3, textDecoration: 'none',
               }}
             >
-              Maps ↗
+              Google Maps ↗
             </a>
           </div>
 
