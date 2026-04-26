@@ -169,22 +169,33 @@ export default function MapComponent({
   }, [flyToId]);
 
   // ── Locate ────────────────────────────────────────────────────────────────
-  // Auto-clear the toast after 3s.
+  // locateError: { msg, durationMs } | null. Auto-clears after the duration.
   useEffect(() => {
     if (!locateError) return;
-    const t = setTimeout(() => setLocateError(null), 3000);
+    const t = setTimeout(() => setLocateError(null), locateError.durationMs);
     return () => clearTimeout(t);
   }, [locateError]);
 
   function handleLocate() {
     if (!mapRef.current) return;
-    const fail = () => setLocateError(
-      lang === 'de' ? 'Standort nicht verfügbar' : 'Location not available'
-    );
+
+    const showError = (code) => {
+      // Code 1 = the user (or a previous "block" choice) is denying us. Tell
+      // them how to fix it. Codes 2/3 + secure-context fallback are
+      // environmental — generic message.
+      const isDenied = code === 1;
+      const msg = isDenied
+        ? (lang === 'de'
+            ? 'Standort blockiert. In den Browser-Einstellungen für diese Seite erlauben.'
+            : 'Location blocked. Allow it in this site’s browser settings.')
+        : (lang === 'de' ? 'Standort nicht verfügbar' : 'Location not available');
+      setLocateError({ msg, durationMs: isDenied ? 6000 : 3000 });
+    };
+
     // Geolocation needs a Secure Context — Firefox blocks it on plain HTTP
     // without firing the error callback in some builds. Bail early.
     if (!navigator.geolocation || (typeof window !== 'undefined' && window.isSecureContext === false)) {
-      fail();
+      showError(null);
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -196,11 +207,10 @@ export default function MapComponent({
         );
       },
       // err.code: 1 PERMISSION_DENIED, 2 POSITION_UNAVAILABLE, 3 TIMEOUT.
-      // Same enum across Chrome / Safari / Firefox — single message covers
-      // all three.
+      // Same enum across Chrome / Safari / Firefox.
       (err) => {
         console.warn('[locate FAB] code=' + err.code + ' message=' + err.message);
-        fail();
+        showError(err.code);
       },
       // High accuracy = GPS on mobile, Wi-Fi triangulation on desktop.
       // Slower (2–10s warm-up) but the user explicitly tapped, so the
@@ -244,12 +254,13 @@ export default function MapComponent({
         }}>
           <span style={{
             display: 'inline-block',
+            maxWidth: 320,
             background: 'rgba(26,23,20,0.92)', color: '#FAF0E6',
-            padding: '10px 18px', borderRadius: 24,
-            fontSize: 13, fontWeight: 500,
+            padding: '10px 18px', borderRadius: 16,
+            fontSize: 13, fontWeight: 500, lineHeight: 1.4,
             fontFamily: '"DM Sans", system-ui, sans-serif',
             boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
-          }}>{locateError}</span>
+          }}>{locateError.msg}</span>
         </div>
       )}
     </div>
