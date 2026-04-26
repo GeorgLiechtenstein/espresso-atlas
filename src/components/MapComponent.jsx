@@ -49,15 +49,41 @@ export default function MapComponent({
   const [locateError, setLocateError] = useState(null);
   const [showAskBanner, setShowAskBanner] = useState(false);
 
-  // Coarse initial centring on the user's region.
+  // IP-based coarse fallback. Only city-level precision (~10–50km), but
+  // always works regardless of browser Geolocation permission state —
+  // particularly important for Safari, which can return code 1 even with
+  // "Ask" set if anything in the OS / Safari permission chain is off.
+  // Uses ipapi.co (HTTPS, no API key, 30k requests/month free).
+  async function ipBasedZoom() {
+    if (!mapRef.current) return false;
+    try {
+      const res = await fetch('https://ipapi.co/json/');
+      if (!res.ok) return false;
+      const data = await res.json();
+      const lat = parseFloat(data.latitude);
+      const lng = parseFloat(data.longitude);
+      if (!isFinite(lat) || !isFinite(lng)) return false;
+      mapRef.current?.flyTo([lat, lng], 9, { duration: 1.5 });
+      console.log('[ip fallback] zoomed to', lat, lng, '(' + (data.city || '?') + ')');
+      return true;
+    } catch (e) {
+      console.warn('[ip fallback] failed', e);
+      return false;
+    }
+  }
+
+  // Coarse initial centring on the user's region. Tries the browser
+  // Geolocation API first; on failure, silently falls back to IP.
   function requestInitPosition() {
-    if (!mapRef.current || !navigator.geolocation) return;
+    if (!mapRef.current) return;
+    if (!navigator.geolocation) { ipBasedZoom(); return; }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         mapRef.current?.flyTo([pos.coords.latitude, pos.coords.longitude], 9, { duration: 1.5 });
       },
       (err) => {
-        console.warn('[map init geolocation] code=' + err.code + ' message=' + err.message);
+        console.warn('[map init geolocation] code=' + err.code + ' message=' + err.message + ' — trying IP fallback');
+        ipBasedZoom();
       },
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 }
     );
@@ -208,8 +234,13 @@ export default function MapComponent({
   }, [locateError]);
 
   function handleAllowLocation() {
-    if (!mapRef.current || !navigator.geolocation) {
+    if (!mapRef.current) {
       setShowAskBanner(false);
+      return;
+    }
+    setShowAskBanner(false);
+    if (!navigator.geolocation) {
+      ipBasedZoom();
       return;
     }
     // Inline the call so it runs synchronously inside this user-gesture
@@ -223,24 +254,25 @@ export default function MapComponent({
           9,
           { duration: 1.5 }
         );
-        setShowAskBanner(false);
       },
-      (err) => {
-        console.warn('[modal allow] code=' + err.code + ' message=' + err.message);
-        setShowAskBanner(false);
-        // Surface the same help toast as the locate FAB so the user knows
-        // what to do — Safari can return code 1 even when its UI says
-        // "Ask" if the site has a cached deny or macOS Location Services
-        // is off for Safari.
-        const isDenied = err.code === 1;
-        setLocateError({
-          msg: isDenied
-            ? (lang === 'de'
-                ? 'Standort blockiert. In den Browser-Einstellungen für diese Seite erlauben.'
-                : 'Location blocked. Allow it in this site’s browser settings.')
-            : (lang === 'de' ? 'Standort nicht verfügbar' : 'Location not available'),
-          durationMs: isDenied ? 6000 : 3000,
-        });
+      async (err) => {
+        // The user said yes in our modal but the browser denied us
+        // anyway (Safari quirk, or system-level Location Services off).
+        // Honour the intent: try the IP fallback so they still get a
+        // sensible regional view and can find nearby cafes.
+        console.warn('[modal allow] code=' + err.code + ' message=' + err.message + ' — trying IP fallback');
+        const ok = await ipBasedZoom();
+        if (!ok) {
+          const isDenied = err.code === 1;
+          setLocateError({
+            msg: isDenied
+              ? (lang === 'de'
+                  ? 'Standort blockiert. In den Browser-Einstellungen für diese Seite erlauben.'
+                  : 'Location blocked. Allow it in this site’s browser settings.')
+              : (lang === 'de' ? 'Standort nicht verfügbar' : 'Location not available'),
+            durationMs: isDenied ? 6000 : 3000,
+          });
+        }
       },
       { enableHighAccuracy: false, timeout: 15000, maximumAge: 5 * 60 * 1000 }
     );
