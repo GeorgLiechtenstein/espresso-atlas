@@ -151,7 +151,7 @@ export const tr = {
       },
       {
         heading: 'Für wen',
-        body: 'Für jeden, der in einer Stadt am Flughafen landet, ins Hotel eincheckt und als erstes wissen will: Wo bekomme ich hier einen Espresso, der den Namen verdient?\n\nWenn dir diese Information hilft, freut mich das. Wenn du einen Ort kennst, wo ich den Espresso probieren sollte — schreib mir.',
+        body: 'Für jeden, der in einer Stadt am Flughafen landet, ins Hotel eincheckt und als erstes wissen will: Wo bekomme ich hier einen Espresso, der den Namen verdient?\n\nWenn dir diese Information hilft, freut mich das.',
       },
     ],
     aboutSignature: '— Georg',
@@ -306,7 +306,7 @@ export const tr = {
       },
       {
         heading: "Who it's for",
-        body: "For anyone who lands at an airport in a city, checks into a hotel, and the first thing they want to know is: Where can I get an espresso worth the name?\n\nIf this helps you, I'm glad. If you know a place where I should try the espresso — write me.",
+        body: "For anyone who lands at an airport in a city, checks into a hotel, and the first thing they want to know is: Where can I get an espresso worth the name?\n\nIf this helps you, I'm glad.",
       },
     ],
     aboutSignature: '— Georg',
