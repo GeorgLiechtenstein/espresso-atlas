@@ -122,7 +122,7 @@ export default function VenuePage() {
   const criteria = hasRating ? [
     { key: 'body',    label: lang === 'de' ? 'Körper'  : 'Body',    hint: lang === 'de' ? 'Sirupartig vs. wässrig'        : 'Syrupy vs. watery',         info: tr.bodyInfo,    val: venue.body },
     { key: 'crema',   label: 'Crema',                                hint: lang === 'de' ? 'Dicht und beständig vs. dünn' : 'Dense and lasting vs. thin', info: tr.cremaInfo,   val: venue.crema },
-    { key: 'balance', label: 'Balance',                              hint: lang === 'de' ? 'Harmonisch vs. bitter/sauer'   : 'Balanced vs. bitter/sour',   info: tr.balanceInfo, val: venue.balance },
+    { key: 'balance', label: 'Balance',                              hint: lang === 'de' ? 'Harmonisch vs. bitter/sauer'   : 'Balanced vs. bitter/sour',   info: tr.balanceInfoDetail, val: venue.balance },
   ] : null;
 
   const divider = <div style={{ height: 1, background: 'rgba(26,23,20,0.10)', margin: '20px 0' }} />;
