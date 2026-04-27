@@ -142,10 +142,6 @@ export const tr = {
         body: 'Ein persönlicher Atlas für guten Espresso. Ich reise viel und will wissen, wo ich in einer Stadt einen anständigen Espresso bekomme. Keine Café-Bewertung, keine Atmosphäre-Punkte, kein Essen — nur die eine Frage: Ist der Espresso gut oder nicht?\n\nJeden Espresso bewerte ich persönlich nach drei Kriterien: Körper, Balance, Crema. Kein Algorithmus, keine gesponserten Platzierungen. Nur meine ehrliche Meinung nach dem letzten Schluck.',
       },
       {
-        heading: 'Wie ich bewerte',
-        body: 'Ich bewerte jeden Espresso nach drei Kriterien:\n\nKörper — Wie dicht und substanziell fühlt sich der Espresso im Mund an? 10 = sirupartig, vollmundig, schwer. 1 = wässrig, dünn, leer.\n\nBalance — Ist der Espresso geschmacklich im Gleichgewicht? Anders als bei Körper und Crema vergebe ich hier keine Punkte, sondern stufe auf einem Spektrum von sauer bis bitter ein:\n• Ausgewogen — perfekt balanciert, weder zu sauer noch zu bitter\n• Leicht sauer / Leicht bitter — spürbare Tendenz, aber noch trinkbar\n• Zu sauer / Zu bitter — deutlich aus dem Gleichgewicht\n\nCrema — Wie sieht die Crema aus? 10 = dicht, haselnussbraun, hält 30+ Sekunden. 1 = keine Crema oder dünner, blasser Schaum der sofort verschwindet.',
-      },
-      {
         heading: 'Was Espresso Atlas nicht ist',
         body: 'Kein Yelp. Kein Google Reviews. Kein Hipster-Café-Blog mit Latte-Art-Fotos. Hier geht es um eine einzige Sache: Espresso. Kurz, schwarz, ohne Kompromisse.',
       },
@@ -295,10 +291,6 @@ export const tr = {
       {
         heading: 'What Espresso Atlas is',
         body: "A personal atlas for good espresso. I travel a lot and want to know where to find a proper espresso in a city. No café reviews, no ambience scores, no food ratings — just one question: Is the espresso good or not?\n\nI rate every espresso personally on three criteria: Body, Balance, Crema. No algorithm, no sponsored placements. Just my honest opinion after the last sip.",
-      },
-      {
-        heading: 'How I rate',
-        body: "I rate every espresso on three criteria:\n\nBody — How dense and substantial does the espresso feel in your mouth? 10 = syrupy, full-bodied, heavy. 1 = watery, thin, empty.\n\nBalance — Is the espresso well-balanced in taste? Unlike body and crema, I don’t give a numerical score here. Instead, I rate on a spectrum from acidic to bitter:\n• Balanced — perfectly balanced, neither too acidic nor too bitter\n• Slightly acidic / Slightly bitter — noticeable tendency, but still drinkable\n• Too acidic / Too bitter — clearly out of balance\n\nCrema — How does the crema look? 10 = dense, hazelnut-brown, holds for 30+ seconds. 1 = no crema or thin, pale foam that disappears immediately.",
       },
       {
         heading: 'What Espresso Atlas is not',

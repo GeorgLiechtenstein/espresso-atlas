@@ -9,6 +9,7 @@ import CupLogo from '../components/CupLogo';
 import MapComponent from '../components/MapComponent';
 import BottomSheet from '../components/BottomSheet';
 import IndexPanel from '../components/IndexPanel';
+import AboutCriteria from '../components/AboutCriteria';
 
 const BUCKETS = [
   { key: 'excellent', fill: '#1a1714', textColor: '#1a1714', label: { de: 'Exzellent', en: 'Excellent' } },
@@ -270,8 +271,19 @@ export default function HomePage() {
           <p className="text-xs font-sans mb-8 tracking-widest uppercase" style={{ color: '#555555' }}>
             {tr.aboutTagline}
           </p>
-          <div className="space-y-8">
-            {tr.aboutSections.map((s) => (
+          <div className="space-y-10">
+            {tr.aboutSections.slice(0, 2).map((s) => (
+              <section key={s.heading}>
+                <h2 className="font-serif text-2xl text-ink mb-3 leading-tight">{s.heading}</h2>
+                {s.body.split('\n\n').map((para, i) => (
+                  <p key={i} className="text-[15px] text-gray-600 font-sans leading-relaxed mb-3 last:mb-0 whitespace-pre-line">
+                    {para}
+                  </p>
+                ))}
+              </section>
+            ))}
+            <AboutCriteria />
+            {tr.aboutSections.slice(2).map((s) => (
               <section key={s.heading}>
                 <h2 className="font-serif text-2xl text-ink mb-3 leading-tight">{s.heading}</h2>
                 {s.body.split('\n\n').map((para, i) => (
