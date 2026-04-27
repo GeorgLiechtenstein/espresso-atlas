@@ -275,7 +275,7 @@ export default function HomePage() {
               <section key={s.heading}>
                 <h2 className="font-serif text-2xl text-ink mb-3 leading-tight">{s.heading}</h2>
                 {s.body.split('\n\n').map((para, i) => (
-                  <p key={i} className="text-[15px] text-gray-600 font-sans leading-relaxed mb-3 last:mb-0">
+                  <p key={i} className="text-[15px] text-gray-600 font-sans leading-relaxed mb-3 last:mb-0 whitespace-pre-line">
                     {para}
                   </p>
                 ))}

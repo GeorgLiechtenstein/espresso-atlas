@@ -142,7 +142,7 @@ export const tr = {
       },
       {
         heading: 'Wie ich bewerte',
-        body: 'Ich bewerte jeden Espresso nach drei Kriterien:\n\nKörper — Wie dicht und substanziell fühlt sich der Espresso im Mund an? 10 = sirupartig, vollmundig, schwer. 1 = wässrig, dünn, leer.\n\nBalance — Ist der Espresso geschmacklich im Gleichgewicht? 10 = harmonisch, weder bitter noch sauer. 1 = unangenehm bitter oder stechend sauer.\n\nCrema — Wie sieht die Crema aus? 10 = dicht, haselnussbraun, hält 30+ Sekunden. 1 = keine Crema oder dünner, blasser Schaum der sofort verschwindet.',
+        body: 'Ich bewerte jeden Espresso nach drei Kriterien:\n\nKörper — Wie dicht und substanziell fühlt sich der Espresso im Mund an? 10 = sirupartig, vollmundig, schwer. 1 = wässrig, dünn, leer.\n\nBalance — Ist der Espresso geschmacklich im Gleichgewicht? Anders als bei Körper und Crema vergebe ich hier keine Punkte, sondern stufe auf einem Spektrum von sauer bis bitter ein:\n• Ausgewogen — perfekt balanciert, weder zu sauer noch zu bitter\n• Leicht sauer / Leicht bitter — spürbare Tendenz, aber noch trinkbar\n• Zu sauer / Zu bitter — deutlich aus dem Gleichgewicht\n\nCrema — Wie sieht die Crema aus? 10 = dicht, haselnussbraun, hält 30+ Sekunden. 1 = keine Crema oder dünner, blasser Schaum der sofort verschwindet.',
       },
       {
         heading: 'Was Espresso Atlas nicht ist',
@@ -296,7 +296,7 @@ export const tr = {
       },
       {
         heading: 'How I rate',
-        body: "I rate every espresso on three criteria:\n\nBody — How dense and substantial does the espresso feel in your mouth? 10 = syrupy, full-bodied, heavy. 1 = watery, thin, empty.\n\nBalance — Is the espresso well-balanced in taste? 10 = harmonious, neither bitter nor sour. 1 = unpleasantly bitter or sharply acidic.\n\nCrema — How does the crema look? 10 = dense, hazelnut-brown, holds for 30+ seconds. 1 = no crema or thin, pale foam that disappears immediately.",
+        body: "I rate every espresso on three criteria:\n\nBody — How dense and substantial does the espresso feel in your mouth? 10 = syrupy, full-bodied, heavy. 1 = watery, thin, empty.\n\nBalance — Is the espresso well-balanced in taste? Unlike body and crema, I don’t give a numerical score here. Instead, I rate on a spectrum from acidic to bitter:\n• Balanced — perfectly balanced, neither too acidic nor too bitter\n• Slightly acidic / Slightly bitter — noticeable tendency, but still drinkable\n• Too acidic / Too bitter — clearly out of balance\n\nCrema — How does the crema look? 10 = dense, hazelnut-brown, holds for 30+ seconds. 1 = no crema or thin, pale foam that disappears immediately.",
       },
       {
         heading: 'What Espresso Atlas is not',
