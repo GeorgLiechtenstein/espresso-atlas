@@ -63,12 +63,29 @@ function CritBlock({ title, type, value, onChange, descriptor, descriptorColor, 
 
   return (
     <div>
-      <h3 style={{
-        fontFamily: '"DM Serif Display", Georgia, serif',
-        fontSize: 22, fontWeight: 700, color: '#1a1714',
-        margin: 0, lineHeight: 1.2, letterSpacing: -0.3,
-        marginBottom: 14,
-      }}>{title}</h3>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
+        <h3 style={{
+          fontFamily: '"DM Serif Display", Georgia, serif',
+          fontSize: 22, fontWeight: 700, color: '#1a1714',
+          margin: 0, lineHeight: 1.2, letterSpacing: -0.3,
+        }}>{title}</h3>
+        {isSpectrum ? (
+          <span style={{
+            fontFamily: '"DM Serif Display", Georgia, serif',
+            fontStyle: 'italic', fontSize: 19, fontWeight: 700,
+            color: descriptorColor,
+            lineHeight: 1,
+            transition: 'color 0.18s ease',
+          }}>{descriptor}</span>
+        ) : (
+          <span style={{
+            fontFamily: '"DM Serif Display", Georgia, serif',
+            fontSize: 22, fontWeight: 700, color: '#1a1714', lineHeight: 1,
+          }}>
+            {value}<span style={{ fontSize: 13, color: '#555555', fontWeight: 400 }}>/10</span>
+          </span>
+        )}
+      </div>
 
       {isSpectrum && (
         <div style={{
@@ -86,7 +103,7 @@ function CritBlock({ title, type, value, onChange, descriptor, descriptorColor, 
         <div style={{
           position: 'absolute', left: 0, right: 0, top: '50%',
           transform: 'translateY(-50%)',
-          height: isSpectrum ? 4 : 4, borderRadius: 2,
+          height: 4, borderRadius: 2,
           pointerEvents: 'none',
           background: trackBg,
         }} />
@@ -102,13 +119,14 @@ function CritBlock({ title, type, value, onChange, descriptor, descriptorColor, 
         />
       </div>
 
-      <p style={{
-        fontFamily: '"DM Serif Display", Georgia, serif',
-        fontStyle: 'italic', fontSize: 16, fontWeight: 700,
-        color: descriptorColor || '#1a1714',
-        marginTop: 14, marginBottom: 0, lineHeight: 1.4,
-        transition: 'color 0.18s ease',
-      }}>{descriptor}</p>
+      {!isSpectrum && (
+        <p style={{
+          fontFamily: '"DM Serif Display", Georgia, serif',
+          fontStyle: 'italic', fontSize: 16, fontWeight: 700,
+          color: '#1a1714',
+          marginTop: 14, marginBottom: 0, lineHeight: 1.4,
+        }}>{descriptor}</p>
+      )}
     </div>
   );
 }
