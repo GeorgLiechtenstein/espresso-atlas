@@ -34,11 +34,56 @@ function tileUrl(lang) {
     : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 }
 
+// Pre-defined map views for quick country zoom. Stored under both German
+// and English country names because the venues table mixes both.
+const COUNTRY_VIEWS = {
+  Deutschland:              { lat: 51.1, lng: 10.4, zoom: 6 },
+  Germany:                  { lat: 51.1, lng: 10.4, zoom: 6 },
+  Italien:                  { lat: 42.5, lng: 12.5, zoom: 6 },
+  Italy:                    { lat: 42.5, lng: 12.5, zoom: 6 },
+  Schweiz:                  { lat: 46.8, lng: 8.2,  zoom: 8 },
+  Switzerland:              { lat: 46.8, lng: 8.2,  zoom: 8 },
+  Frankreich:               { lat: 46.6, lng: 2.2,  zoom: 6 },
+  France:                   { lat: 46.6, lng: 2.2,  zoom: 6 },
+  Österreich:               { lat: 47.5, lng: 14.5, zoom: 7 },
+  Austria:                  { lat: 47.5, lng: 14.5, zoom: 7 },
+  Spanien:                  { lat: 40.0, lng: -3.7, zoom: 6 },
+  Spain:                    { lat: 40.0, lng: -3.7, zoom: 6 },
+  Portugal:                 { lat: 39.5, lng: -8.0, zoom: 7 },
+  Niederlande:              { lat: 52.1, lng: 5.3,  zoom: 7 },
+  Netherlands:              { lat: 52.1, lng: 5.3,  zoom: 7 },
+  Belgien:                  { lat: 50.5, lng: 4.5,  zoom: 7 },
+  Belgium:                  { lat: 50.5, lng: 4.5,  zoom: 7 },
+  Türkei:                   { lat: 39.0, lng: 35.0, zoom: 5 },
+  Turkey:                   { lat: 39.0, lng: 35.0, zoom: 5 },
+  'Vereinigtes Königreich': { lat: 54.0, lng: -2.5, zoom: 6 },
+  'United Kingdom':         { lat: 54.0, lng: -2.5, zoom: 6 },
+};
+
+const DEFAULT_VIEW = { lat: 48.5, lng: 10, zoom: 5 };
+
+function viewForCountry(name, allVenues) {
+  if (!name) return null;
+  const preset = COUNTRY_VIEWS[name];
+  if (preset) return preset;
+  // Fallback — centroid of known venues in that country.
+  const inCountry = allVenues.filter((v) => v.country === name);
+  const lats = inCountry.map((v) => parseFloat(v.lat)).filter(Number.isFinite);
+  const lngs = inCountry.map((v) => parseFloat(v.lng)).filter(Number.isFinite);
+  if (lats.length === 0) return null;
+  return {
+    lat: lats.reduce((a, b) => a + b, 0) / lats.length,
+    lng: lngs.reduce((a, b) => a + b, 0) / lngs.length,
+    zoom: 7,
+  };
+}
+
 export default function MapComponent({
   venues = [],
   onPinClick,
   flyToId,
   lang = 'de',
+  country = '',
   height = '100%',
 }) {
   const containerRef   = useRef(null);
@@ -110,6 +155,21 @@ export default function MapComponent({
 
     mapRef.current = map;
 
+    // If a country filter is set on mount, prefer its view over the
+    // geolocation flow.
+    if (country) {
+      const view = viewForCountry(country, venues);
+      if (view) {
+        map.setView([view.lat, view.lng], view.zoom);
+        return () => {
+          map.remove();
+          mapRef.current = null;
+          tileLayerRef.current = null;
+          markersRef.current = {};
+        };
+      }
+    }
+
     // Geolocation flow:
     //   granted → silent fetch (no dialog needed, no gesture needed)
     //   denied  → silent (don't nag; locate FAB still works with help toast)
@@ -154,6 +214,23 @@ export default function MapComponent({
       markersRef.current = {};
     };
   }, []); // eslint-disable-line
+
+  // ── Country filter changes ────────────────────────────────────────────────
+  // Skip the first run — the init effect handles the initial country (if any).
+  // Subsequent changes (incl. clearing back to '') fly to the new view.
+  const countryFirstRunRef = useRef(true);
+  useEffect(() => {
+    if (countryFirstRunRef.current) { countryFirstRunRef.current = false; return; }
+    if (!mapRef.current) return;
+    if (country) {
+      const view = viewForCountry(country, venues);
+      if (view) {
+        mapRef.current.flyTo([view.lat, view.lng], view.zoom, { duration: 1.2 });
+      }
+    } else {
+      mapRef.current.flyTo([DEFAULT_VIEW.lat, DEFAULT_VIEW.lng], DEFAULT_VIEW.zoom, { duration: 1.2 });
+    }
+  }, [country]);
 
   // ── Swap tile layer on lang change ────────────────────────────────────────
   useEffect(() => {

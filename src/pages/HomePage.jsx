@@ -36,7 +36,14 @@ export default function HomePage() {
   const { lang }                        = useLang();
   const tr                              = t(lang);
 
-  const tab = searchParams.get('tab') || 'map';
+  const tab     = searchParams.get('tab') || 'map';
+  const country = searchParams.get('country') || '';
+
+  function setCountry(value) {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set('country', value); else next.delete('country');
+    setSearchParams(next, { replace: true });
+  }
 
   const [venues,     setVenues]     = useState([]);
   const [loading,    setLoading]    = useState(true);
@@ -93,12 +100,16 @@ export default function HomePage() {
 
   const isFiltered = activeBuckets.size < 4;
   const mapVenues = useMemo(() => {
-    if (!isFiltered) return venues;
-    return venues.filter((v) => {
-      const b = scoreBucket(v.avg_score);
-      return b !== null && activeBuckets.has(b);
-    });
-  }, [venues, activeBuckets, isFiltered]);
+    let list = venues;
+    if (isFiltered) {
+      list = list.filter((v) => {
+        const b = scoreBucket(v.avg_score);
+        return b !== null && activeBuckets.has(b);
+      });
+    }
+    if (country) list = list.filter((v) => v.country === country);
+    return list;
+  }, [venues, activeBuckets, isFiltered, country]);
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -114,6 +125,7 @@ export default function HomePage() {
           onPinClick={handlePinClick}
           flyToId={null}
           lang={lang}
+          country={country}
           height="100%"
         />
       </div>
@@ -252,7 +264,12 @@ export default function HomePage() {
       )}
 
       {/* ── Index panel ──────────────────────────────────────────────────────── */}
-      <IndexPanel venues={venues} isOpen={tab === 'index'} />
+      <IndexPanel
+        venues={venues}
+        isOpen={tab === 'index'}
+        country={country}
+        setCountry={setCountry}
+      />
 
       {/* ── About panel ──────────────────────────────────────────────────────── */}
       <div

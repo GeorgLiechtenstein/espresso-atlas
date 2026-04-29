@@ -42,7 +42,7 @@ function Pill({ label, active, onClick }) {
   );
 }
 
-export default function IndexPanel({ venues, isOpen }) {
+export default function IndexPanel({ venues, isOpen, country = '', setCountry = () => {} }) {
   const navigate  = useNavigate();
   const { lang }  = useLang();
   const tr        = t(lang);
@@ -59,8 +59,16 @@ export default function IndexPanel({ venues, isOpen }) {
     return Object.entries(counts).sort((a, b) => b[1] - a[1]);
   }, [venues]);
 
+  const countries = useMemo(() => {
+    const counts = {};
+    venues.forEach((v) => { if (v.country) counts[v.country] = (counts[v.country] || 0) + 1; });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  }, [venues]);
+
   const filtered = useMemo(() => {
     let list = [...venues];
+    if (country)
+      list = list.filter((v) => v.country === country);
     if (cityFilter !== 'all')
       list = list.filter((v) => v.city === cityFilter);
     if (scoreFilter !== 'all') {
@@ -85,7 +93,7 @@ export default function IndexPanel({ venues, isOpen }) {
     }
     list.sort((a, b) => (parseFloat(b.avg_score) || 0) - (parseFloat(a.avg_score) || 0));
     return list;
-  }, [venues, cityFilter, scoreFilter, periodFilter]);
+  }, [venues, country, cityFilter, scoreFilter, periodFilter]);
 
   const scoreLabels = {
     excellent: lang === 'de' ? 'Exzellent' : 'Excellent',
@@ -154,6 +162,11 @@ export default function IndexPanel({ venues, isOpen }) {
         }}
       >
         <Pill
+          label={!country ? tr.filterCountry : country}
+          active={!!country}
+          onClick={() => setOpenFilter((p) => p === 'country' ? null : 'country')}
+        />
+        <Pill
           label={cityFilter === 'all' ? tr.filterCity : cityFilter}
           active={cityFilter !== 'all'}
           onClick={() => { setOpenFilter((p) => p === 'city' ? null : 'city'); setCitySearch(''); }}
@@ -169,6 +182,27 @@ export default function IndexPanel({ venues, isOpen }) {
           onClick={() => setOpenFilter((p) => p === 'period' ? null : 'period')}
         />
       </div>
+
+      {/* Country dropdown */}
+      {openFilter === 'country' && (
+        <div className="shrink-0" style={{ borderBottom: '1px solid #E0D8CC', background: '#FAF0E6' }}>
+          <div style={{ maxHeight: 220, overflowY: 'auto' }}>
+            {[['', `${tr.allCountries} (${venues.length})`], ...countries.map(([c, n]) => [c, `${c} (${n})`])]
+              .map(([key, label]) => (
+                <button key={key || 'all'} onClick={() => { setCountry(key); setOpenFilter(null); }}
+                  style={{
+                    width: '100%', textAlign: 'left', padding: '11px 20px', fontSize: 14,
+                    fontFamily: '"DM Sans", system-ui, sans-serif',
+                    fontWeight: country === key ? 600 : 400,
+                    color: country === key ? '#1a1714' : '#4a4340',
+                    background: 'none', border: 'none', borderBottom: '1px solid rgba(26,23,20,0.06)',
+                    cursor: 'pointer',
+                  }}
+                >{label}</button>
+              ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Dropdowns ── */}
       {openFilter === 'city' && (
