@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { normalizeCountry } from '../lib/countries';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
@@ -268,8 +269,14 @@ export default function ReviewPage() {
         photoUrl = publicUrl;
       }
       const addressVal = locSearch.startsWith('📍') ? null : locSearch.trim() || null;
+      // Always store DE in `country` and EN in `country_en`. If we don't
+      // recognise the input, both columns get the same string — the app
+      // will still filter consistently.
+      const cn = normalizeCountry(country) || { de: country.trim(), en: country.trim() };
       const payload = {
-        name: name.trim(), city: city.trim(), country: country.trim(),
+        name: name.trim(), city: city.trim(),
+        country: cn.de,
+        country_en: cn.en,
         address: addressVal, lat: resolvedLat, lng: resolvedLng,
         body, balance, crema,
         ceramic_cup: ceramicCup || null,
