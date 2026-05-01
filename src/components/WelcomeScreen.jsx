@@ -1,6 +1,7 @@
 import { useLang } from '../context/LangContext';
 import { t } from '../lib/i18n';
 import LangToggle from './LangToggle';
+import CupLogo from './CupLogo';
 
 /**
  * First-visit onboarding. Shown over the rest of the app whenever the
@@ -56,10 +57,14 @@ export default function WelcomeScreen({ onAllow, onLater }) {
           fontFamily: '"DM Sans", system-ui, sans-serif',
           fontSize: 11, fontWeight: 600,
           letterSpacing: '3px', textTransform: 'uppercase',
-          color: '#6F4E37', margin: 0, marginBottom: 24,
+          color: '#6F4E37', margin: 0, marginBottom: 28,
         }}>
           Espresso Atlas
         </p>
+
+        <div style={{ marginBottom: 28 }}>
+          <CupLogo size={72} interactive={false} />
+        </div>
 
         <h1 style={{
           fontFamily: '"DM Serif Display", Georgia, serif',
