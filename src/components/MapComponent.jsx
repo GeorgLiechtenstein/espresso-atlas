@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
+import { BUCKETS, scoreBucket, COLORS } from '../design-tokens';
 
 function escapeHtml(str) {
   return String(str ?? '')
@@ -7,15 +8,20 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+// Pin appearance per bucket. Cream text on dark fills, dark text on the
+// 'meh' sand fill. Hollow style is reserved (currently always solid).
+const PIN_TEXT_BY_BUCKET = {
+  excellent: '#F7F3EC',
+  good:      '#F7F3EC',
+  meh:       '#4a3a28',
+  avoid:     '#F7F3EC',
+};
+
 function pinBucket(score) {
-  if (score === null || score === undefined) {
-    return { fill: '#9CA3AF', stroke: '#9CA3AF', text: '#fff', hollow: false };
-  }
-  const n = parseFloat(score);
-  if (n >= 8.5) return { fill: '#1a1714', stroke: '#1a1714', text: '#F7F3EC', hollow: false };
-  if (n >= 7)   return { fill: '#6B4A2A', stroke: '#6B4A2A', text: '#F7F3EC', hollow: false };
-  if (n >= 4)   return { fill: '#C4B5A0', stroke: '#C4B5A0', text: '#4a3a28', hollow: false };
-  return { fill: '#8B2A2A', stroke: '#8B2A2A', text: '#F7F3EC', hollow: false };
+  const key = scoreBucket(score);
+  if (!key) return { fill: '#9CA3AF', stroke: '#9CA3AF', text: '#fff', hollow: false };
+  const { fill } = BUCKETS[key];
+  return { fill, stroke: fill, text: PIN_TEXT_BY_BUCKET[key], hollow: false };
 }
 
 /**

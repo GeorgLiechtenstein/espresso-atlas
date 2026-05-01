@@ -7,44 +7,12 @@ import { t } from '../lib/i18n';
 import LangToggle from '../components/LangToggle';
 import CupLogo from '../components/CupLogo';
 
-function bucket(score) {
-  if (score === null || score === undefined) return null;
-  const n = parseFloat(score);
-  if (n >= 8.5) return 'excellent';
-  if (n >= 7)   return 'good';
-  if (n >= 4)   return 'meh';
-  return 'avoid';
-}
-
-const BUCKET_META = {
-  excellent: { color: '#1a1714', textColor: '#1a1714', label: { de: 'Exzellent', en: 'Excellent' } },
-  good:      { color: '#6B4A2A', textColor: '#6B4A2A', label: { de: 'Gut',       en: 'Good' } },
-  meh:       { color: '#C4B5A0', textColor: '#8A7A62', label: { de: 'Mittel',    en: 'Mediocre' } },
-  avoid:     { color: '#8B2A2A', textColor: '#8B2A2A', label: { de: 'Meiden',    en: 'Avoid' } },
-};
-
-const BALANCE_META = {
-  balanced:     { color: '#6F4E37', label: { de: 'Ausgewogen',    en: 'Balanced' } },
-  slightAcidic: { color: '#888888', label: { de: 'Leicht sauer',  en: 'Slightly acidic' } },
-  slightBitter: { color: '#888888', label: { de: 'Leicht bitter', en: 'Slightly bitter' } },
-  tooAcidic:    { color: '#A94442', label: { de: 'Zu sauer',      en: 'Too acidic' } },
-  tooBitter:    { color: '#A94442', label: { de: 'Zu bitter',     en: 'Too bitter' } },
-};
-
-function balanceMeta(val) {
-  if (val == null) return null;
-  const a = Math.abs(val);
-  if (a <= 1) return BALANCE_META.balanced;
-  if (a <= 3) return val > 0 ? BALANCE_META.slightBitter : BALANCE_META.slightAcidic;
-  return val > 0 ? BALANCE_META.tooBitter : BALANCE_META.tooAcidic;
-}
-
-// Bar fill colour for body / crema (1..10) — directly value-based.
-function criteriaBarColor(val) {
-  if (val >= 8) return '#6F4E37'; // brown
-  if (val >= 4) return '#C4B5A0'; // sand
-  return '#A94442';               // muted red
-}
+import {
+  BUCKETS as BUCKET_META,
+  scoreBucket as bucket,
+  balanceMeta,
+  criteriaBarColor,
+} from '../design-tokens';
 
 export default function VenuePage() {
   const { id }   = useParams();
@@ -172,7 +140,7 @@ export default function VenuePage() {
               fontSize: 10, fontWeight: 700, letterSpacing: '2px',
               textTransform: 'uppercase',
               color: b === 'meh' ? '#1a1714' : '#FAF0E6',
-              background: meta.color,
+              background: meta.fill,
               borderRadius: 2,
             }}>{chipLabel}</span>
           </div>

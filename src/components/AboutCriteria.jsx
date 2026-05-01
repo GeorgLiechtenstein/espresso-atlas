@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLang } from '../context/LangContext';
+import { criteriaBarColor } from '../design-tokens';
 
 export default function AboutCriteria() {
   const { lang } = useLang();
@@ -132,12 +133,6 @@ function CritBlock({ title, type, value, onChange, descriptor, descriptorColor, 
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
-
-function criteriaBarColor(val) {
-  if (val >= 8) return '#6F4E37';
-  if (val >= 4) return '#C4B5A0';
-  return '#A94442';
-}
 
 function bodyDescription(val, lang) {
   if (val <= 2) return lang === 'de' ? 'Wässrig. Wie heißes Wasser mit Kaffeefarbe.' : 'Watery. Like hot water with coffee coloring.';

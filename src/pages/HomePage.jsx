@@ -12,6 +12,7 @@ import IndexPanel from '../components/IndexPanel';
 import AboutCriteria from '../components/AboutCriteria';
 import WelcomeScreen from '../components/WelcomeScreen';
 import { normalizeCountry, flagFromIso } from '../lib/countries';
+import { BUCKETS, BUCKET_KEYS, scoreBucket } from '../design-tokens';
 
 function distanceKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -28,23 +29,9 @@ function formatKm(d) {
   return Math.round(d).toString();
 }
 
-const BUCKETS = [
-  { key: 'excellent', fill: '#1a1714', textColor: '#1a1714', label: { de: 'Exzellent', en: 'Excellent' } },
-  { key: 'good',      fill: '#6B4A2A', textColor: '#6B4A2A', label: { de: 'Gut',       en: 'Good' } },
-  { key: 'meh',       fill: '#C4B5A0', textColor: '#8A7A62', label: { de: 'Mittel',    en: 'Average' } },
-  { key: 'avoid',     fill: '#8B2A2A', textColor: '#8B2A2A', label: { de: 'Meiden',    en: 'Avoid' } },
-];
-
-function scoreBucket(score) {
-  if (score == null) return null;
-  const n = parseFloat(score);
-  if (n >= 8.5) return 'excellent';
-  if (n >= 7)   return 'good';
-  if (n >= 4)   return 'meh';
-  return 'avoid';
-}
-
-const ALL_KEYS = new Set(['excellent', 'good', 'meh', 'avoid']);
+// Legend buckets in display order, derived from the central tokens.
+const LEGEND_BUCKETS = BUCKET_KEYS.map((key) => ({ key, ...BUCKETS[key] }));
+const ALL_KEYS = new Set(BUCKET_KEYS);
 
 export default function HomePage() {
   const navigate                        = useNavigate();
@@ -343,7 +330,7 @@ export default function HomePage() {
               <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: '1.8px', textTransform: 'uppercase', color: '#666666', marginBottom: 6, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
                 {lang === 'de' ? 'Urteil' : 'Verdict'}
               </div>
-              {BUCKETS.map(({ key, fill, textColor, label }) => {
+              {LEGEND_BUCKETS.map(({ key, fill, textColor, label }) => {
                 const active = activeBuckets.has(key);
                 return (
                   <button

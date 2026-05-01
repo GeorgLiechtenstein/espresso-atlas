@@ -7,17 +7,24 @@ import { useLang } from '../context/LangContext';
 import { t, scoreLabel } from '../lib/i18n';
 import LangToggle from '../components/LangToggle';
 import CupLogo from '../components/CupLogo';
+import { COLORS, BUCKETS, scoreBucket } from '../design-tokens';
 
 const CURRENCIES = ['EUR', 'CHF', 'USD', 'GBP', 'TRY', 'IQD'];
 
-const INPUT_BG   = '#EDE4D3';
-const SURFACE    = '#FAF0E6';
-const INK        = '#1a1714';
-const MUTED      = '#666666';
-const COFFEE     = '#6B4A2A';
-const AVOID      = '#8B2A2A';
-const BORDER_C   = '#E0D8CC';
+// Local short aliases that resolve to the central tokens — keeps the
+// existing inline style sites readable while staying in sync.
+const INPUT_BG = COLORS.surfaceAlt;
+const SURFACE  = COLORS.surface;
+const INK      = COLORS.ink;
+const MUTED    = COLORS.textSubtle;
+const COFFEE   = COLORS.coffee;
+const AVOID    = COLORS.bucketAvoid;
+const BORDER_C = COLORS.border;
 
+// Wizard slider keeps its own bright spectrum (green / amber / red) — the
+// gradient slider track uses these end-colours, so the descriptor labels
+// match. Different by design from the calmer central BALANCE_META used
+// on the detail page.
 const BALANCE_META = {
   balanced:     { color: '#43A047', label: { de: 'Ausgewogen',    en: 'Balanced' } },
   slightAcidic: { color: '#F59E0B', label: { de: 'Leicht sauer',  en: 'Slightly acidic' } },
@@ -35,12 +42,8 @@ function balanceMeta(val) {
 }
 
 function bucketColor(score) {
-  if (score === null || score === undefined) return '#9CA3AF';
-  const n = parseFloat(score);
-  if (n >= 8.5) return INK;
-  if (n >= 7)   return COFFEE;
-  if (n >= 4)   return '#8A7A62';
-  return AVOID;
+  const key = scoreBucket(score);
+  return key ? BUCKETS[key].textColor : '#9CA3AF';
 }
 
 // Beige card with a CAPS label + arbitrary children

@@ -4,14 +4,11 @@ import { useLang } from '../context/LangContext';
 import { t } from '../lib/i18n';
 import LangToggle from './LangToggle';
 import CupLogo from './CupLogo';
+import { BUCKETS, scoreBucket } from '../design-tokens';
 
 function bucketTextColor(score) {
-  if (score === null || score === undefined) return '#9CA3AF';
-  const n = parseFloat(score);
-  if (n >= 8.5) return '#1a1714';
-  if (n >= 7)   return '#6B4A2A';
-  if (n >= 4)   return '#8A7A62';
-  return '#8B2A2A';
+  const key = scoreBucket(score);
+  return key ? BUCKETS[key].textColor : '#9CA3AF';
 }
 
 function Pill({ label, active, onClick }) {
