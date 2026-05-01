@@ -237,76 +237,53 @@ export default function HomePage() {
         <div className="flex items-center justify-between px-4">
           <div className="flex items-center" style={{ gap: 8, flex: 1, minWidth: 0 }}>
             <CupLogo />
-            <span
-              className="font-serif text-[19px] text-ink"
-              style={{ cursor: 'pointer', lineHeight: 1.1 }}
-              onClick={() => setSearchParams({ tab: 'map' }, { replace: true })}
-            >
-              Espresso Atlas
-            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+              <span
+                className="font-serif text-[19px] text-ink"
+                style={{ cursor: 'pointer', lineHeight: 1.1 }}
+                onClick={() => setSearchParams({ tab: 'map' }, { replace: true })}
+              >
+                Espresso Atlas
+              </span>
+              {tab === 'map' && (
+                <p style={{
+                  margin: 0, marginTop: 1,
+                  fontFamily: '"Caveat", "DM Serif Display", cursive',
+                  fontSize: 17, fontWeight: 500,
+                  color: '#6F4E37', lineHeight: 1.1,
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                }}>
+                  {tr.mapTagline}
+                </p>
+              )}
+            </div>
           </div>
           <LangToggle />
         </div>
-        {tab === 'map' && (
-          <div style={{
-            paddingLeft: 16, paddingRight: 16, paddingTop: 6,
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-            fontSize: 12, color: '#555555',
-            fontFamily: '"DM Sans", system-ui, sans-serif',
-          }}>
-            {/* Left: user's city or 'Europa' */}
-            <span style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-            }}>
-              {userPos && (
-                <span style={{
-                  display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
-                  background: '#3B82F6', flexShrink: 0,
-                }} />
-              )}
-              {userPos
-                ? (cityName
-                    ? (venuesInCity === 0
-                        ? `${tr.infoNoneIn} ${cityName}`
-                        : `${venuesInCity} in ${cityName}`)
-                    : '…')
-                : tr.infoEurope}
-            </span>
-
-            {/* Right: nearest venue (tappable) or total count */}
-            {userPos && nearest ? (
-              <button
-                type="button"
-                onClick={() => setFlyToId(nearest.venue.id)}
-                style={{
-                  background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-                  fontFamily: 'inherit', fontSize: 12, color: '#555555',
-                  whiteSpace: 'nowrap', flexShrink: 0,
-                }}
-              >
-                {tr.infoNearest}: {nearest.venue.city} · {formatKm(nearest.distance)} km →
-              </button>
-            ) : (
-              <span style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
-                {venues.length} {tr.infoEspressi}
-              </span>
-            )}
-          </div>
-        )}
-        {tab === 'map' && (
-          <p style={{
-            paddingLeft: 16, paddingRight: 16, paddingTop: 4,
-            margin: 0,
-            fontFamily: '"Caveat", "DM Serif Display", cursive',
-            fontSize: 20, fontWeight: 500,
-            color: '#6F4E37', lineHeight: 1.1,
-            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-          }}>
-            {tr.mapTagline}
-          </p>
-        )}
       </header>
+
+      {/* ── Map region pill (count overlay, bottom-left over the legend) ───── */}
+      {tab === 'map' && (
+        <div style={{
+          position: 'fixed', zIndex: 450,
+          left: 16,
+          bottom: 'calc(72px + 36px + 16px + 12px + env(safe-area-inset-bottom))',
+          background: 'rgba(255,255,255,0.85)',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
+          border: '1px solid rgba(26,23,20,0.08)',
+          borderRadius: 16,
+          padding: '5px 11px',
+          fontSize: 11, fontWeight: 500, color: '#555555',
+          fontFamily: '"DM Sans", system-ui, sans-serif',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+          pointerEvents: 'none',
+          maxWidth: 220,
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+        }}>
+          {(userPos && cityName ? cityName : tr.infoEurope)} · {(userPos && cityName ? venuesInCity : venues.length)} {tr.infoEspressi}
+        </div>
+      )}
 
       {/* ── Map legend (collapsible) ─────────────────────────────────────────── */}
       {tab === 'map' && (
