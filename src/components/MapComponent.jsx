@@ -285,7 +285,6 @@ export default function MapComponent({
     if (resetCounter === 0) return;
     if (!mapRef.current) return;
     mapRef.current.setView([DEFAULT_VIEW.lat, DEFAULT_VIEW.lng], DEFAULT_VIEW.zoom);
-    console.log('[reset] triggered', mapRef.current.getCenter(), mapRef.current.getZoom());
   }, [resetCounter]);
 
   // ── User-position prop changes ────────────────────────────────────────────
