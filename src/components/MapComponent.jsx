@@ -84,6 +84,7 @@ export default function MapComponent({
   flyToId,
   lang = 'de',
   country = '',
+  tab = 'map',
   height = '100%',
 }) {
   const containerRef   = useRef(null);
@@ -231,6 +232,21 @@ export default function MapComponent({
       mapRef.current.flyTo([DEFAULT_VIEW.lat, DEFAULT_VIEW.lng], DEFAULT_VIEW.zoom, { duration: 1.2 });
     }
   }, [country]);
+
+  // ── Re-anchor on tab switch to map ───────────────────────────────────────
+  // The Index panel covers the map while open. When the user switches back
+  // to map, the map's container may have been hidden during a flyTo so the
+  // animation could have skipped frames. Force a size recompute and snap to
+  // the current country (or default) so the user always lands on the right
+  // view.
+  useEffect(() => {
+    if (tab !== 'map' || !mapRef.current) return;
+    mapRef.current.invalidateSize();
+    if (country) {
+      const view = viewForCountry(country, venues);
+      if (view) mapRef.current.setView([view.lat, view.lng], view.zoom);
+    }
+  }, [tab]); // eslint-disable-line
 
   // ── Swap tile layer on lang change ────────────────────────────────────────
   useEffect(() => {

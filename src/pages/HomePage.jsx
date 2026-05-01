@@ -126,6 +126,7 @@ export default function HomePage() {
           flyToId={null}
           lang={lang}
           country={country}
+          tab={tab}
           height="100%"
         />
       </div>
