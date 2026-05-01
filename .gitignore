@@ -6,3 +6,6 @@ dist/
 .DS_Store
 .Rhistory
 .RData
+
+# Local Netlify folder
+.netlify
