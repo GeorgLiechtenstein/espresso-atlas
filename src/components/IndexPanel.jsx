@@ -6,9 +6,10 @@ import LangToggle from './LangToggle';
 import CupLogo from './CupLogo';
 import { BUCKETS, scoreBucket } from '../design-tokens';
 
-function bucketTextColor(score) {
+// Filled score badge colour — matches the map pin fills via design tokens.
+function bucketFill(score) {
   const key = scoreBucket(score);
-  return key ? BUCKETS[key].textColor : '#9CA3AF';
+  return key ? BUCKETS[key].fill : '#9CA3AF';
 }
 
 function Pill({ label, active, onClick }) {
@@ -313,7 +314,7 @@ export default function IndexPanel({
         )}
         {filtered.map((venue) => {
           const score   = venue.avg_score != null ? parseFloat(venue.avg_score) : null;
-          const color   = bucketTextColor(score);
+          const fill    = bucketFill(score);
           const dateStr = venue.rated_at
             ? new Date(venue.rated_at).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', { month: 'long', year: 'numeric' })
             : '';
@@ -335,16 +336,17 @@ export default function IndexPanel({
                 cursor: 'pointer',
               }}
             >
-              {/* Score badge */}
+              {/* Score badge — filled, white text, same fills as map pins */}
               <div style={{
                 width: 44, height: 44, borderRadius: '50%',
-                border: `2px solid ${color}`,
-                background: 'transparent',
+                background: fill,
+                border: '2px solid rgba(255,255,255,0.25)',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
                 flexShrink: 0, marginTop: 2,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <span style={{
-                  color, fontSize: 14, fontWeight: 700,
+                  color: '#FFFFFF', fontSize: 14, fontWeight: 700,
                   fontFamily: '"DM Serif Display", Georgia, serif', lineHeight: 1,
                 }}>
                   {score != null ? score.toFixed(1) : '—'}
