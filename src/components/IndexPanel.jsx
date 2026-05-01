@@ -23,7 +23,10 @@ function Pill({ label, open, onClick }) {
         fontSize: 12,
         fontWeight: 500,
         fontFamily: '"DM Sans", system-ui, sans-serif',
-        border: open ? '1.5px solid #6F4E37' : '1px solid rgba(26,23,20,0.18)',
+        // Open: filled brown, slightly heavier outline to read as a chip.
+        // Closed: hairline border — 0.5px renders as a single device pixel
+        // on retina, falls back to 1px elsewhere.
+        border: open ? '1.5px solid #6F4E37' : '0.5px solid rgba(26,23,20,0.25)',
         background: open ? '#6F4E37' : 'transparent',
         color:      open ? '#FAF0E6'  : '#4a4340',
         cursor: 'pointer',
