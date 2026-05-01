@@ -137,6 +137,7 @@ export const tr = {
     infoNearest:     'Nächster',
     infoEurope:      'Europa',
     infoEspressi:    'Espressi',
+    mapTagline:      'Wo der Espresso gut ist. Laut mir.',
 
     // Login
     loginJournal:      'Privates Tagebuch',
@@ -305,6 +306,7 @@ export const tr = {
     infoNearest:     'Nearest',
     infoEurope:      'Europe',
     infoEspressi:    'Espressis',
+    mapTagline:      'Where the espresso is good. According to me.',
 
     // Login
     loginJournal:      'Private Journal',

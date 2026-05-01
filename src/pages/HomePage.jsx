@@ -294,6 +294,18 @@ export default function HomePage() {
             )}
           </div>
         )}
+        {tab === 'map' && (
+          <p style={{
+            paddingLeft: 16, paddingRight: 16, paddingTop: 4,
+            margin: 0,
+            fontFamily: '"Caveat", "DM Serif Display", cursive',
+            fontSize: 20, fontWeight: 500,
+            color: '#6F4E37', lineHeight: 1.1,
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+          }}>
+            {tr.mapTagline}
+          </p>
+        )}
       </header>
 
       {/* ── Map legend (collapsible) ─────────────────────────────────────────── */}
