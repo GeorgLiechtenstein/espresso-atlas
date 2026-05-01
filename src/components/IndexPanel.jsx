@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLang } from '../context/LangContext';
 import { t } from '../lib/i18n';
@@ -53,11 +53,25 @@ export default function IndexPanel({ venues, isOpen, country = '', setCountry = 
   const [openFilter,   setOpenFilter]   = useState(null);
   const [citySearch,   setCitySearch]   = useState('');
 
+  // Cities depend on the active country filter — picking 'Vereinigtes
+  // Königreich' should narrow the city dropdown to UK cities only.
   const cities = useMemo(() => {
+    const source = country ? venues.filter((v) => v.country === country) : venues;
     const counts = {};
-    venues.forEach((v) => { counts[v.city] = (counts[v.city] || 0) + 1; });
+    source.forEach((v) => { counts[v.city] = (counts[v.city] || 0) + 1; });
     return Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  }, [venues]);
+  }, [venues, country]);
+
+  const cityScopeCount = useMemo(() => (
+    country ? venues.filter((v) => v.country === country).length : venues.length
+  ), [venues, country]);
+
+  // Reset city filter if it no longer matches anything in the active country.
+  useEffect(() => {
+    if (cityFilter !== 'all' && !cities.some(([c]) => c === cityFilter)) {
+      setCityFilter('all');
+    }
+  }, [cities, cityFilter]);
 
   const countries = useMemo(() => {
     const counts = {};
@@ -223,7 +237,7 @@ export default function IndexPanel({ venues, isOpen, country = '', setCountry = 
             />
           </div>
           <div style={{ maxHeight: 180, overflowY: 'auto' }}>
-            {[['all', `${tr.allCities} (${venues.length})`], ...cities.map(([c, n]) => [c, `${c} (${n})`])]
+            {[['all', `${tr.allCities} (${cityScopeCount})`], ...cities.map(([c, n]) => [c, `${c} (${n})`])]
               .filter(([key, label]) => key === 'all' || label.toLowerCase().includes(citySearch.toLowerCase()))
               .map(([key, label]) => (
                 <button key={key} onClick={() => { setCityFilter(key); setOpenFilter(null); setCitySearch(''); }}
