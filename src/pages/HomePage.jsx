@@ -232,10 +232,13 @@ export default function HomePage() {
         className="fixed left-0 right-0 top-0 z-[400] bg-surface shadow-sm"
         style={{
           paddingTop: 'calc(env(safe-area-inset-top) + 12px)',
-          paddingBottom: 12,
+          paddingBottom: 0,
         }}
       >
-        <div className="flex items-center justify-between px-4">
+        <div
+          className="flex items-center justify-between px-4"
+          style={{ paddingBottom: tab === 'map' ? 10 : 12 }}
+        >
           <div className="flex items-center" style={{ gap: 8, flex: 1, minWidth: 0 }}>
             <CupLogo />
             <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
@@ -261,56 +264,72 @@ export default function HomePage() {
           </div>
           <LangToggle />
         </div>
-      </header>
 
-      {/* ── Map region pill (count overlay, bottom-left over the legend) ───── */}
-      {tab === 'map' && (() => {
-        // Priority: country filter > user-located city > Europe default.
-        // Counts always reflect the chosen scope; the user-located case
-        // also gets a dedicated 'none nearby' phrasing when zero.
-        let label;
-        let count;
-        let zeroNearby = false;
-        if (country) {
-          const norm = normalizeCountry(country);
-          label = norm ? (lang === 'de' ? norm.de : norm.en) : country;
-          count = venues.filter((v) => v.country === country).length;
-        } else if (userPos && cityName) {
-          label = cityName;
-          count = venuesInCity;
-          zeroNearby = count === 0;
-        } else {
-          label = tr.infoEurope;
-          count = venues.length;
-        }
-        const noun = count === 1
-          ? 'Espresso'
-          : (lang === 'de' ? 'Espressi' : 'Espressos');
-        const suffix = zeroNearby
-          ? tr.infoNoneNearby
-          : `${count} ${noun}`;
-        return (
-          <div style={{
-            position: 'fixed', zIndex: 450,
-            left: 16,
-            bottom: 'calc(72px + 36px + 16px + 12px + env(safe-area-inset-bottom))',
-            background: 'rgba(255,255,255,0.85)',
-            backdropFilter: 'blur(6px)',
-            WebkitBackdropFilter: 'blur(6px)',
-            border: '1px solid rgba(26,23,20,0.08)',
-            borderRadius: 16,
-            padding: '5px 11px',
-            fontSize: 11, fontWeight: 500, color: '#555555',
-            fontFamily: '"DM Sans", system-ui, sans-serif',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-            pointerEvents: 'none',
-            maxWidth: 240,
-            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-          }}>
-            {label} · {suffix}
-          </div>
-        );
-      })()}
+        {tab === 'map' && (() => {
+          // Priority: country filter > user-located city > Europe default.
+          // Right side ('Nächster') is only meaningful with userPos.
+          let leftContent;
+          if (country) {
+            const norm = normalizeCountry(country);
+            const label = norm ? (lang === 'de' ? norm.de : norm.en) : country;
+            const count = venues.filter((v) => v.country === country).length;
+            const noun = count === 1
+              ? 'Espresso'
+              : (lang === 'de' ? 'Espressi' : 'Espressos');
+            leftContent = `${label} · ${count} ${noun}`;
+          } else if (userPos && cityName) {
+            const inText = venuesInCity === 0
+              ? `${tr.infoNoneIn} ${cityName}`
+              : `${venuesInCity} in ${cityName}`;
+            leftContent = (
+              <>
+                <span style={{
+                  display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
+                  background: '#3B82F6', marginRight: 6, flexShrink: 0,
+                }} />
+                {inText}
+              </>
+            );
+          } else {
+            const count = venues.length;
+            const noun = count === 1
+              ? 'Espresso'
+              : (lang === 'de' ? 'Espressi' : 'Espressos');
+            leftContent = `${tr.infoEurope} · ${count} ${noun}`;
+          }
+
+          return (
+            <div style={{
+              paddingLeft: 16, paddingRight: 16, paddingTop: 8, paddingBottom: 10,
+              background: 'rgba(255, 255, 255, 0.5)',
+              borderTop: '1px solid rgba(26, 23, 20, 0.05)',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+              fontSize: 12, color: '#555555',
+              fontFamily: '"DM Sans", system-ui, sans-serif',
+            }}>
+              <span style={{
+                display: 'flex', alignItems: 'center',
+                minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}>
+                {leftContent}
+              </span>
+              {userPos && nearest && (
+                <button
+                  type="button"
+                  onClick={() => setFlyToId(nearest.venue.id)}
+                  style={{
+                    background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                    fontFamily: 'inherit', fontSize: 12, fontWeight: 700, color: '#1a1714',
+                    whiteSpace: 'nowrap', flexShrink: 0,
+                  }}
+                >
+                  {tr.infoNearest}: {nearest.venue.city} · {formatKm(nearest.distance)} km →
+                </button>
+              )}
+            </div>
+          );
+        })()}
+      </header>
 
       {/* ── Map legend (collapsible) ─────────────────────────────────────────── */}
       {tab === 'map' && (
