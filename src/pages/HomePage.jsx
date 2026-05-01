@@ -11,7 +11,7 @@ import BottomSheet from '../components/BottomSheet';
 import IndexPanel from '../components/IndexPanel';
 import AboutCriteria from '../components/AboutCriteria';
 import WelcomeScreen from '../components/WelcomeScreen';
-import { normalizeCountry } from '../lib/countries';
+import { normalizeCountry, flagFromIso } from '../lib/countries';
 
 function distanceKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -268,7 +268,12 @@ export default function HomePage() {
         let content;
         if (country) {
           const norm = normalizeCountry(country);
-          const label = norm ? (lang === 'de' ? norm.de : norm.en) : country;
+          // Prefer flag from ISO; if unknown, fall back to the localised
+          // country name so the pill still says something meaningful.
+          const flag = norm && norm.iso ? flagFromIso(norm.iso) : null;
+          const label = flag
+            ? flag
+            : (norm ? (lang === 'de' ? norm.de : norm.en) : country);
           const count = venues.filter((v) => v.country === country).length;
           const noun = count === 1
             ? 'Espresso'
@@ -292,7 +297,7 @@ export default function HomePage() {
           const noun = count === 1
             ? 'Espresso'
             : (lang === 'de' ? 'Espressi' : 'Espressos');
-          content = `${tr.infoEurope} · ${count} ${noun}`;
+          content = `🌍 · ${count} ${noun}`;
         }
         return (
           <div style={{
