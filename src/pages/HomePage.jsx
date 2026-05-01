@@ -65,6 +65,7 @@ export default function HomePage() {
   const [userPos,     setUserPos]     = useState(null);   // { lat, lng } | null
   const [cityName,    setCityName]    = useState('');
   const [flyToId,     setFlyToId]     = useState(null);
+  const [resetCounter, setResetCounter] = useState(0);
   const [showWelcome, setShowWelcome] = useState(() => {
     const welcomed = (() => { try { return localStorage.getItem('ea_welcomed'); } catch { return null; } })();
     if (!welcomed) {
@@ -79,6 +80,25 @@ export default function HomePage() {
     try { localStorage.setItem('ea_welcomed', '1'); } catch {}
     if (pos) setUserPos(pos);
     setShowWelcome(false);
+  }
+
+  // Hard reset to the Europe-default view. Called from logo / wordmark
+  // taps on the home page itself (no navigation needed) and on every
+  // /?tab=map mount when the ea_reset_map session flag is set (logo
+  // taps from elsewhere route through the flag).
+  function resetMap() {
+    try {
+      sessionStorage.removeItem('ea_last_venue');
+      sessionStorage.removeItem('ea_last_tab');
+      sessionStorage.removeItem('ea_reset_map');
+    } catch {}
+    // Bare-object form replaces every search param (clears country / city).
+    setSearchParams({ tab: 'map' }, { replace: true });
+    // Drop the remembered user position so the userPos effect can't re-fly
+    // to it after the reset; the locate FAB still works on demand.
+    setUserPos(null);
+    setFlyToId(null);
+    setResetCounter((c) => c + 1);
   }
 
   // ── Fetch + realtime ────────────────────────────────────────────────────────
@@ -153,10 +173,23 @@ export default function HomePage() {
     return () => clearTimeout(t);
   }, [flyToId]);
 
+  // Reset signal raised by the logo / wordmark on other pages. Routed
+  // through sessionStorage so it survives the navigation, then consumed
+  // here. resetMap() handles the rest (clears flags, drops userPos,
+  // bumps the resetCounter so MapComponent snaps to Europe).
+  useEffect(() => {
+    if (tab !== 'map') return;
+    let raised;
+    try { raised = sessionStorage.getItem('ea_reset_map'); } catch { return; }
+    if (raised) resetMap();
+  }, [tab]); // eslint-disable-line
+
   // After viewing a venue, switching back to the map tab refocuses on it.
   // Consumed once: cleared from sessionStorage as soon as it's used.
+  // Skipped when the reset flag was just raised (logo wins).
   useEffect(() => {
     if (tab !== 'map' || !venues.length) return;
+    try { if (sessionStorage.getItem('ea_reset_map')) return; } catch {}
     let lastVenueId;
     try { lastVenueId = sessionStorage.getItem('ea_last_venue'); } catch { return; }
     if (!lastVenueId) return;
@@ -225,6 +258,7 @@ export default function HomePage() {
           country={country}
           city={city}
           tab={tab}
+          resetCounter={resetCounter}
           height="100%"
         />
       </div>
@@ -239,20 +273,12 @@ export default function HomePage() {
       >
         <div className="flex items-center justify-between px-4">
           <div className="flex items-center" style={{ gap: 8, flex: 1, minWidth: 0 }}>
-            <CupLogo />
+            <CupLogo onClick={resetMap} />
             <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
               <span
                 className="font-serif text-[19px] text-ink"
                 style={{ cursor: 'pointer', lineHeight: 1.1 }}
-                onClick={() => {
-                  try {
-                    sessionStorage.removeItem('ea_last_venue');
-                    sessionStorage.removeItem('ea_last_tab');
-                  } catch {}
-                  // Bare object form replaces all search params — clears
-                  // country / city filter at the same time.
-                  setSearchParams({ tab: 'map' }, { replace: true });
-                }}
+                onClick={resetMap}
               >
                 Espresso Atlas
               </span>

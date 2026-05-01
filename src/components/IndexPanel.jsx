@@ -231,6 +231,7 @@ export default function IndexPanel({
               try {
                 sessionStorage.removeItem('ea_last_venue');
                 sessionStorage.removeItem('ea_last_tab');
+                sessionStorage.setItem('ea_reset_map', '1');
               } catch {}
               navigate('/?tab=map');
             }}

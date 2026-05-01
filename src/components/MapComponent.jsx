@@ -109,6 +109,7 @@ export default function MapComponent({
   country = '',
   city = '',
   tab = 'map',
+  resetCounter = 0,
   height = '100%',
 }) {
   const containerRef = useRef(null);
@@ -217,6 +218,20 @@ export default function MapComponent({
       };
     }
 
+    // Skip the geolocation flow when a logo-tap reset was raised — the
+    // user explicitly asked for the Europe view and shouldn't be flown
+    // off it after the fact.
+    let resetRaised = false;
+    try { resetRaised = sessionStorage.getItem('ea_reset_map') === '1'; } catch {}
+    if (resetRaised) {
+      return () => {
+        map.remove();
+        mapRef.current = null;
+        tileLayerRef.current = null;
+        markersRef.current = {};
+      };
+    }
+
     // Geolocation flow:
     //   granted → silent fetch (no dialog needed, no gesture needed)
     //   denied  → silent (don't nag; locate FAB still works with help toast)
@@ -261,6 +276,16 @@ export default function MapComponent({
       markersRef.current = {};
     };
   }, []); // eslint-disable-line
+
+  // ── Reset counter (logo-tap) ─────────────────────────────────────────────
+  // Increments every time the user taps the logo / wordmark to ask for
+  // the Europe-default view. setView is instant — no animation race
+  // with country / userPos effects firing alongside.
+  useEffect(() => {
+    if (resetCounter === 0) return;
+    if (!mapRef.current) return;
+    mapRef.current.setView([DEFAULT_VIEW.lat, DEFAULT_VIEW.lng], DEFAULT_VIEW.zoom);
+  }, [resetCounter]);
 
   // ── User-position prop changes ────────────────────────────────────────────
   // Skip the first run; the init effect places the map. Subsequent updates

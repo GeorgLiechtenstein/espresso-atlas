@@ -21,17 +21,20 @@ const CUP_SVG = (size, color) => (
 
 /**
  * Espresso cup mark with animated steam.
- * @param {object}  props
- * @param {number}  [props.size=30]        — rendered width in px
- * @param {string}  [props.color='#1a1714']
- * @param {boolean} [props.interactive=true] — when false, render as a
- *   plain inline element with no click behaviour (used on the welcome
- *   screen as a decorative centrepiece).
+ * @param {object}    props
+ * @param {number}    [props.size=30]
+ * @param {string}    [props.color='#1a1714']
+ * @param {boolean}   [props.interactive=true] — when false, render as a
+ *   plain inline element with no click behaviour (welcome-screen use).
+ * @param {function}  [props.onClick] — override the default 'reset to
+ *   home' navigation. Used by HomePage to reset its internal map state
+ *   without re-navigating (we're already on /?tab=map there).
  */
 export default function CupLogo({
   size = 30,
   color = '#1a1714',
   interactive = true,
+  onClick,
 }) {
   const navigate = useNavigate();
   if (!interactive) {
@@ -44,20 +47,21 @@ export default function CupLogo({
       </span>
     );
   }
-  function handleHomeClick() {
-    // Logo is the 'reset to home' button: clear any sticky last-venue
-    // focus / origin-tab marker so the map opens at its default Europe
-    // view, not zoomed in on the most recently viewed pin.
+  function handleDefaultClick() {
+    // Cross-page reset: clear focus markers, raise the reset flag, and
+    // navigate to the map. HomePage's effect picks up the flag on mount
+    // / URL change and snaps the map to the Europe default.
     try {
       sessionStorage.removeItem('ea_last_venue');
       sessionStorage.removeItem('ea_last_tab');
+      sessionStorage.setItem('ea_reset_map', '1');
     } catch {}
     navigate('/?tab=map');
   }
   return (
     <button
       type="button"
-      onClick={handleHomeClick}
+      onClick={onClick || handleDefaultClick}
       aria-label="Espresso Atlas"
       style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', flexShrink: 0 }}
     >
