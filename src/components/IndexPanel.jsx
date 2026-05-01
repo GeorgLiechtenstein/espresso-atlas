@@ -320,6 +320,8 @@ export default function IndexPanel({
           const dateStr = venue.rated_at
             ? new Date(venue.rated_at).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', { month: 'long', year: 'numeric' })
             : '';
+          const venueComment = (lang === 'de' ? venue.comment_de : venue.comment_en)
+                            || venue.comment_de || venue.comment_en || venue.comment;
           return (
             <button
               key={venue.id}
@@ -358,18 +360,18 @@ export default function IndexPanel({
                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                 }}>{venue.name}</p>
                 <p style={{
-                  fontSize: 12, color: '#555555', marginBottom: venue.comment ? 5 : 0,
+                  fontSize: 12, color: '#555555', marginBottom: venueComment ? 5 : 0,
                   fontFamily: '"DM Sans", system-ui, sans-serif',
                 }}>
                   {venue.city}{dateStr ? ` · ${dateStr}` : ''}
                 </p>
-                {venue.comment && (
+                {venueComment && (
                   <p style={{
                     fontFamily: '"DM Serif Display", Georgia, serif',
                     fontStyle: 'italic', fontSize: 13, color: '#6B5B4E', lineHeight: 1.4,
                     display: '-webkit-box', WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical', overflow: 'hidden',
-                  }}>„{venue.comment}"</p>
+                  }}>„{venueComment}"</p>
                 )}
               </div>
             </button>

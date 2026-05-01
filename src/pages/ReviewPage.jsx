@@ -67,6 +67,28 @@ function CardInput({ value, onChange, placeholder, onKeyDown }) {
   );
 }
 
+// Round-trip translate via the Netlify proxy. Returns null on any failure
+// so save can proceed even when the translation service is down.
+async function translateComment(text, targetLang) {
+  if (!text) return null;
+  try {
+    const res = await fetch('/.netlify/functions/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, targetLang }),
+    });
+    if (!res.ok) {
+      console.warn('[translate] HTTP ' + res.status + ': ' + (await res.text()));
+      return null;
+    }
+    const data = await res.json();
+    return data.translation || null;
+  } catch (err) {
+    console.warn('[translate] failed:', err);
+    return null;
+  }
+}
+
 async function geocode(name, city, country) {
   const q = [name, city, country].filter(Boolean).join(', ');
   try {
@@ -149,12 +171,17 @@ export default function ReviewPage() {
         setCeramicCup(data.ceramic_cup || false);
         setRoastery(data.roastery || '');
         setRatedAt(data.rated_at ? data.rated_at.split('T')[0] : new Date().toISOString().split('T')[0]);
-        setComment(data.comment || '');
+        // Prefer the user's current language version; fall back to the
+        // other-language column or the legacy single comment.
+        setComment(
+          (lang === 'de' ? data.comment_de : data.comment_en)
+          || data.comment_de || data.comment_en || data.comment || ''
+        );
         setPrice(data.price != null ? String(data.price) : '');
         setCurrency(data.currency || 'EUR');
         setExistingPhotoUrl(data.photo_url || null);
         if (data.photo_url) setPhotoPreview(data.photo_url);
-        if (data.comment || data.price || data.photo_url || data.roastery || data.ceramic_cup) setShowDetails(true);
+        if (data.comment_de || data.comment_en || data.comment || data.price || data.photo_url || data.roastery || data.ceramic_cup) setShowDetails(true);
       });
   }, [preVenueId]);
 
@@ -273,6 +300,24 @@ export default function ReviewPage() {
       // recognise the input, both columns get the same string — the app
       // will still filter consistently.
       const cn = normalizeCountry(country) || { de: country.trim(), en: country.trim() };
+
+      // Bilingual comment. Whatever the user typed goes into the matching
+      // column for the active app language; the other column gets an
+      // automatic translation via the Anthropic proxy. Translation
+      // failure is non-fatal — column stays null.
+      const trimmedComment = comment.trim() || null;
+      let comment_de = null;
+      let comment_en = null;
+      if (trimmedComment) {
+        if (lang === 'de') {
+          comment_de = trimmedComment;
+          comment_en = await translateComment(trimmedComment, 'en');
+        } else {
+          comment_en = trimmedComment;
+          comment_de = await translateComment(trimmedComment, 'de');
+        }
+      }
+
       const payload = {
         name: name.trim(), city: city.trim(),
         country: cn.de,
@@ -281,7 +326,7 @@ export default function ReviewPage() {
         body, balance, crema,
         ceramic_cup: ceramicCup || null,
         roastery: roastery.trim() || null,
-        comment:  comment.trim() || null,
+        comment_de, comment_en,
         price:    price ? parseFloat(price) : null,
         currency, photo_url: photoUrl,
         rated_at: new Date(ratedAt + 'T12:00:00.000Z').toISOString(),

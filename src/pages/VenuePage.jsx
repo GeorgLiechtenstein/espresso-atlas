@@ -108,6 +108,8 @@ export default function VenuePage() {
   const hasRating  = venue.body != null && venue.balance != null && venue.crema != null;
   const scoreColor = meta ? meta.textColor : '#9CA3AF';
   const chipLabel  = meta ? meta.label[lang] : null;
+  const displayComment = (lang === 'de' ? venue.comment_de : venue.comment_en)
+                       || venue.comment_de || venue.comment_en || venue.comment;
 
   const ratedDate = venue.rated_at
     ? new Date(venue.rated_at).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', {
@@ -221,7 +223,7 @@ export default function VenuePage() {
         )}
 
         {/* Pull quote */}
-        {venue.comment && (
+        {displayComment && (
           <div style={{
             borderLeft: '3px solid #6B4A2A',
             paddingLeft: 18, paddingTop: 4, paddingBottom: 4,
@@ -231,7 +233,7 @@ export default function VenuePage() {
               fontFamily: '"DM Serif Display", Georgia, serif',
               fontStyle: 'italic', fontSize: 22, lineHeight: 1.4,
               color: '#1a1714', margin: 0,
-            }}>„{venue.comment}"</p>
+            }}>„{displayComment}"</p>
           </div>
         )}
 

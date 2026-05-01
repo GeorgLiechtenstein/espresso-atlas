@@ -88,6 +88,8 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
 
   const scoreColor = meta ? meta.textColor : '#9CA3AF';
   const chipLabel  = meta ? meta.label[lang] : null;
+  const displayComment = (lang === 'de' ? venue.comment_de : venue.comment_en)
+                       || venue.comment_de || venue.comment_en || venue.comment;
 
   const barScores = hasRating ? [
     { key: 'body',  label: lang === 'de' ? 'Körper' : 'Body', val: venue.body },
@@ -173,13 +175,13 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
           </p>
 
           {/* Pull quote */}
-          {venue.comment && (
+          {displayComment && (
             <div style={{ borderLeft: '2px solid #6B4A2A', paddingLeft: 12, marginBottom: 14 }}>
               <p style={{
                 fontFamily: '"DM Serif Display", Georgia, serif',
                 fontStyle: 'italic', fontSize: 15, lineHeight: 1.45,
                 color: '#1a1714', margin: 0,
-              }}>„{venue.comment}"</p>
+              }}>„{displayComment}"</p>
             </div>
           )}
 
