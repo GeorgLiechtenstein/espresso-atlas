@@ -127,14 +127,17 @@ export const tr = {
     errUnknown:             'Unbekannter Fehler',
 
     // Login
-    loginSubtitle:   'Melde dich an, um Espressos zu bewerten.',
-    loginCard:       'Anmelden',
-    emailLabel:      'E-Mail',
-    emailPlaceholder:'du@beispiel.de',
-    passwordLabel:   'Passwort',
-    loginButton:     'Anmelden',
-    loggingIn:       'Anmelden…',
-    backToMapLink:   '← Zurück zur Karte',
+    loginJournal:      'Privates Tagebuch',
+    loginTagline:      'Jeden Espresso, den ich trinke, halte ich fest. Hier, in diesem Buch.',
+    loginLoggedInAs:   'Angemeldet als',
+    loginForgot:       'Du hast es vergessen?',
+    loginReset:        'Zurücksetzen per E-Mail.',
+    loginResetSent:    'E-Mail gesendet — schau in dein Postfach.',
+    loginOpenBook:     'Buch öffnen →',
+    loginFooter:       'Gäste lesen mit. Schreiben darf nur ich.',
+    passwordLabel:     'Passwort',
+    loggingIn:         'Anmelden…',
+    backToMapLink:     '← Zurück zur Karte',
 
     // About
     aboutTagline: 'Kein Algorithmus. Nur meine Meinung nach dem letzten Schluck.',
@@ -284,14 +287,17 @@ export const tr = {
     errUnknown:             'Unknown error',
 
     // Login
-    loginSubtitle:   'Sign in to rate espressos.',
-    loginCard:       'Sign in',
-    emailLabel:      'Email',
-    emailPlaceholder:'you@example.com',
-    passwordLabel:   'Password',
-    loginButton:     'Sign in',
-    loggingIn:       'Signing in…',
-    backToMapLink:   '← Back to map',
+    loginJournal:      'Private Journal',
+    loginTagline:      'Every espresso I drink, I record. Here, in this book.',
+    loginLoggedInAs:   'Logged in as',
+    loginForgot:       'Forgot it?',
+    loginReset:        'Reset via email.',
+    loginResetSent:    'Email sent — check your inbox.',
+    loginOpenBook:     'Open book →',
+    loginFooter:       'Guests may read. Only I may write.',
+    passwordLabel:     'Password',
+    loggingIn:         'Signing in…',
+    backToMapLink:     '← Back to map',
 
     // About
     aboutTagline: 'No algorithm. Just my honest opinion after the last sip.',
