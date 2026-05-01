@@ -109,7 +109,14 @@ export default function VenuePage() {
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <CupLogo />
           <span
-            onClick={() => navigate('/?tab=map')}
+            onClick={() => {
+              try {
+                sessionStorage.removeItem('ea_last_venue');
+                sessionStorage.removeItem('ea_last_tab');
+                sessionStorage.setItem('ea_reset_map', '1');
+              } catch {}
+              navigate('/?tab=map');
+            }}
             className="font-serif text-[19px] text-ink leading-tight"
             style={{ cursor: 'pointer' }}
           >
