@@ -38,10 +38,17 @@ export default function HomePage() {
 
   const tab     = searchParams.get('tab') || 'map';
   const country = searchParams.get('country') || '';
+  const city    = searchParams.get('city') || '';
 
   function setCountry(value) {
     const next = new URLSearchParams(searchParams);
     if (value) next.set('country', value); else next.delete('country');
+    if (!value) next.delete('city');   // clearing country also clears city scope
+    setSearchParams(next, { replace: true });
+  }
+  function setCity(value) {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set('city', value); else next.delete('city');
     setSearchParams(next, { replace: true });
   }
 
@@ -108,24 +115,27 @@ export default function HomePage() {
       });
     }
     if (country) list = list.filter((v) => v.country === country);
+    if (city)    list = list.filter((v) => v.city === city);
     return list;
-  }, [venues, activeBuckets, isFiltered, country]);
+  }, [venues, activeBuckets, isFiltered, country, city]);
 
   async function handleSignOut() {
     await supabase.auth.signOut();
   }
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black">
+    <div className="relative w-full h-screen overflow-hidden bg-black" style={{ maxWidth: '100vw' }}>
 
       {/* ── Fullscreen map ──────────────────────────────────────────────────── */}
       <div className="absolute inset-0 z-0">
         <MapComponent
           venues={mapVenues}
+          allVenues={venues}
           onPinClick={handlePinClick}
           flyToId={null}
           lang={lang}
           country={country}
+          city={city}
           tab={tab}
           height="100%"
         />
@@ -270,6 +280,8 @@ export default function HomePage() {
         isOpen={tab === 'index'}
         country={country}
         setCountry={setCountry}
+        city={city}
+        setCity={setCity}
       />
 
       {/* ── About panel ──────────────────────────────────────────────────────── */}
@@ -282,6 +294,7 @@ export default function HomePage() {
           transition: 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
           pointerEvents: tab === 'about' ? 'auto' : 'none',
           paddingBottom: 'calc(56px + env(safe-area-inset-bottom))',
+          maxWidth: '100vw', overflowX: 'hidden',
         }}
       >
         <div className="shrink-0" style={{ height: 'calc(env(safe-area-inset-top) + 50px)' }} />

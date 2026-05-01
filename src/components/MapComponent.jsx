@@ -78,12 +78,29 @@ function viewForCountry(name, allVenues) {
   };
 }
 
+function viewForCity(country, city, allVenues) {
+  if (!city) return null;
+  const matching = allVenues.filter((v) => (
+    v.city === city && (!country || v.country === country)
+  ));
+  const lats = matching.map((v) => parseFloat(v.lat)).filter(Number.isFinite);
+  const lngs = matching.map((v) => parseFloat(v.lng)).filter(Number.isFinite);
+  if (lats.length === 0) return null;
+  return {
+    lat: lats.reduce((a, b) => a + b, 0) / lats.length,
+    lng: lngs.reduce((a, b) => a + b, 0) / lngs.length,
+    zoom: 13,
+  };
+}
+
 export default function MapComponent({
   venues = [],
+  allVenues = [],
   onPinClick,
   flyToId,
   lang = 'de',
   country = '',
+  city = '',
   tab = 'map',
   height = '100%',
 }) {
@@ -94,6 +111,13 @@ export default function MapComponent({
   const pinClickRef    = useRef(onPinClick); // stable ref — avoids stale closures
   const [locateError, setLocateError] = useState(null);
   const [showAskBanner, setShowAskBanner] = useState(false);
+
+  // Refs that mirror filter state. Async geolocation / IP-fallback
+  // callbacks check these before re-centring, so a country/city picked
+  // mid-flight isn't overridden by the geo result that lands later.
+  const countryRef = useRef(country);
+  const cityRef    = useRef(city);
+  useEffect(() => { countryRef.current = country; cityRef.current = city; });
 
   // IP-based coarse fallback. Only city-level precision (~10–50km), but
   // always works regardless of browser Geolocation permission state —
@@ -106,6 +130,9 @@ export default function MapComponent({
       const res = await fetch('https://ipapi.co/json/');
       if (!res.ok) return false;
       const data = await res.json();
+      // If a country/city filter was set while we were waiting, drop the
+      // IP fallback — the user has expressed an explicit place preference.
+      if (countryRef.current || cityRef.current) return false;
       const lat = parseFloat(data.latitude);
       const lng = parseFloat(data.longitude);
       if (!isFinite(lat) || !isFinite(lng)) return false;
@@ -125,6 +152,8 @@ export default function MapComponent({
     if (!navigator.geolocation) { ipBasedZoom(); return; }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        // Same async-vs-filter race guard as the IP fallback.
+        if (countryRef.current || cityRef.current) return;
         mapRef.current?.flyTo([pos.coords.latitude, pos.coords.longitude], 9, { duration: 1.5 });
       },
       (err) => {
@@ -156,19 +185,18 @@ export default function MapComponent({
 
     mapRef.current = map;
 
-    // If a country filter is set on mount, prefer its view over the
-    // geolocation flow.
-    if (country) {
-      const view = viewForCountry(country, venues);
-      if (view) {
-        map.setView([view.lat, view.lng], view.zoom);
-        return () => {
-          map.remove();
-          mapRef.current = null;
-          tileLayerRef.current = null;
-          markersRef.current = {};
-        };
-      }
+    // If a country / city filter is set on mount, prefer its view over
+    // the geolocation flow. Most specific wins.
+    const initView = viewForCity(country, city, allVenues)
+                  || (country ? viewForCountry(country, allVenues) : null);
+    if (initView) {
+      map.setView([initView.lat, initView.lng], initView.zoom);
+      return () => {
+        map.remove();
+        mapRef.current = null;
+        tileLayerRef.current = null;
+        markersRef.current = {};
+      };
     }
 
     // Geolocation flow:
@@ -216,34 +244,46 @@ export default function MapComponent({
     };
   }, []); // eslint-disable-line
 
-  // ── Country filter changes ────────────────────────────────────────────────
-  // Skip the first run — the init effect handles the initial country (if any).
-  // Subsequent changes (incl. clearing back to '') fly to the new view.
-  const countryFirstRunRef = useRef(true);
+  // ── Country / city filter changes ────────────────────────────────────────
+  // Skip the first run — the init effect handles initial state.
+  // Subsequent changes fly to the most-specific available view:
+  //   city set → city centroid at zoom 13
+  //   country set → country preset (or country centroid)
+  //   nothing set → Europe default
+  const filterFirstRunRef = useRef(true);
   useEffect(() => {
-    if (countryFirstRunRef.current) { countryFirstRunRef.current = false; return; }
+    if (filterFirstRunRef.current) { filterFirstRunRef.current = false; return; }
     if (!mapRef.current) return;
+    const cityView = viewForCity(country, city, allVenues);
+    if (cityView) {
+      mapRef.current.flyTo([cityView.lat, cityView.lng], cityView.zoom, { duration: 1.2 });
+      return;
+    }
     if (country) {
-      const view = viewForCountry(country, venues);
+      const view = viewForCountry(country, allVenues);
       if (view) {
         mapRef.current.flyTo([view.lat, view.lng], view.zoom, { duration: 1.2 });
+        return;
       }
-    } else {
-      mapRef.current.flyTo([DEFAULT_VIEW.lat, DEFAULT_VIEW.lng], DEFAULT_VIEW.zoom, { duration: 1.2 });
     }
-  }, [country]);
+    mapRef.current.flyTo([DEFAULT_VIEW.lat, DEFAULT_VIEW.lng], DEFAULT_VIEW.zoom, { duration: 1.2 });
+  }, [country, city]);
 
   // ── Re-anchor on tab switch to map ───────────────────────────────────────
   // The Index panel covers the map while open. When the user switches back
-  // to map, the map's container may have been hidden during a flyTo so the
-  // animation could have skipped frames. Force a size recompute and snap to
-  // the current country (or default) so the user always lands on the right
-  // view.
+  // to map, force a size recompute and snap (no animation) to the most-
+  // specific available view, so the user always lands on the right place
+  // regardless of what flyTo did under the cover.
   useEffect(() => {
     if (tab !== 'map' || !mapRef.current) return;
     mapRef.current.invalidateSize();
+    const cityView = viewForCity(country, city, allVenues);
+    if (cityView) {
+      mapRef.current.setView([cityView.lat, cityView.lng], cityView.zoom);
+      return;
+    }
     if (country) {
-      const view = viewForCountry(country, venues);
+      const view = viewForCountry(country, allVenues);
       if (view) mapRef.current.setView([view.lat, view.lng], view.zoom);
     }
   }, [tab]); // eslint-disable-line

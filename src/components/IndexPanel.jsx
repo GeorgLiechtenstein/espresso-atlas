@@ -42,16 +42,22 @@ function Pill({ label, active, onClick }) {
   );
 }
 
-export default function IndexPanel({ venues, isOpen, country = '', setCountry = () => {} }) {
+export default function IndexPanel({
+  venues, isOpen,
+  country = '', setCountry = () => {},
+  city    = '', setCity    = () => {},
+}) {
   const navigate  = useNavigate();
   const { lang }  = useLang();
   const tr        = t(lang);
 
-  const [cityFilter,   setCityFilter]   = useState('all');
   const [scoreFilter,  setScoreFilter]  = useState('all');
   const [periodFilter, setPeriodFilter] = useState('all');
   const [openFilter,   setOpenFilter]   = useState(null);
   const [citySearch,   setCitySearch]   = useState('');
+
+  // Close any open dropdown when the panel is hidden — clean state next time.
+  useEffect(() => { if (!isOpen) setOpenFilter(null); }, [isOpen]);
 
   // Cities depend on the active country filter — picking 'Vereinigtes
   // Königreich' should narrow the city dropdown to UK cities only.
@@ -68,10 +74,10 @@ export default function IndexPanel({ venues, isOpen, country = '', setCountry = 
 
   // Reset city filter if it no longer matches anything in the active country.
   useEffect(() => {
-    if (cityFilter !== 'all' && !cities.some(([c]) => c === cityFilter)) {
-      setCityFilter('all');
+    if (city && !cities.some(([c]) => c === city)) {
+      setCity('');
     }
-  }, [cities, cityFilter]);
+  }, [cities, city, setCity]);
 
   const countries = useMemo(() => {
     const counts = {};
@@ -83,8 +89,8 @@ export default function IndexPanel({ venues, isOpen, country = '', setCountry = 
     let list = [...venues];
     if (country)
       list = list.filter((v) => v.country === country);
-    if (cityFilter !== 'all')
-      list = list.filter((v) => v.city === cityFilter);
+    if (city)
+      list = list.filter((v) => v.city === city);
     if (scoreFilter !== 'all') {
       if (scoreFilter === 'excellent') list = list.filter((v) => v.avg_score != null && parseFloat(v.avg_score) >= 8.5);
       else if (scoreFilter === 'good') list = list.filter((v) => v.avg_score != null && parseFloat(v.avg_score) >= 7 && parseFloat(v.avg_score) < 8.5);
@@ -107,7 +113,7 @@ export default function IndexPanel({ venues, isOpen, country = '', setCountry = 
     }
     list.sort((a, b) => (parseFloat(b.avg_score) || 0) - (parseFloat(a.avg_score) || 0));
     return list;
-  }, [venues, country, cityFilter, scoreFilter, periodFilter]);
+  }, [venues, country, city, scoreFilter, periodFilter]);
 
   const scoreLabels = {
     excellent: lang === 'de' ? 'Exzellent' : 'Excellent',
@@ -131,6 +137,7 @@ export default function IndexPanel({ venues, isOpen, country = '', setCountry = 
         transition: 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
         pointerEvents: isOpen ? 'auto' : 'none',
         paddingBottom: 'calc(64px + env(safe-area-inset-bottom))',
+        maxWidth: '100vw', overflowX: 'hidden',
       }}
     >
       {/* ── Header ── */}
@@ -181,8 +188,8 @@ export default function IndexPanel({ venues, isOpen, country = '', setCountry = 
           onClick={() => setOpenFilter((p) => p === 'country' ? null : 'country')}
         />
         <Pill
-          label={cityFilter === 'all' ? tr.filterCity : cityFilter}
-          active={cityFilter !== 'all'}
+          label={!city ? tr.filterCity : city}
+          active={!!city}
           onClick={() => { setOpenFilter((p) => p === 'city' ? null : 'city'); setCitySearch(''); }}
         />
         <Pill
@@ -237,15 +244,15 @@ export default function IndexPanel({ venues, isOpen, country = '', setCountry = 
             />
           </div>
           <div style={{ maxHeight: 180, overflowY: 'auto' }}>
-            {[['all', `${tr.allCities} (${cityScopeCount})`], ...cities.map(([c, n]) => [c, `${c} (${n})`])]
-              .filter(([key, label]) => key === 'all' || label.toLowerCase().includes(citySearch.toLowerCase()))
+            {[['', `${tr.allCities} (${cityScopeCount})`], ...cities.map(([c, n]) => [c, `${c} (${n})`])]
+              .filter(([key, label]) => key === '' || label.toLowerCase().includes(citySearch.toLowerCase()))
               .map(([key, label]) => (
-                <button key={key} onClick={() => { setCityFilter(key); setOpenFilter(null); setCitySearch(''); }}
+                <button key={key || 'all'} onClick={() => { setCity(key); setOpenFilter(null); setCitySearch(''); }}
                   style={{
                     width: '100%', textAlign: 'left', padding: '11px 20px', fontSize: 14,
                     fontFamily: '"DM Sans", system-ui, sans-serif',
-                    fontWeight: cityFilter === key ? 600 : 400,
-                    color: cityFilter === key ? '#1a1714' : '#4a4340',
+                    fontWeight: city === key ? 600 : 400,
+                    color: city === key ? '#1a1714' : '#4a4340',
                     background: 'none', border: 'none', borderBottom: '1px solid rgba(26,23,20,0.06)',
                     cursor: 'pointer',
                   }}
