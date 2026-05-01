@@ -137,6 +137,7 @@ export const tr = {
     infoNearest:     'Nächster',
     infoEurope:      'Europa',
     infoEspressi:    'Espressi',
+    infoNoneNearby:  'Keine in der Nähe',
     mapTagline:      'Wo der Espresso gut ist. Laut mir.',
 
     // Login
@@ -305,7 +306,8 @@ export const tr = {
     infoNoneIn:      'None in',
     infoNearest:     'Nearest',
     infoEurope:      'Europe',
-    infoEspressi:    'Espressis',
+    infoEspressi:    'Espressos',
+    infoNoneNearby:  'None nearby',
     mapTagline:      'Where the espresso is good. According to me.',
 
     // Login

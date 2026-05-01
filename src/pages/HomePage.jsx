@@ -11,6 +11,7 @@ import BottomSheet from '../components/BottomSheet';
 import IndexPanel from '../components/IndexPanel';
 import AboutCriteria from '../components/AboutCriteria';
 import WelcomeScreen from '../components/WelcomeScreen';
+import { normalizeCountry } from '../lib/countries';
 
 function distanceKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -263,27 +264,53 @@ export default function HomePage() {
       </header>
 
       {/* ── Map region pill (count overlay, bottom-left over the legend) ───── */}
-      {tab === 'map' && (
-        <div style={{
-          position: 'fixed', zIndex: 450,
-          left: 16,
-          bottom: 'calc(72px + 36px + 16px + 12px + env(safe-area-inset-bottom))',
-          background: 'rgba(255,255,255,0.85)',
-          backdropFilter: 'blur(6px)',
-          WebkitBackdropFilter: 'blur(6px)',
-          border: '1px solid rgba(26,23,20,0.08)',
-          borderRadius: 16,
-          padding: '5px 11px',
-          fontSize: 11, fontWeight: 500, color: '#555555',
-          fontFamily: '"DM Sans", system-ui, sans-serif',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-          pointerEvents: 'none',
-          maxWidth: 220,
-          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-        }}>
-          {(userPos && cityName ? cityName : tr.infoEurope)} · {(userPos && cityName ? venuesInCity : venues.length)} {tr.infoEspressi}
-        </div>
-      )}
+      {tab === 'map' && (() => {
+        // Priority: country filter > user-located city > Europe default.
+        // Counts always reflect the chosen scope; the user-located case
+        // also gets a dedicated 'none nearby' phrasing when zero.
+        let label;
+        let count;
+        let zeroNearby = false;
+        if (country) {
+          const norm = normalizeCountry(country);
+          label = norm ? (lang === 'de' ? norm.de : norm.en) : country;
+          count = venues.filter((v) => v.country === country).length;
+        } else if (userPos && cityName) {
+          label = cityName;
+          count = venuesInCity;
+          zeroNearby = count === 0;
+        } else {
+          label = tr.infoEurope;
+          count = venues.length;
+        }
+        const noun = count === 1
+          ? 'Espresso'
+          : (lang === 'de' ? 'Espressi' : 'Espressos');
+        const suffix = zeroNearby
+          ? tr.infoNoneNearby
+          : `${count} ${noun}`;
+        return (
+          <div style={{
+            position: 'fixed', zIndex: 450,
+            left: 16,
+            bottom: 'calc(72px + 36px + 16px + 12px + env(safe-area-inset-bottom))',
+            background: 'rgba(255,255,255,0.85)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            border: '1px solid rgba(26,23,20,0.08)',
+            borderRadius: 16,
+            padding: '5px 11px',
+            fontSize: 11, fontWeight: 500, color: '#555555',
+            fontFamily: '"DM Sans", system-ui, sans-serif',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+            pointerEvents: 'none',
+            maxWidth: 240,
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+          }}>
+            {label} · {suffix}
+          </div>
+        );
+      })()}
 
       {/* ── Map legend (collapsible) ─────────────────────────────────────────── */}
       {tab === 'map' && (
