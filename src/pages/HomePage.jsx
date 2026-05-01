@@ -244,7 +244,15 @@ export default function HomePage() {
               <span
                 className="font-serif text-[19px] text-ink"
                 style={{ cursor: 'pointer', lineHeight: 1.1 }}
-                onClick={() => setSearchParams({ tab: 'map' }, { replace: true })}
+                onClick={() => {
+                  try {
+                    sessionStorage.removeItem('ea_last_venue');
+                    sessionStorage.removeItem('ea_last_tab');
+                  } catch {}
+                  // Bare object form replaces all search params — clears
+                  // country / city filter at the same time.
+                  setSearchParams({ tab: 'map' }, { replace: true });
+                }}
               >
                 Espresso Atlas
               </span>

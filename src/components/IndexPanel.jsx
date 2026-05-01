@@ -227,7 +227,13 @@ export default function IndexPanel({
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <CupLogo />
           <span
-            onClick={() => navigate('/?tab=map')}
+            onClick={() => {
+              try {
+                sessionStorage.removeItem('ea_last_venue');
+                sessionStorage.removeItem('ea_last_tab');
+              } catch {}
+              navigate('/?tab=map');
+            }}
             style={{
               fontFamily: '"DM Serif Display", Georgia, serif',
               fontSize: 19, fontWeight: 400, color: '#1a1714', lineHeight: 1.1,

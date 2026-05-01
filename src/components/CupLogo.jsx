@@ -44,10 +44,20 @@ export default function CupLogo({
       </span>
     );
   }
+  function handleHomeClick() {
+    // Logo is the 'reset to home' button: clear any sticky last-venue
+    // focus / origin-tab marker so the map opens at its default Europe
+    // view, not zoomed in on the most recently viewed pin.
+    try {
+      sessionStorage.removeItem('ea_last_venue');
+      sessionStorage.removeItem('ea_last_tab');
+    } catch {}
+    navigate('/?tab=map');
+  }
   return (
     <button
       type="button"
-      onClick={() => navigate('/?tab=map')}
+      onClick={handleHomeClick}
       aria-label="Espresso Atlas"
       style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', flexShrink: 0 }}
     >
