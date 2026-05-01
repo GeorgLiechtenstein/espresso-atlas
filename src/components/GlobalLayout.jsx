@@ -35,9 +35,17 @@ export default function GlobalLayout() {
   const { lang }  = useLang();
   const tr        = t(lang);
 
-  const urlTab    = searchParams.get('tab') || 'map';
+  const urlTab = searchParams.get('tab') || 'map';
+  // On a venue detail page the bottom nav should reflect where the user
+  // came from. IndexPanel / BottomSheet set ea_last_tab in session
+  // storage right before navigating; default to 'map' for cold deep-links.
+  const lastTab = (() => {
+    if (typeof window === 'undefined') return 'map';
+    try { return sessionStorage.getItem('ea_last_tab') || 'map'; }
+    catch { return 'map'; }
+  })();
   const activeTab = location.pathname === '/' ? urlTab
-    : location.pathname.startsWith('/venue') ? 'map'
+    : location.pathname.startsWith('/venue') ? lastTab
     : null;
 
   function goTab(tab) {

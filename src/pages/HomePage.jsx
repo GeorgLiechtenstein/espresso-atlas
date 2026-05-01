@@ -153,6 +153,21 @@ export default function HomePage() {
     return () => clearTimeout(t);
   }, [flyToId]);
 
+  // After viewing a venue, switching back to the map tab refocuses on it.
+  // Consumed once: cleared from sessionStorage as soon as it's used.
+  useEffect(() => {
+    if (tab !== 'map' || !venues.length) return;
+    let lastVenueId;
+    try { lastVenueId = sessionStorage.getItem('ea_last_venue'); } catch { return; }
+    if (!lastVenueId) return;
+    if (!venues.some((v) => v.id === lastVenueId)) {
+      try { sessionStorage.removeItem('ea_last_venue'); } catch {}
+      return;
+    }
+    try { sessionStorage.removeItem('ea_last_venue'); } catch {}
+    setFlyToId(lastVenueId);
+  }, [tab, venues.length]);
+
   const nearest = useMemo(() => {
     if (!userPos || !venues.length) return null;
     let best = null;

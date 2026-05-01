@@ -206,7 +206,11 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
             paddingTop: 14, gap: 16,
           }}>
             <button
-              onClick={() => { onClose(); navigate(`/venue/${venue.id}`); }}
+              onClick={() => {
+                try { sessionStorage.setItem('ea_last_tab', 'map'); } catch {}
+                onClose();
+                navigate(`/venue/${venue.id}`);
+              }}
               style={{
                 fontSize: 13, fontWeight: 600, color: '#1a1714',
                 textDecoration: 'underline', textUnderlineOffset: 3,

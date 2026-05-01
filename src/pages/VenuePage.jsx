@@ -28,6 +28,9 @@ export default function VenuePage() {
 
   useEffect(() => {
     if (!id) return;
+    // Remember the last venue the user looked at so the map tab can
+    // re-anchor on it the next time they switch back.
+    try { sessionStorage.setItem('ea_last_venue', id); } catch {}
     async function fetchData() {
       setLoading(true);
       const { data, error } = await supabase.from('venues').select('*').eq('id', id).single();

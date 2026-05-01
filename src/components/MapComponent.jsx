@@ -386,7 +386,7 @@ export default function MapComponent({
   useEffect(() => {
     if (!flyToId || !mapRef.current) return;
     const marker = markersRef.current[flyToId];
-    if (marker) mapRef.current.flyTo(marker.getLatLng(), 15, { duration: 1.0 });
+    if (marker) mapRef.current.flyTo(marker.getLatLng(), 14, { duration: 1.0 });
   }, [flyToId]);
 
   // ── Locate ────────────────────────────────────────────────────────────────

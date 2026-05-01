@@ -322,7 +322,10 @@ export default function IndexPanel({
           return (
             <button
               key={venue.id}
-              onClick={() => navigate(`/venue/${venue.id}`)}
+              onClick={() => {
+                try { sessionStorage.setItem('ea_last_tab', 'index'); } catch {}
+                navigate(`/venue/${venue.id}`);
+              }}
               style={{
                 width: '100%', textAlign: 'left',
                 padding: '14px 20px',
