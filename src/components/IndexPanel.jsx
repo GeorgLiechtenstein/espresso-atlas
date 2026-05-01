@@ -12,7 +12,7 @@ function bucketFill(score) {
   return key ? BUCKETS[key].fill : '#9CA3AF';
 }
 
-function Pill({ label, active, onClick }) {
+function Pill({ label, open, onClick }) {
   return (
     <button
       type="button"
@@ -23,19 +23,86 @@ function Pill({ label, active, onClick }) {
         fontSize: 12,
         fontWeight: 500,
         fontFamily: '"DM Sans", system-ui, sans-serif',
-        border: active ? '1.5px solid #1a1714' : '1px solid rgba(26,23,20,0.18)',
-        background: active ? '#1a1714' : 'transparent',
-        color: active ? '#FAF0E6' : '#4a4340',
+        border: open ? '1.5px solid #6F4E37' : '1px solid rgba(26,23,20,0.18)',
+        background: open ? '#6F4E37' : 'transparent',
+        color:      open ? '#FAF0E6'  : '#4a4340',
         cursor: 'pointer',
         whiteSpace: 'nowrap',
         display: 'flex',
         alignItems: 'center',
-        gap: 4,
+        gap: 5,
         flexShrink: 0,
+        transition: 'background 0.15s, color 0.15s, border-color 0.15s',
       }}
     >
       {label}
-      <span style={{ fontSize: 9, opacity: 0.55 }}>{active ? '✕' : '▾'}</span>
+      <span style={{ fontSize: 8, opacity: 0.85 }}>{open ? '▲' : '▼'}</span>
+    </button>
+  );
+}
+
+function DropdownCard({ title, children }) {
+  return (
+    <div className="shrink-0" style={{
+      margin: '4px 16px 12px',
+      background: '#FAF0E6',
+      border: '1px solid rgba(26,23,20,0.08)',
+      borderRadius: 16,
+      boxShadow: '0 6px 20px rgba(0,0,0,0.10)',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        padding: '12px 16px 10px',
+        fontSize: 10, fontWeight: 700, letterSpacing: '2px',
+        textTransform: 'uppercase', color: '#888888',
+        fontFamily: '"DM Sans", system-ui, sans-serif',
+        borderBottom: '1px solid rgba(26,23,20,0.06)',
+      }}>{title}</div>
+      {children}
+    </div>
+  );
+}
+
+function DropdownOption({ selected, label, count, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        width: '100%', textAlign: 'left',
+        padding: '12px 16px',
+        background: 'none', border: 'none',
+        borderBottom: '1px solid rgba(26,23,20,0.04)',
+        cursor: 'pointer',
+        fontSize: 14, color: '#1a1714',
+        fontFamily: '"DM Sans", system-ui, sans-serif',
+        fontWeight: selected ? 600 : 400,
+      }}
+    >
+      <span style={{
+        width: 18, height: 18, borderRadius: '50%',
+        border: selected ? '1.5px solid #6F4E37' : '1.5px solid rgba(26,23,20,0.25)',
+        background: selected ? '#6F4E37' : 'transparent',
+        flexShrink: 0,
+        position: 'relative',
+        transition: 'background 0.15s, border-color 0.15s',
+      }}>
+        {selected && (
+          <span style={{
+            position: 'absolute', top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 7, height: 7, borderRadius: '50%',
+            background: '#FFFFFF',
+          }} />
+        )}
+      </span>
+      <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {label}
+      </span>
+      {count != null && (
+        <span style={{ color: '#888888', fontSize: 12, flexShrink: 0 }}>{count}</span>
+      )}
     </button>
   );
 }
@@ -182,51 +249,52 @@ export default function IndexPanel({
       >
         <Pill
           label={!country ? tr.filterCountry : country}
-          active={!!country}
+          open={openFilter === 'country'}
           onClick={() => setOpenFilter((p) => p === 'country' ? null : 'country')}
         />
         <Pill
           label={!city ? tr.filterCity : city}
-          active={!!city}
+          open={openFilter === 'city'}
           onClick={() => { setOpenFilter((p) => p === 'city' ? null : 'city'); setCitySearch(''); }}
         />
         <Pill
           label={scoreFilter === 'all' ? tr.filterScore : scoreLabels[scoreFilter]}
-          active={scoreFilter !== 'all'}
+          open={openFilter === 'score'}
           onClick={() => setOpenFilter((p) => p === 'score' ? null : 'score')}
         />
         <Pill
           label={periodFilter === 'all' ? tr.filterPeriod : periodLabels[periodFilter]}
-          active={periodFilter !== 'all'}
+          open={openFilter === 'period'}
           onClick={() => setOpenFilter((p) => p === 'period' ? null : 'period')}
         />
       </div>
 
-      {/* Country dropdown */}
+      {/* ── Dropdowns ── */}
       {openFilter === 'country' && (
-        <div className="shrink-0" style={{ borderBottom: '1px solid #E0D8CC', background: '#FAF0E6' }}>
-          <div style={{ maxHeight: 220, overflowY: 'auto' }}>
-            {[['', `${tr.allCountries} (${venues.length})`], ...countries.map(([c, n]) => [c, `${c} (${n})`])]
-              .map(([key, label]) => (
-                <button key={key || 'all'} onClick={() => { setCountry(key); setOpenFilter(null); }}
-                  style={{
-                    width: '100%', textAlign: 'left', padding: '11px 20px', fontSize: 14,
-                    fontFamily: '"DM Sans", system-ui, sans-serif',
-                    fontWeight: country === key ? 600 : 400,
-                    color: country === key ? '#1a1714' : '#4a4340',
-                    background: 'none', border: 'none', borderBottom: '1px solid rgba(26,23,20,0.06)',
-                    cursor: 'pointer',
-                  }}
-                >{label}</button>
-              ))}
+        <DropdownCard title={tr.filterByCountry}>
+          <div style={{ maxHeight: 280, overflowY: 'auto' }}>
+            <DropdownOption
+              selected={!country}
+              label={tr.allCountries}
+              count={venues.length}
+              onClick={() => { setCountry(''); setOpenFilter(null); }}
+            />
+            {countries.map(([c, n]) => (
+              <DropdownOption
+                key={c}
+                selected={country === c}
+                label={c}
+                count={n}
+                onClick={() => { setCountry(c); setOpenFilter(null); }}
+              />
+            ))}
           </div>
-        </div>
+        </DropdownCard>
       )}
 
-      {/* ── Dropdowns ── */}
       {openFilter === 'city' && (
-        <div className="shrink-0" style={{ borderBottom: '1px solid #E0D8CC', background: '#FAF0E6' }}>
-          <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(26,23,20,0.07)' }}>
+        <DropdownCard title={tr.filterByCity}>
+          <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(26,23,20,0.06)' }}>
             <input
               autoFocus
               type="text"
@@ -234,34 +302,39 @@ export default function IndexPanel({
               onChange={(e) => setCitySearch(e.target.value)}
               placeholder={lang === 'de' ? 'Stadt suchen…' : 'Search city…'}
               style={{
-                width: '100%', padding: '7px 10px', fontSize: 13,
+                width: '100%', padding: '8px 12px', fontSize: 13,
                 fontFamily: '"DM Sans", system-ui, sans-serif',
                 background: 'rgba(26,23,20,0.06)', border: 'none', borderRadius: 8,
                 color: '#1a1714', outline: 'none',
               }}
             />
           </div>
-          <div style={{ maxHeight: 180, overflowY: 'auto' }}>
-            {[['', `${tr.allCities} (${cityScopeCount})`], ...cities.map(([c, n]) => [c, `${c} (${n})`])]
-              .filter(([key, label]) => key === '' || label.toLowerCase().includes(citySearch.toLowerCase()))
-              .map(([key, label]) => (
-                <button key={key || 'all'} onClick={() => { setCity(key); setOpenFilter(null); setCitySearch(''); }}
-                  style={{
-                    width: '100%', textAlign: 'left', padding: '11px 20px', fontSize: 14,
-                    fontFamily: '"DM Sans", system-ui, sans-serif',
-                    fontWeight: city === key ? 600 : 400,
-                    color: city === key ? '#1a1714' : '#4a4340',
-                    background: 'none', border: 'none', borderBottom: '1px solid rgba(26,23,20,0.06)',
-                    cursor: 'pointer',
-                  }}
-                >{label}</button>
+          <div style={{ maxHeight: 240, overflowY: 'auto' }}>
+            {(citySearch === '' || tr.allCities.toLowerCase().includes(citySearch.toLowerCase())) && (
+              <DropdownOption
+                selected={!city}
+                label={tr.allCities}
+                count={cityScopeCount}
+                onClick={() => { setCity(''); setOpenFilter(null); setCitySearch(''); }}
+              />
+            )}
+            {cities
+              .filter(([c]) => c.toLowerCase().includes(citySearch.toLowerCase()))
+              .map(([c, n]) => (
+                <DropdownOption
+                  key={c}
+                  selected={city === c}
+                  label={c}
+                  count={n}
+                  onClick={() => { setCity(c); setOpenFilter(null); setCitySearch(''); }}
+                />
               ))}
           </div>
-        </div>
+        </DropdownCard>
       )}
 
       {openFilter === 'score' && (
-        <div className="shrink-0" style={{ borderBottom: '1px solid #E0D8CC', background: '#FAF0E6' }}>
+        <DropdownCard title={tr.filterByScore}>
           {[
             { key: 'all',       label: tr.allScores },
             { key: 'excellent', label: lang === 'de' ? 'Exzellent ≥ 8.5' : 'Excellent ≥ 8.5' },
@@ -269,40 +342,32 @@ export default function IndexPanel({
             { key: 'meh',       label: lang === 'de' ? 'Mittel ≥ 4.0'    : 'Mediocre ≥ 4.0' },
             { key: 'avoid',     label: lang === 'de' ? 'Meiden < 4.0'    : 'Avoid < 4.0' },
           ].map(({ key, label }) => (
-            <button key={key} onClick={() => { setScoreFilter(key); setOpenFilter(null); }}
-              style={{
-                width: '100%', textAlign: 'left', padding: '11px 20px', fontSize: 14,
-                fontFamily: '"DM Sans", system-ui, sans-serif',
-                fontWeight: scoreFilter === key ? 600 : 400,
-                color: scoreFilter === key ? '#1a1714' : '#4a4340',
-                background: 'none', border: 'none', borderBottom: '1px solid rgba(26,23,20,0.06)',
-                cursor: 'pointer',
-              }}
-            >{label}</button>
+            <DropdownOption
+              key={key}
+              selected={scoreFilter === key}
+              label={label}
+              onClick={() => { setScoreFilter(key); setOpenFilter(null); }}
+            />
           ))}
-        </div>
+        </DropdownCard>
       )}
 
       {openFilter === 'period' && (
-        <div className="shrink-0" style={{ borderBottom: '1px solid #E0D8CC', background: '#FAF0E6' }}>
+        <DropdownCard title={tr.filterByPeriod}>
           {[
             { key: 'all',         label: tr.allTime },
             { key: 'thisYear',    label: tr.periodThisYear },
             { key: 'lastYear',    label: tr.periodLastYear },
             { key: 'last3Months', label: tr.periodLast3Months },
           ].map(({ key, label }) => (
-            <button key={key} onClick={() => { setPeriodFilter(key); setOpenFilter(null); }}
-              style={{
-                width: '100%', textAlign: 'left', padding: '11px 20px', fontSize: 14,
-                fontFamily: '"DM Sans", system-ui, sans-serif',
-                fontWeight: periodFilter === key ? 600 : 400,
-                color: periodFilter === key ? '#1a1714' : '#4a4340',
-                background: 'none', border: 'none', borderBottom: '1px solid rgba(26,23,20,0.06)',
-                cursor: 'pointer',
-              }}
-            >{label}</button>
+            <DropdownOption
+              key={key}
+              selected={periodFilter === key}
+              label={label}
+              onClick={() => { setPeriodFilter(key); setOpenFilter(null); }}
+            />
           ))}
-        </div>
+        </DropdownCard>
       )}
 
       {/* ── List ── */}
