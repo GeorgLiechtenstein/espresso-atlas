@@ -111,7 +111,7 @@ export default function VenuePage() {
 
   const ratedDate = venue.rated_at
     ? new Date(venue.rated_at).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', {
-        day: 'numeric', month: 'long', year: 'numeric',
+        month: 'long', year: 'numeric',
       })
     : null;
 

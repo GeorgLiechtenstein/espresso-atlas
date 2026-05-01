@@ -297,7 +297,7 @@ export default function IndexPanel({ venues, isOpen, country = '', setCountry = 
           const score   = venue.avg_score != null ? parseFloat(venue.avg_score) : null;
           const color   = bucketTextColor(score);
           const dateStr = venue.rated_at
-            ? new Date(venue.rated_at).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', { month: 'short', year: 'numeric' })
+            ? new Date(venue.rated_at).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', { month: 'long', year: 'numeric' })
             : '';
           return (
             <button
