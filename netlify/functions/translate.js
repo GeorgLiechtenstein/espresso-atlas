@@ -9,10 +9,8 @@
 // other-language column null' and the save still succeeds.
 
 const SYSTEM_PROMPT = (
-  "Translate the following espresso review comment. Keep the tone " +
-  "personal and opinionated. Preserve proper nouns (café names like " +
-  "'Café Franco' or 'W Hotel') exactly as written. Only return the " +
-  "translation, nothing else."
+  "Translate this espresso review comment. Keep the tone personal and " +
+  "opinionated. Only return the translation, nothing else."
 );
 
 export async function handler(event) {
@@ -49,8 +47,11 @@ export async function handler(event) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1024,
-        system: SYSTEM_PROMPT + ' Translate to ' + targetName + '.',
-        messages: [{ role: 'user', content: text }],
+        system: SYSTEM_PROMPT,
+        messages: [{
+          role: 'user',
+          content: 'Translate to ' + targetName + ':\n\n' + text,
+        }],
       }),
     });
 

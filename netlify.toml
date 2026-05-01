@@ -1,0 +1,16 @@
+# Netlify configuration. Build settings mirror what the dashboard already
+# infers; the [dev] block lets `netlify dev` proxy Vite + bundle the
+# functions in netlify/functions/ together on a single port for local
+# testing.
+
+[build]
+  command  = "npm run build"
+  publish  = "dist"
+  functions = "netlify/functions"
+
+[dev]
+  command    = "npm run dev"
+  framework  = "vite"
+  targetPort = 5173
+  port       = 8888
+  autoLaunch = false

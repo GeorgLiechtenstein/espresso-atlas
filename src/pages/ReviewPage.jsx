@@ -67,6 +67,23 @@ function CardInput({ value, onChange, placeholder, onKeyDown }) {
   );
 }
 
+// Detect whether a comment is German or English. Falls back to the app's
+// current language when the heuristic is ambiguous (no umlauts, equal
+// stop-word counts).
+function detectCommentLang(text, fallback) {
+  if (!text) return fallback || 'de';
+  const t = text.toLowerCase();
+  // Hard signal — non-ASCII German characters.
+  if (/[äöüß]/.test(t)) return 'de';
+  const deMarkers = /\b(der|die|das|den|dem|des|und|oder|aber|nicht|kein|keine|ist|war|wird|werden|ein|eine|einen|einem|einer|mit|für|von|im|am|zum|zur|auf|sehr|auch|noch|schon|gut|schlecht|hier|dort|ich|du|er|sie|wir)\b/g;
+  const enMarkers = /\b(the|and|or|but|not|no|is|was|will|be|been|a|an|with|for|from|in|on|at|to|very|also|still|already|good|bad|here|there|i|you|he|she|we|they)\b/g;
+  const deCount = (t.match(deMarkers) || []).length;
+  const enCount = (t.match(enMarkers) || []).length;
+  if (deCount > enCount) return 'de';
+  if (enCount > deCount) return 'en';
+  return fallback || 'de';
+}
+
 // Round-trip translate via the Netlify proxy. Returns null on any failure
 // so save can proceed even when the translation service is down.
 async function translateComment(text, targetLang) {
@@ -301,15 +318,18 @@ export default function ReviewPage() {
       // will still filter consistently.
       const cn = normalizeCountry(country) || { de: country.trim(), en: country.trim() };
 
-      // Bilingual comment. Whatever the user typed goes into the matching
-      // column for the active app language; the other column gets an
-      // automatic translation via the Anthropic proxy. Translation
-      // failure is non-fatal — column stays null.
+      // Bilingual comment. Detect the input language from the text itself
+      // (umlauts + DE/EN stop-word ratio) so it's right even when the
+      // user typed German with the app in EN mode or vice versa. The
+      // matching column gets the original; the other gets an automatic
+      // translation via the Anthropic proxy. Translation failure is
+      // non-fatal — column stays null.
       const trimmedComment = comment.trim() || null;
       let comment_de = null;
       let comment_en = null;
       if (trimmedComment) {
-        if (lang === 'de') {
+        const sourceLang = detectCommentLang(trimmedComment, lang);
+        if (sourceLang === 'de') {
           comment_de = trimmedComment;
           comment_en = await translateComment(trimmedComment, 'en');
         } else {
