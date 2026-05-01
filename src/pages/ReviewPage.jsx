@@ -184,16 +184,28 @@ export default function ReviewPage() {
 
   function applyLocSuggestion(s) {
     locJustSelected.current = true;
-    const addr     = s.address || {};
-    const vName    = addr.amenity || addr.name || addr.shop || addr.cafe || addr.restaurant || s.display_name.split(',')[0].trim();
-    const vCity    = addr.city || addr.town || addr.village || addr.municipality || '';
-    const vCountry = addr.country || '';
+    const addr = s.address || {};
+
     setLat(parseFloat(s.lat));
     setLng(parseFloat(s.lon));
-    if (!name    && vName)    setName(vName);
-    if (!city    && vCity)    setCity(vCity);
-    if (!country && vCountry) setCountry(vCountry);
-    setLocSearch(s.display_name.split(',').slice(0, 2).join(', '));
+
+    // Address: build strictly from structured fields. Never use
+    // display_name — it leads with the POI name (e.g. 'W Hotel') and
+    // poisons the address column.
+    const road = addr.road || addr.pedestrian || addr.footway || addr.cycleway || '';
+    const street = [addr.house_number, road].filter(Boolean).join(', ');
+    setLocSearch(street);
+
+    // City / country come from the geocoding result. Override whatever
+    // the user had typed — picking a suggestion means committing to that
+    // location.
+    const vCity    = addr.city || addr.town || addr.village || addr.municipality || '';
+    const vCountry = addr.country || '';
+    if (vCity)    setCity(vCity);
+    if (vCountry) setCountry(vCountry);
+
+    // Café name is never touched — user keeps full control of that field.
+
     setLocSugg([]);
   }
 
