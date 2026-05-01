@@ -172,26 +172,47 @@ export default function VenuePage() {
         {venue.roastery && (
           <p style={{ fontSize: 13, color: '#555555', marginBottom: 2 }}>☕ {venue.roastery}</p>
         )}
-        {venue.ceramic_cup && (
-          <p style={{ fontSize: 13, color: '#555555', marginBottom: 2 }}>🍵 {tr.ceramicCupLabel}</p>
-        )}
-
         {divider}
 
-        {/* Big score */}
-        {score !== null && (
-          <div style={{ paddingBottom: 20, borderBottom: '1px solid rgba(26,23,20,0.10)', marginBottom: 20 }}>
+        {/* Big score, with cup type tucked top-right when set */}
+        {score !== null && (() => {
+          const cupLabel = {
+            ceramic: tr.cupCeramic,
+            glass:   tr.cupGlass,
+            paper:   tr.cupPaper,
+          }[venue.cup_type];
+          return (
             <div style={{
-              fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
-              color: '#555555', marginBottom: 4,
-            }}>Score</div>
-            <div className="animate-score-pulse" style={{
-              fontFamily: '"DM Serif Display", Georgia, serif',
-              fontSize: 72, fontWeight: 700, color: scoreColor,
-              lineHeight: 0.9, letterSpacing: -2,
-            }}>{score.toFixed(1)}</div>
-          </div>
-        )}
+              paddingBottom: 20, borderBottom: '1px solid rgba(26,23,20,0.10)', marginBottom: 20,
+              display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16,
+            }}>
+              <div>
+                <div style={{
+                  fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
+                  color: '#555555', marginBottom: 4,
+                }}>Score</div>
+                <div className="animate-score-pulse" style={{
+                  fontFamily: '"DM Serif Display", Georgia, serif',
+                  fontSize: 72, fontWeight: 700, color: scoreColor,
+                  lineHeight: 0.9, letterSpacing: -2,
+                }}>{score.toFixed(1)}</div>
+              </div>
+              {cupLabel && (
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{
+                    fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
+                    color: '#555555', marginBottom: 4,
+                  }}>{tr.cupSection}</div>
+                  <div style={{
+                    fontFamily: '"DM Serif Display", Georgia, serif',
+                    fontStyle: 'italic', fontSize: 22, fontWeight: 700,
+                    color: '#1a1714', lineHeight: 1.1,
+                  }}>{cupLabel}</div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Pull quote */}
         {displayComment && (

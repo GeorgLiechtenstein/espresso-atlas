@@ -131,7 +131,7 @@ export default function ReviewPage() {
   const [balance,    setBalance]    = useState(0);
   const [crema,      setCrema]      = useState(5);
   
-  const [ceramicCup, setCeramicCup] = useState(false);
+  const [cupType,   setCupType]   = useState(null); // 'ceramic' | 'glass' | 'paper' | null
   const [openInfo,   setOpenInfo]   = useState(null);
 
   // ── Details ─────────────────────────────────────────────────────────────────
@@ -170,7 +170,7 @@ export default function ReviewPage() {
         setBalance(data.balance ?? 0);
         setCrema(data.crema || 5);
 
-        setCeramicCup(data.ceramic_cup || false);
+        setCupType(data.cup_type || null);
         setRoastery(data.roastery || '');
         setRatedAt(data.rated_at ? data.rated_at.split('T')[0] : new Date().toISOString().split('T')[0]);
         // Prefer the user's current language version; fall back to the
@@ -183,7 +183,7 @@ export default function ReviewPage() {
         setCurrency(data.currency || 'EUR');
         setExistingPhotoUrl(data.photo_url || null);
         if (data.photo_url) setPhotoPreview(data.photo_url);
-        if (data.comment_de || data.comment_en || data.comment || data.price || data.photo_url || data.roastery || data.ceramic_cup) setShowDetails(true);
+        if (data.comment_de || data.comment_en || data.comment || data.price || data.photo_url || data.roastery || data.cup_type) setShowDetails(true);
       });
   }, [preVenueId]);
 
@@ -337,7 +337,7 @@ export default function ReviewPage() {
         country_en: cn.en,
         address: addressVal, lat: resolvedLat, lng: resolvedLng,
         body, balance, crema,
-        ceramic_cup: ceramicCup || null,
+        cup_type: cupType || null,
         roastery: roastery.trim() || null,
         comment_de, comment_en,
         price:    price ? parseFloat(price) : null,
@@ -609,14 +609,44 @@ export default function ReviewPage() {
                 </div>
               </div>
 
-              {/* Ceramic cup */}
-              <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', minHeight: 44 }}>
-                <input type="checkbox" checked={ceramicCup} onChange={(e) => setCeramicCup(e.target.checked)} style={{ width: 20, height: 20, accentColor: COFFEE, flexShrink: 0 }} />
-                <span style={{ fontSize: 14, color: INK, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
-                  {tr.ceramicCupLabel}
-                  <span style={{ display: 'block', fontSize: 12, color: MUTED }}>{tr.ceramicCupHint}</span>
-                </span>
-              </label>
+              {/* Cup type — three optional toggle buttons */}
+              <div>
+                <p style={{ fontSize: 9, letterSpacing: '2.5px', textTransform: 'uppercase', color: MUTED, fontWeight: 700, marginBottom: 6, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+                  {tr.cupSection}
+                </p>
+                <p style={{ fontSize: 12, color: MUTED, marginBottom: 10, fontFamily: '"DM Sans", system-ui, sans-serif' }}>
+                  {tr.cupHint}
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                  {[
+                    { v: 'ceramic', label: tr.cupCeramic },
+                    { v: 'glass',   label: tr.cupGlass },
+                    { v: 'paper',   label: tr.cupPaper },
+                  ].map(({ v, label }) => {
+                    const active = cupType === v;
+                    return (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => setCupType(active ? null : v)}
+                        style={{
+                          padding: '12px 8px', minHeight: 48,
+                          borderRadius: 12, fontSize: 14,
+                          fontFamily: '"DM Sans", system-ui, sans-serif',
+                          fontWeight: active ? 600 : 500,
+                          border: `1.5px solid ${active ? COFFEE : BORDER_C}`,
+                          background: active ? COFFEE : 'transparent',
+                          color: active ? '#FAF0E6' : INK,
+                          cursor: 'pointer',
+                          transition: 'all 0.18s ease',
+                        }}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           )}
 
