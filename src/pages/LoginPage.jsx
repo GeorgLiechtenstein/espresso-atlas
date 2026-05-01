@@ -143,23 +143,6 @@ export default function LoginPage() {
           Georg
         </h1>
 
-        {/* "Logged in as" */}
-        <p style={{
-          fontFamily: '"DM Sans", system-ui, sans-serif',
-          fontSize: 10, fontWeight: 600,
-          letterSpacing: '2.5px', textTransform: 'uppercase',
-          color: '#888888', margin: 0, marginBottom: 6,
-        }}>
-          {tr.loginLoggedInAs}
-        </p>
-        <p style={{
-          fontFamily: '"DM Sans", system-ui, sans-serif',
-          fontSize: 13, color: '#555555',
-          margin: 0, marginBottom: 28,
-        }}>
-          {ADMIN_EMAIL}
-        </p>
-
         {/* Password form */}
         <form onSubmit={handleSubmit} style={{ width: '100%' }}>
           <label style={{

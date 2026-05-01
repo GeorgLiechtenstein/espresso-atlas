@@ -141,7 +141,6 @@ export const tr = {
     // Login
     loginJournal:      'Privates Tagebuch',
     loginTagline:      'Jeden Espresso, den ich trinke, halte ich fest. Hier, in dieser App.',
-    loginLoggedInAs:   'Angemeldet als',
     loginSubmit:       'Anmelden →',
     loginFooter:       'Gäste lesen mit. Schreiben darf nur ich.',
     passwordLabel:     'Passwort',
@@ -310,7 +309,6 @@ export const tr = {
     // Login
     loginJournal:      'Private Journal',
     loginTagline:      'Every espresso I drink, I record. Here, in this app.',
-    loginLoggedInAs:   'Logged in as',
     loginSubmit:       'Sign in →',
     loginFooter:       'Guests may read. Only I may write.',
     passwordLabel:     'Password',
