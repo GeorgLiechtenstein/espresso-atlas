@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
+import { venueCity } from '../lib/localize';
 
 import {
   BUCKETS as BUCKET_META,
@@ -140,7 +141,7 @@ export default function BottomSheet({ venue, isOpen, onClose }) {
 
           {/* Location */}
           <p style={{ fontSize: 13, color: '#555555', marginBottom: 14, marginTop: 4 }}>
-            {venue.address ? `${venue.address} · ` : ''}{venue.city}
+            {venue.address ? `${venue.address} · ` : ''}{venueCity(venue, lang)}
           </p>
 
           {/* Pull quote */}

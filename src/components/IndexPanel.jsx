@@ -5,6 +5,8 @@ import { t } from '../lib/i18n';
 import LangToggle from './LangToggle';
 import CupLogo from './CupLogo';
 import { BUCKETS, scoreBucket } from '../design-tokens';
+import { normalizeCountry } from '../lib/countries';
+import { venueCity } from '../lib/localize';
 
 // Filled score badge colour — matches the map pin fills via design tokens.
 function bucketFill(score) {
@@ -129,12 +131,39 @@ export default function IndexPanel({
 
   // Cities depend on the active country filter — picking 'Vereinigtes
   // Königreich' should narrow the city dropdown to UK cities only.
+  // The canonical key is `v.city` (German); we also collect `city_en`
+  // per canonical so the dropdown can show 'Edinburgh' instead of
+  // 'Edinburg' in EN mode while still filtering on the canonical value.
   const cities = useMemo(() => {
     const source = country ? venues.filter((v) => v.country === country) : venues;
-    const counts = {};
-    source.forEach((v) => { counts[v.city] = (counts[v.city] || 0) + 1; });
-    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const meta = {};
+    source.forEach((v) => {
+      if (!v.city) return;
+      if (!meta[v.city]) meta[v.city] = { count: 0, en: v.city_en || '' };
+      meta[v.city].count += 1;
+      if (!meta[v.city].en && v.city_en) meta[v.city].en = v.city_en;
+    });
+    return Object.entries(meta)
+      .map(([canonical, m]) => ({ canonical, en: m.en, count: m.count }))
+      .sort((a, b) => b.count - a.count);
   }, [venues, country]);
+
+  // Localised display label for a canonical city key.
+  function cityDisplay(canonical) {
+    if (!canonical) return '';
+    if (lang !== 'en') return canonical;
+    const hit = cities.find((c) => c.canonical === canonical);
+    return hit?.en || canonical;
+  }
+
+  // Localised display label for a canonical country key (which is the
+  // German name as stored on `venues.country`).
+  function countryDisplay(canonical) {
+    if (!canonical) return '';
+    const n = normalizeCountry(canonical);
+    if (!n) return canonical;
+    return lang === 'en' ? n.en : n.de;
+  }
 
   const cityScopeCount = useMemo(() => (
     country ? venues.filter((v) => v.country === country).length : venues.length
@@ -142,7 +171,7 @@ export default function IndexPanel({
 
   // Reset city filter if it no longer matches anything in the active country.
   useEffect(() => {
-    if (city && !cities.some(([c]) => c === city)) {
+    if (city && !cities.some((c) => c.canonical === city)) {
       setCity('');
     }
   }, [cities, city, setCity]);
@@ -258,12 +287,12 @@ export default function IndexPanel({
         }}
       >
         <Pill
-          label={!country ? tr.filterCountry : country}
+          label={!country ? tr.filterCountry : countryDisplay(country)}
           open={openFilter === 'country'}
           onClick={() => setOpenFilter((p) => p === 'country' ? null : 'country')}
         />
         <Pill
-          label={!city ? tr.filterCity : city}
+          label={!city ? tr.filterCity : cityDisplay(city)}
           open={openFilter === 'city'}
           onClick={() => { setOpenFilter((p) => p === 'city' ? null : 'city'); setCitySearch(''); }}
         />
@@ -293,7 +322,7 @@ export default function IndexPanel({
               <DropdownOption
                 key={c}
                 selected={country === c}
-                label={c}
+                label={countryDisplay(c)}
                 count={n}
                 onClick={() => { setCountry(c); setOpenFilter(null); }}
               />
@@ -329,14 +358,18 @@ export default function IndexPanel({
               />
             )}
             {cities
-              .filter(([c]) => c.toLowerCase().includes(citySearch.toLowerCase()))
-              .map(([c, n]) => (
+              .filter((c) => {
+                const q = citySearch.toLowerCase();
+                return c.canonical.toLowerCase().includes(q)
+                    || (c.en && c.en.toLowerCase().includes(q));
+              })
+              .map((c) => (
                 <DropdownOption
-                  key={c}
-                  selected={city === c}
-                  label={c}
-                  count={n}
-                  onClick={() => { setCity(c); setOpenFilter(null); setCitySearch(''); }}
+                  key={c.canonical}
+                  selected={city === c.canonical}
+                  label={lang === 'en' ? (c.en || c.canonical) : c.canonical}
+                  count={c.count}
+                  onClick={() => { setCity(c.canonical); setOpenFilter(null); setCitySearch(''); }}
                 />
               ))}
           </div>
@@ -440,7 +473,7 @@ export default function IndexPanel({
                   fontSize: 12, color: '#555555', marginBottom: venueComment ? 5 : 0,
                   fontFamily: '"DM Sans", system-ui, sans-serif',
                 }}>
-                  {venue.city}{dateStr ? ` · ${dateStr}` : ''}
+                  {venueCity(venue, lang)}{dateStr ? ` · ${dateStr}` : ''}
                 </p>
                 {venueComment && (
                   <p style={{

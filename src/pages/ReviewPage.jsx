@@ -117,6 +117,7 @@ export default function ReviewPage() {
   // ── Venue fields ────────────────────────────────────────────────────────────
   const [name,    setName]    = useState('');
   const [city,    setCity]    = useState('');
+  const [cityEn,  setCityEn]  = useState('');
   const [country, setCountry] = useState('');
   const [lat,     setLat]     = useState(null);
   const [lng,     setLng]     = useState(null);
@@ -162,6 +163,7 @@ export default function ReviewPage() {
         if (!data) return;
         setName(data.name || '');
         setCity(data.city || '');
+        setCityEn(data.city_en || '');
         setCountry(data.country || '');
         setLat(data.lat ? parseFloat(data.lat) : null);
         setLng(data.lng ? parseFloat(data.lng) : null);
@@ -212,12 +214,14 @@ export default function ReviewPage() {
     return () => document.removeEventListener('click', onDocClick);
   }, [openInfo]);
 
-  function applyLocSuggestion(s) {
+  async function applyLocSuggestion(s) {
     locJustSelected.current = true;
     const addr = s.address || {};
+    const slat = parseFloat(s.lat);
+    const slng = parseFloat(s.lon);
 
-    setLat(parseFloat(s.lat));
-    setLng(parseFloat(s.lon));
+    setLat(slat);
+    setLng(slng);
 
     // Address: build strictly from structured fields. Never use
     // display_name — it leads with the POI name (e.g. 'W Hotel') and
@@ -226,17 +230,41 @@ export default function ReviewPage() {
     const street = [addr.house_number, road].filter(Boolean).join(', ');
     setLocSearch(street);
 
-    // City / country come from the geocoding result. Override whatever
-    // the user had typed — picking a suggestion means committing to that
-    // location.
+    // City / country come from the geocoding result. The suggestion was
+    // fetched in the current app language, so it gives us one variant.
+    // We always store the DE name in `city` and the EN name in `city_en`
+    // (regardless of which language the user is editing in), so the
+    // detail page / map / index can pick the right one for any reader.
     const vCity    = addr.city || addr.town || addr.village || addr.municipality || '';
     const vCountry = addr.country || '';
-    if (vCity)    setCity(vCity);
+    if (lang === 'de') {
+      if (vCity) setCity(vCity);
+    } else {
+      if (vCity) setCityEn(vCity);
+    }
     if (vCountry) setCountry(vCountry);
 
     // Café name is never touched — user keeps full control of that field.
 
     setLocSugg([]);
+
+    // Fire a second reverse call in the OTHER language to populate the
+    // missing column — silent best-effort. Without it, switching app
+    // language would show only the variant the user happened to pick in.
+    try {
+      const otherLang = lang === 'de' ? 'en' : 'de';
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${slat}&lon=${slng}&format=json&addressdetails=1`,
+        { headers: { 'Accept-Language': otherLang } },
+      );
+      const data = await res.json();
+      const oAddr = data.address || {};
+      const oCity = oAddr.city || oAddr.town || oAddr.village || oAddr.municipality || '';
+      if (oCity) {
+        if (lang === 'de') setCityEn(oCity);
+        else               setCity(oCity);
+      }
+    } catch { /* silent */ }
   }
 
   async function handleGPS() {
@@ -247,12 +275,21 @@ export default function ReviewPage() {
         const { latitude: gLat, longitude: gLng } = pos.coords;
         setLat(gLat); setLng(gLng);
         setLocSearch(`📍 ${gLat.toFixed(5)}, ${gLng.toFixed(5)}`);
+        // Two reverse calls — one DE, one EN — so we end up with both
+        // bilingual city names regardless of which language the user is in.
         try {
-          const res  = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${gLat}&lon=${gLng}&format=json&addressdetails=1`, { headers: { 'Accept-Language': lang === 'de' ? 'de' : 'en' } });
-          const data = await res.json();
-          const addr = data.address || {};
-          if (!city    && (addr.city || addr.town || addr.village)) setCity(addr.city || addr.town || addr.village);
-          if (!country && addr.country) setCountry(addr.country);
+          const [resDe, resEn] = await Promise.all([
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${gLat}&lon=${gLng}&format=json&addressdetails=1`, { headers: { 'Accept-Language': 'de' } }),
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${gLat}&lon=${gLng}&format=json&addressdetails=1`, { headers: { 'Accept-Language': 'en' } }),
+          ]);
+          const [dataDe, dataEn] = await Promise.all([resDe.json(), resEn.json()]);
+          const addrDe = dataDe.address || {};
+          const addrEn = dataEn.address || {};
+          const cityDe = addrDe.city || addrDe.town || addrDe.village || addrDe.municipality || '';
+          const cityEnVal = addrEn.city || addrEn.town || addrEn.village || addrEn.municipality || '';
+          if (!city   && cityDe)   setCity(cityDe);
+          if (!cityEn && cityEnVal) setCityEn(cityEnVal);
+          if (!country && addrDe.country) setCountry(addrDe.country);
         } catch { /* silent */ }
         setLocating(false);
       },
@@ -332,7 +369,9 @@ export default function ReviewPage() {
       }
 
       const payload = {
-        name: name.trim(), city: city.trim(),
+        name: name.trim(),
+        city: city.trim(),
+        city_en: cityEn.trim() || null,
         country: cn.de,
         country_en: cn.en,
         address: addressVal, lat: resolvedLat, lng: resolvedLng,

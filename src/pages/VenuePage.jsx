@@ -6,6 +6,7 @@ import { useLang } from '../context/LangContext';
 import { t } from '../lib/i18n';
 import LangToggle from '../components/LangToggle';
 import CupLogo from '../components/CupLogo';
+import { venueCity } from '../lib/localize';
 
 import {
   BUCKETS as BUCKET_META,
@@ -162,7 +163,7 @@ export default function VenuePage() {
           fontSize: 13, letterSpacing: '1.5px', textTransform: 'uppercase',
           color: '#555555', marginBottom: 6,
         }}>
-          {venue.city}{ratedDate ? ` · ${ratedDate}` : ''}
+          {venueCity(venue, lang)}{ratedDate ? ` · ${ratedDate}` : ''}
         </p>
 
         {/* Café name */}

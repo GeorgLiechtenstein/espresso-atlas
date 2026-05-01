@@ -215,7 +215,11 @@ export default function HomePage() {
 
   const venuesInCity = useMemo(() => {
     if (!cityName) return 0;
-    return venues.filter((v) => v.city === cityName).length;
+    // cityName comes from a reverse-geocode in the active app language —
+    // it could be the German variant ('Edinburg') or the English one
+    // ('Edinburgh'). Match against either column so the count works in
+    // both languages.
+    return venues.filter((v) => v.city === cityName || v.city_en === cityName).length;
   }, [venues, cityName]);
 
   const isFiltered = activeBuckets.size < 4;
