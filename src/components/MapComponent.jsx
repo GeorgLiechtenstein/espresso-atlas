@@ -1,11 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-// IMPORTANT: leaflet-init runs before the cluster plugin import below.
-// It primes window.L so the plugin's UMD wrapper finds the same L
-// instance Vite bundles for us.
-import '../lib/leaflet-init';
 import L from 'leaflet';
-import 'leaflet.markercluster';
-import 'leaflet.markercluster/dist/MarkerCluster.css';
 
 function escapeHtml(str) {
   return String(str ?? '')
@@ -111,12 +105,11 @@ export default function MapComponent({
   tab = 'map',
   height = '100%',
 }) {
-  const containerRef    = useRef(null);
-  const mapRef          = useRef(null);
-  const tileLayerRef    = useRef(null);
-  const clusterGroupRef = useRef(null);
-  const markersRef      = useRef({});
-  const pinClickRef     = useRef(onPinClick); // stable ref — avoids stale closures
+  const containerRef = useRef(null);
+  const mapRef       = useRef(null);
+  const tileLayerRef = useRef(null);
+  const markersRef   = useRef({});
+  const pinClickRef  = useRef(onPinClick); // stable ref — avoids stale closures
   const [locateError, setLocateError] = useState(null);
   const [showAskBanner, setShowAskBanner] = useState(false);
 
@@ -191,38 +184,7 @@ export default function MapComponent({
       .addAttribution('© <a href="https://openstreetmap.org" target="_blank">OSM</a>')
       .addTo(map);
 
-    // Cluster group: nearby markers collapse into a single brown circle
-    // with the count. Clicking a cluster zooms in until it splits.
-    // No spiderfy at max zoom (per spec).
-    const clusterGroup = L.markerClusterGroup({
-      spiderfyOnMaxZoom:    false,
-      showCoverageOnHover:  false,
-      zoomToBoundsOnClick:  true,
-      maxClusterRadius:     50,
-      iconCreateFunction:   (cluster) => {
-        const count = cluster.getChildCount();
-        return L.divIcon({
-          html: `<div style="
-            width:42px;height:42px;
-            background:#6F4E37;
-            color:#FFFFFF;
-            border:2px solid rgba(255,255,255,0.25);
-            border-radius:50%;
-            display:flex;align-items:center;justify-content:center;
-            font-family:'DM Sans',system-ui,sans-serif;
-            font-size:13px;font-weight:700;
-            box-shadow:0 3px 10px rgba(0,0,0,.22);
-          ">${count}</div>`,
-          className: '',
-          iconSize:   [42, 42],
-          iconAnchor: [21, 21],
-        });
-      },
-    });
-    map.addLayer(clusterGroup);
-
-    mapRef.current        = map;
-    clusterGroupRef.current = clusterGroup;
+    mapRef.current = map;
 
     // If a country / city filter is set on mount, prefer its view over
     // the geolocation flow. Most specific wins.
@@ -234,7 +196,6 @@ export default function MapComponent({
         map.remove();
         mapRef.current = null;
         tileLayerRef.current = null;
-        clusterGroupRef.current = null;
         markersRef.current = {};
       };
     }
@@ -246,7 +207,6 @@ export default function MapComponent({
         map.remove();
         mapRef.current = null;
         tileLayerRef.current = null;
-        clusterGroupRef.current = null;
         markersRef.current = {};
       };
     }
@@ -292,7 +252,6 @@ export default function MapComponent({
       map.remove();
       mapRef.current = null;
       tileLayerRef.current = null;
-      clusterGroupRef.current = null;
       markersRef.current = {};
     };
   }, []); // eslint-disable-line
@@ -364,15 +323,14 @@ export default function MapComponent({
 
   // ── Sync markers ──────────────────────────────────────────────────────────
   useEffect(() => {
-    const map     = mapRef.current;
-    const cluster = clusterGroupRef.current;
-    if (!map || !cluster) return;
+    const map = mapRef.current;
+    if (!map) return;
 
     const newIds = new Set(venues.map((v) => v.id));
 
-    // Remove stale markers from the cluster group.
+    // Remove stale markers
     Object.entries(markersRef.current).forEach(([id, marker]) => {
-      if (!newIds.has(id)) { cluster.removeLayer(marker); delete markersRef.current[id]; }
+      if (!newIds.has(id)) { marker.remove(); delete markersRef.current[id]; }
     });
 
     venues.forEach((venue) => {
@@ -410,10 +368,9 @@ export default function MapComponent({
       if (markersRef.current[venue.id]) {
         markersRef.current[venue.id].setLatLng([lat, lng]).setIcon(icon);
       } else {
-        const marker = L.marker([lat, lng], { icon });
+        const marker = L.marker([lat, lng], { icon }).addTo(map);
         // Capture venue in closure — pinClickRef gives latest callback
         marker.on('click', () => { pinClickRef.current?.(venue); });
-        cluster.addLayer(marker);
         markersRef.current[venue.id] = marker;
       }
     });
