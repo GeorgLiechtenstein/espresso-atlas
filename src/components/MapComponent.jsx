@@ -1,4 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
+// IMPORTANT: leaflet-init runs before the cluster plugin import below.
+// It primes window.L so the plugin's UMD wrapper finds the same L
+// instance Vite bundles for us.
+import '../lib/leaflet-init';
 import L from 'leaflet';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
