@@ -140,12 +140,9 @@ export const tr = {
 
     // Login
     loginJournal:      'Privates Tagebuch',
-    loginTagline:      'Jeden Espresso, den ich trinke, halte ich fest. Hier, in diesem Buch.',
+    loginTagline:      'Jeden Espresso, den ich trinke, halte ich fest. Hier, in dieser App.',
     loginLoggedInAs:   'Angemeldet als',
-    loginForgot:       'Du hast es vergessen?',
-    loginReset:        'Zurücksetzen per E-Mail.',
-    loginResetSent:    'E-Mail gesendet — schau in dein Postfach.',
-    loginOpenBook:     'Buch öffnen →',
+    loginSubmit:       'Anmelden →',
     loginFooter:       'Gäste lesen mit. Schreiben darf nur ich.',
     passwordLabel:     'Passwort',
     loggingIn:         'Anmelden…',
@@ -312,12 +309,9 @@ export const tr = {
 
     // Login
     loginJournal:      'Private Journal',
-    loginTagline:      'Every espresso I drink, I record. Here, in this book.',
+    loginTagline:      'Every espresso I drink, I record. Here, in this app.',
     loginLoggedInAs:   'Logged in as',
-    loginForgot:       'Forgot it?',
-    loginReset:        'Reset via email.',
-    loginResetSent:    'Email sent — check your inbox.',
-    loginOpenBook:     'Open book →',
+    loginSubmit:       'Sign in →',
     loginFooter:       'Guests may read. Only I may write.',
     passwordLabel:     'Password',
     loggingIn:         'Signing in…',

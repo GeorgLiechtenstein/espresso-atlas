@@ -14,10 +14,9 @@ export default function LoginPage() {
   const { lang } = useLang();
   const tr = t(lang);
 
-  const [password, setPassword]       = useState('');
-  const [error,    setError]          = useState('');
-  const [saving,   setSaving]         = useState(false);
-  const [resetStatus, setResetStatus] = useState(null); // null | 'sending' | 'sent'
+  const [password, setPassword] = useState('');
+  const [error,    setError]    = useState('');
+  const [saving,   setSaving]   = useState(false);
 
   useEffect(() => {
     if (!loading && user) navigate('/', { replace: true });
@@ -49,23 +48,6 @@ export default function LoginPage() {
       setError(tr.errUnknown);
     } finally {
       setSaving(false);
-    }
-  }
-
-  async function handleReset() {
-    if (resetStatus === 'sending' || resetStatus === 'sent') return;
-    setError('');
-    setResetStatus('sending');
-    try {
-      const { error: err } = await supabase.auth.resetPasswordForEmail(ADMIN_EMAIL, {
-        redirectTo: window.location.origin,
-      });
-      if (err) throw err;
-      setResetStatus('sent');
-    } catch (err) {
-      console.warn('[reset]', err);
-      setResetStatus(null);
-      setError(tr.errUnknown);
     }
   }
 
@@ -219,33 +201,7 @@ export default function LoginPage() {
             </p>
           )}
 
-          {/* Forgot / reset link */}
-          <p style={{
-            marginTop: 16, marginBottom: 24,
-            textAlign: 'left',
-            fontFamily: '"DM Sans", system-ui, sans-serif',
-            fontSize: 13, color: '#555555',
-          }}>
-            {resetStatus === 'sent' ? (
-              <span style={{ color: '#6F4E37' }}>{tr.loginResetSent}</span>
-            ) : (
-              <>
-                {tr.loginForgot}{' '}
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  disabled={resetStatus === 'sending'}
-                  style={{
-                    background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-                    color: '#6F4E37', textDecoration: 'underline',
-                    fontFamily: 'inherit', fontSize: 'inherit',
-                  }}
-                >
-                  {tr.loginReset}
-                </button>
-              </>
-            )}
-          </p>
+          <div style={{ height: 24 }} />
 
           {/* Submit */}
           <button
@@ -264,7 +220,7 @@ export default function LoginPage() {
               minHeight: 52,
             }}
           >
-            {saving ? tr.loggingIn : tr.loginOpenBook}
+            {saving ? tr.loggingIn : tr.loginSubmit}
           </button>
         </form>
 
