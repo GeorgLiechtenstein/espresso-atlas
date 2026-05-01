@@ -119,8 +119,12 @@ export const tr = {
     submitReview:       'Speichern ☕',
     geocoding:          'Geocodiere Standort…',
     saving:             'Speichern…',
-    errFillVenue:       'Bitte fülle Name, Stadt und Land aus.',
-    errNoRating:        'Bitte bewerte alle drei Kriterien.',
+    errFillVenue:           'Bitte fülle Name, Stadt und Land aus.',
+    errNoRating:            'Bitte bewerte alle drei Kriterien.',
+    errInvalidCredentials:  'Ungültige Anmeldedaten',
+    errLoginFailed:         'Anmeldung fehlgeschlagen',
+    errSaveFailed:          'Speichern fehlgeschlagen',
+    errUnknown:             'Unbekannter Fehler',
 
     // Login
     loginSubtitle:   'Melde dich an, um Espressos zu bewerten.',
@@ -272,8 +276,12 @@ export const tr = {
     submitReview:       'Save ☕',
     geocoding:          'Geocoding location…',
     saving:             'Saving…',
-    errFillVenue:       'Please fill in name, city and country.',
-    errNoRating:        'Please rate all three criteria.',
+    errFillVenue:           'Please fill in name, city and country.',
+    errNoRating:            'Please rate all three criteria.',
+    errInvalidCredentials:  'Invalid login credentials',
+    errLoginFailed:         'Login failed',
+    errSaveFailed:          'Save failed',
+    errUnknown:             'Unknown error',
 
     // Login
     loginSubtitle:   'Sign in to rate espressos.',

@@ -351,7 +351,8 @@ export default function ReviewPage() {
         navigate(`/venue/${newVenue.id}`, { replace: true });
       }
     } catch (err) {
-      setError(err.message || 'Error');
+      console.warn('[save]', err?.message || err);
+      setError(tr.errSaveFailed);
       setSaving(false); setGeocoding(false);
     }
   }

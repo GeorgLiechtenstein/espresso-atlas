@@ -21,16 +21,30 @@ export default function LoginPage() {
     if (!loading && user) navigate('/', { replace: true });
   }, [user, loading, navigate]);
 
+  // Map Supabase auth error messages (always English from the API) to a
+  // localized string. Default falls back to a generic 'login failed' so
+  // users never see raw English in DE mode.
+  function localizeAuthError(err) {
+    const msg = err?.message || '';
+    if (/invalid login credentials/i.test(msg)) return tr.errInvalidCredentials;
+    return tr.errLoginFailed;
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
     setSaving(true);
     try {
       const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-      if (authError) setError(authError.message);
-      else navigate('/', { replace: true });
-    } catch {
-      setError('Unbekannter Fehler.');
+      if (authError) {
+        console.warn('[login]', authError.message);
+        setError(localizeAuthError(authError));
+      } else {
+        navigate('/', { replace: true });
+      }
+    } catch (err) {
+      console.warn('[login]', err);
+      setError(tr.errUnknown);
     } finally {
       setSaving(false);
     }
