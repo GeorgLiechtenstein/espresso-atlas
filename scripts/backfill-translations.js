@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 /**
- * One-off backfill: translate existing venue comments into the language
- * that's still null. Walks every row that has a comment in one language
- * but not the other, calls the deployed translate function, writes the
- * missing column back via the Supabase REST API.
+ * One-off: walk every venue with a comment and ensure both comment_de
+ * and comment_en are filled with the right text in the right column.
+ *
+ * The translate function does language detection internally, so even
+ * legacy rows where the migration parked an English comment in
+ * comment_de get straightened out — the original text moves to its
+ * correct column, the translation lands in the other.
  *
  * Run from the project root:
  *
@@ -12,16 +15,8 @@
  *   TRANSLATE_URL=https://<your-site>.netlify.app/.netlify/functions/translate \
  *   node scripts/backfill-translations.js
  *
- * - SERVICE_ROLE_KEY is needed because anon can only SELECT. Get it from
- *   Supabase Dashboard → Settings → API → service_role (Reveal).
- *   ⚠ Don't paste it anywhere; the value is in your shell's process env
- *   only. Run `unset SUPABASE_SERVICE_ROLE_KEY` after you're done.
- * - TRANSLATE_URL defaults to the production Netlify URL. If you want to
- *   test against a local `npm run dev:netlify` instance, pass
- *   http://localhost:8888/.netlify/functions/translate
- *
- * The script is idempotent — re-running skips rows that are already
- * complete in both languages.
+ * Idempotent — rows where both columns are already populated and the
+ * detected source matches the column it's in are skipped untouched.
  */
 
 const SUPABASE_URL          = process.env.SUPABASE_URL;
@@ -41,7 +36,6 @@ const sbHeaders = {
 };
 
 async function fetchVenues() {
-  // Pull every row that has at least one of the two comment columns set.
   const url = new URL(`${SUPABASE_URL}/rest/v1/venues`);
   url.searchParams.set('select', 'id,name,comment_de,comment_en');
   url.searchParams.set('or', '(comment_de.not.is.null,comment_en.not.is.null)');
@@ -52,26 +46,31 @@ async function fetchVenues() {
   return res.json();
 }
 
-async function translate(text, targetLang) {
+async function detectAndTranslate(text) {
   const res = await fetch(TRANSLATE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, targetLang }),
+    body: JSON.stringify({ text }),
   });
   if (!res.ok) {
     throw new Error(`translate ${res.status}: ${await res.text()}`);
   }
-  const { translation } = await res.json();
-  if (!translation) throw new Error('empty translation');
-  return translation;
+  const json = await res.json();
+  if (json.sourceLang !== 'de' && json.sourceLang !== 'en') {
+    throw new Error('bad sourceLang: ' + JSON.stringify(json));
+  }
+  if (typeof json.translation !== 'string' || !json.translation.trim()) {
+    throw new Error('empty translation');
+  }
+  return json;
 }
 
-async function patch(id, field, value) {
+async function patch(id, fields) {
   const url = `${SUPABASE_URL}/rest/v1/venues?id=eq.${id}`;
   const res = await fetch(url, {
     method:  'PATCH',
     headers: { ...sbHeaders, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-    body:    JSON.stringify({ [field]: value }),
+    body:    JSON.stringify(fields),
   });
   if (!res.ok) {
     throw new Error(`patch ${res.status}: ${await res.text()}`);
@@ -90,27 +89,42 @@ async function main() {
   let updated = 0, skipped = 0, failed = 0;
 
   for (const v of venues) {
-    const needsEn = !!v.comment_de && !v.comment_en;
-    const needsDe = !!v.comment_en && !v.comment_de;
-    if (!needsEn && !needsDe) { skipped++; continue; }
+    // Decide which existing text to send for detection. Prefer comment_de
+    // if both are populated; either way Claude will tell us what it is.
+    const sourceText = v.comment_de || v.comment_en;
+    if (!sourceText) { skipped++; continue; }
 
-    const sourceText = needsEn ? v.comment_de : v.comment_en;
-    const targetLang = needsEn ? 'en' : 'de';
-    const targetCol  = needsEn ? 'comment_en' : 'comment_de';
-
-    process.stdout.write(`[${v.name}] → ${targetLang} … `);
+    process.stdout.write(`[${v.name}] … `);
     try {
-      const translation = await translate(sourceText, targetLang);
-      await patch(v.id, targetCol, translation);
-      console.log(`✓  ${preview(translation)}`);
+      const { sourceLang, translation } = await detectAndTranslate(sourceText);
+      const targetLang = sourceLang === 'de' ? 'en' : 'de';
+      const originalCol    = `comment_${sourceLang}`;
+      const translationCol = `comment_${targetLang}`;
+
+      // Decide whether anything actually needs writing.
+      const correctOriginal    = v[originalCol]    === sourceText;
+      const correctTranslation = !!v[translationCol] && v[translationCol].trim() !== '';
+      if (correctOriginal && correctTranslation) {
+        console.log(`already complete (${sourceLang} → ${targetLang})`);
+        skipped++;
+        continue;
+      }
+
+      // Always patch both columns to canonical values. If the original
+      // was sitting in the wrong column (legacy migration), this swap
+      // fixes it.
+      const fields = {
+        [originalCol]:    sourceText,
+        [translationCol]: translation,
+      };
+      await patch(v.id, fields);
+      console.log(`✓  ${sourceLang} → ${targetLang}: ${preview(translation)}`);
       updated++;
     } catch (err) {
       console.log(`✕  ${err.message}`);
       failed++;
     }
 
-    // Brief pause between requests so we don't hammer the API or burn
-    // through a Netlify function rate limit.
     await new Promise((r) => setTimeout(r, REQUEST_DELAY_MS));
   }
 
