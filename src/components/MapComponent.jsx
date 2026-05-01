@@ -98,6 +98,7 @@ export default function MapComponent({
   allVenues = [],
   onPinClick,
   flyToId,
+  userPos = null,
   lang = 'de',
   country = '',
   city = '',
@@ -199,6 +200,17 @@ export default function MapComponent({
       };
     }
 
+    // No filter: if Welcome already resolved a user position, use it.
+    if (userPos) {
+      map.setView([userPos.lat, userPos.lng], 10);
+      return () => {
+        map.remove();
+        mapRef.current = null;
+        tileLayerRef.current = null;
+        markersRef.current = {};
+      };
+    }
+
     // Geolocation flow:
     //   granted → silent fetch (no dialog needed, no gesture needed)
     //   denied  → silent (don't nag; locate FAB still works with help toast)
@@ -243,6 +255,19 @@ export default function MapComponent({
       markersRef.current = {};
     };
   }, []); // eslint-disable-line
+
+  // ── User-position prop changes ────────────────────────────────────────────
+  // Skip the first run; the init effect places the map. Subsequent updates
+  // (e.g. user grants permission via the Welcome screen on a later screen)
+  // fly to the new position at zoom 10. A country / city filter takes
+  // precedence — don't override an explicit place choice.
+  const userPosFirstRunRef = useRef(true);
+  useEffect(() => {
+    if (userPosFirstRunRef.current) { userPosFirstRunRef.current = false; return; }
+    if (!mapRef.current || !userPos) return;
+    if (countryRef.current || cityRef.current) return;
+    mapRef.current.flyTo([userPos.lat, userPos.lng], 10, { duration: 1.5 });
+  }, [userPos]);
 
   // ── Country / city filter changes ────────────────────────────────────────
   // Skip the first run — the init effect handles initial state.

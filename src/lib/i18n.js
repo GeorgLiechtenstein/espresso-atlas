@@ -126,6 +126,18 @@ export const tr = {
     errSaveFailed:          'Speichern fehlgeschlagen',
     errUnknown:             'Unbekannter Fehler',
 
+    // Welcome
+    welcomeTitle:    'Die Karte der ehrlichen Urteile',
+    welcomeQuote:    'Kein Algorithmus. Nur meine Meinung nach dem letzten Schluck. — Georg',
+    welcomeAllow:    'Standort erlauben',
+    welcomeLater:    'Später — Europa-Ansicht',
+
+    // Map info bar
+    infoNoneIn:      'Keine in',
+    infoNearest:     'Nächster',
+    infoEurope:      'Europa',
+    infoEspressi:    'Espressi',
+
     // Login
     loginJournal:      'Privates Tagebuch',
     loginTagline:      'Jeden Espresso, den ich trinke, halte ich fest. Hier, in diesem Buch.',
@@ -285,6 +297,18 @@ export const tr = {
     errLoginFailed:         'Login failed',
     errSaveFailed:          'Save failed',
     errUnknown:             'Unknown error',
+
+    // Welcome
+    welcomeTitle:    'The map of honest verdicts',
+    welcomeQuote:    'No algorithm. Just my honest opinion after the last sip. — Georg',
+    welcomeAllow:    'Allow location',
+    welcomeLater:    'Later — Europe view',
+
+    // Map info bar
+    infoNoneIn:      'None in',
+    infoNearest:     'Nearest',
+    infoEurope:      'Europe',
+    infoEspressi:    'Espressis',
 
     // Login
     loginJournal:      'Private Journal',

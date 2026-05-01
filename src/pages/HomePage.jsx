@@ -10,6 +10,22 @@ import MapComponent from '../components/MapComponent';
 import BottomSheet from '../components/BottomSheet';
 import IndexPanel from '../components/IndexPanel';
 import AboutCriteria from '../components/AboutCriteria';
+import WelcomeScreen from '../components/WelcomeScreen';
+
+function distanceKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2
+          + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180)
+          * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+function formatKm(d) {
+  if (d < 10) return d.toFixed(1);
+  return Math.round(d).toString();
+}
 
 const BUCKETS = [
   { key: 'excellent', fill: '#1a1714', textColor: '#1a1714', label: { de: 'Exzellent', en: 'Excellent' } },
@@ -58,6 +74,24 @@ export default function HomePage() {
   const [sheetOpen,   setSheetOpen]   = useState(false);
   const [legendOpen,    setLegendOpen]    = useState(false);
   const [activeBuckets, setActiveBuckets] = useState(new Set(ALL_KEYS));
+  const [userPos,     setUserPos]     = useState(null);   // { lat, lng } | null
+  const [cityName,    setCityName]    = useState('');
+  const [flyToId,     setFlyToId]     = useState(null);
+  const [showWelcome, setShowWelcome] = useState(() => {
+    const welcomed = (() => { try { return localStorage.getItem('ea_welcomed'); } catch { return null; } })();
+    if (!welcomed) {
+      // Suppress MapComponent's own permission modal — Welcome handles it.
+      try { sessionStorage.setItem('em_geo_dismissed', '1'); } catch {}
+      return true;
+    }
+    return false;
+  });
+
+  function finishWelcome(pos) {
+    try { localStorage.setItem('ea_welcomed', '1'); } catch {}
+    if (pos) setUserPos(pos);
+    setShowWelcome(false);
+  }
 
   // ── Fetch + realtime ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -105,6 +139,49 @@ export default function HomePage() {
     });
   }
 
+  // Reverse-geocode the user's position to a city name, used by the info bar.
+  useEffect(() => {
+    if (!userPos) { setCityName(''); return; }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${userPos.lat}&lon=${userPos.lng}&format=json&addressdetails=1`,
+          { headers: { 'Accept-Language': lang === 'de' ? 'de' : 'en' } },
+        );
+        const data = await res.json();
+        if (cancelled) return;
+        const addr = data.address || {};
+        setCityName(addr.city || addr.town || addr.village || addr.municipality || '');
+      } catch { /* silent */ }
+    })();
+    return () => { cancelled = true; };
+  }, [userPos, lang]);
+
+  // Auto-clear flyToId so a second tap on the same nearest venue still flies.
+  useEffect(() => {
+    if (!flyToId) return;
+    const t = setTimeout(() => setFlyToId(null), 300);
+    return () => clearTimeout(t);
+  }, [flyToId]);
+
+  const nearest = useMemo(() => {
+    if (!userPos || !venues.length) return null;
+    let best = null;
+    for (const v of venues) {
+      const lat = parseFloat(v.lat); const lng = parseFloat(v.lng);
+      if (!isFinite(lat) || !isFinite(lng)) continue;
+      const d = distanceKm(userPos.lat, userPos.lng, lat, lng);
+      if (!best || d < best.distance) best = { venue: v, distance: d };
+    }
+    return best;
+  }, [userPos, venues]);
+
+  const venuesInCity = useMemo(() => {
+    if (!cityName) return 0;
+    return venues.filter((v) => v.city === cityName).length;
+  }, [venues, cityName]);
+
   const isFiltered = activeBuckets.size < 4;
   const mapVenues = useMemo(() => {
     let list = venues;
@@ -124,6 +201,13 @@ export default function HomePage() {
   }
 
   return (
+    <>
+    {showWelcome && (
+      <WelcomeScreen
+        onAllow={(pos) => finishWelcome(pos)}
+        onLater={() => finishWelcome(null)}
+      />
+    )}
     <div className="relative w-full h-screen overflow-hidden bg-black" style={{ maxWidth: '100vw' }}>
 
       {/* ── Fullscreen map ──────────────────────────────────────────────────── */}
@@ -132,7 +216,8 @@ export default function HomePage() {
           venues={mapVenues}
           allVenues={venues}
           onPinClick={handlePinClick}
-          flyToId={null}
+          flyToId={flyToId}
+          userPos={userPos}
           lang={lang}
           country={country}
           city={city}
@@ -152,29 +237,63 @@ export default function HomePage() {
         <div className="flex items-center justify-between px-4">
           <div className="flex items-center" style={{ gap: 8, flex: 1, minWidth: 0 }}>
             <CupLogo />
-            <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-              <span
-                className="font-serif text-[19px] text-ink"
-                style={{ cursor: 'pointer', lineHeight: 1.1 }}
-                onClick={() => setSearchParams({ tab: 'map' }, { replace: true })}
-              >
-                Espresso Atlas
-              </span>
-              {tab === 'map' && (
-                <p style={{
-                  marginTop: 2, marginBottom: 0,
-                  fontSize: 13, color: '#777777',
-                  fontFamily: '"DM Sans", system-ui, sans-serif',
-                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                  lineHeight: 1.2,
-                }}>
-                  {tr.taglineShort}
-                </p>
-              )}
-            </div>
+            <span
+              className="font-serif text-[19px] text-ink"
+              style={{ cursor: 'pointer', lineHeight: 1.1 }}
+              onClick={() => setSearchParams({ tab: 'map' }, { replace: true })}
+            >
+              Espresso Atlas
+            </span>
           </div>
           <LangToggle />
         </div>
+        {tab === 'map' && (
+          <div style={{
+            paddingLeft: 16, paddingRight: 16, paddingTop: 6,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+            fontSize: 12, color: '#555555',
+            fontFamily: '"DM Sans", system-ui, sans-serif',
+          }}>
+            {/* Left: user's city or 'Europa' */}
+            <span style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>
+              {userPos && (
+                <span style={{
+                  display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
+                  background: '#3B82F6', flexShrink: 0,
+                }} />
+              )}
+              {userPos
+                ? (cityName
+                    ? (venuesInCity === 0
+                        ? `${tr.infoNoneIn} ${cityName}`
+                        : `${venuesInCity} in ${cityName}`)
+                    : '…')
+                : tr.infoEurope}
+            </span>
+
+            {/* Right: nearest venue (tappable) or total count */}
+            {userPos && nearest ? (
+              <button
+                type="button"
+                onClick={() => setFlyToId(nearest.venue.id)}
+                style={{
+                  background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                  fontFamily: 'inherit', fontSize: 12, color: '#555555',
+                  whiteSpace: 'nowrap', flexShrink: 0,
+                }}
+              >
+                {tr.infoNearest}: {nearest.venue.city} · {formatKm(nearest.distance)} km →
+              </button>
+            ) : (
+              <span style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
+                {venues.length} {tr.infoEspressi}
+              </span>
+            )}
+          </div>
+        )}
       </header>
 
       {/* ── Map legend (collapsible) ─────────────────────────────────────────── */}
@@ -360,5 +479,6 @@ export default function HomePage() {
         onClose={() => setSheetOpen(false)}
       />
     </div>
+    </>
   );
 }
