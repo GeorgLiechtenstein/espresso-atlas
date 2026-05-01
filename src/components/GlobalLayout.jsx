@@ -42,9 +42,15 @@ export default function GlobalLayout() {
 
   function goTab(tab) {
     if (location.pathname === '/') {
-      setSearchParams({ tab }, { replace: true });
+      // Preserve other params (e.g. country) — passing the bare object
+      // form to setSearchParams would wipe everything but tab.
+      const next = new URLSearchParams(searchParams);
+      next.set('tab', tab);
+      setSearchParams(next, { replace: true });
     } else {
-      navigate(`/?tab=${tab}`);
+      const params = new URLSearchParams(searchParams);
+      params.set('tab', tab);
+      navigate(`/?${params.toString()}`);
     }
   }
 
