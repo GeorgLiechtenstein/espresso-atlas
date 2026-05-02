@@ -99,7 +99,7 @@ export default function VenuePage() {
     { key: 'balance', label: 'Balance',                              hint: lang === 'de' ? 'Harmonisch vs. bitter/sauer'   : 'Balanced vs. bitter/sour',   info: tr.balanceInfoDetail, val: venue.balance },
   ] : null;
 
-  const divider = <div style={{ height: 1, background: 'rgba(26,23,20,0.10)', margin: '20px 0' }} />;
+  const divider = <div style={{ height: 1, background: 'rgba(26,23,20,0.10)', margin: '14px 0' }} />;
 
   return (
     <div className="min-h-screen" style={{ background: '#FAF0E6', paddingBottom: 'calc(72px + env(safe-area-inset-bottom))' }}>
@@ -141,46 +141,45 @@ export default function VenuePage() {
         <LangToggle />
       </header>
 
-      <div className="max-w-lg mx-auto px-5 py-6">
+      <div className="max-w-lg mx-auto px-5 pt-5 pb-6">
 
-        {/* Bucket chip */}
-        {chipLabel && (
-          <div className="mb-3">
+        {/* Bucket badge + city + date — single tight caps row */}
+        <p style={{
+          marginBottom: 8,
+          fontFamily: '"DM Serif Display", Georgia, serif',
+          fontSize: 13, letterSpacing: '1.5px',
+          textTransform: 'uppercase', color: '#555555',
+        }}>
+          {chipLabel && (
             <span style={{
-              display: 'inline-block', padding: '4px 11px',
+              display: 'inline-block', padding: '3px 10px',
               fontSize: 10, fontWeight: 700, letterSpacing: '2px',
               textTransform: 'uppercase',
               color: b === 'meh' ? '#1a1714' : '#FAF0E6',
               background: meta.fill,
               borderRadius: 2,
+              verticalAlign: 'middle',
             }}>{chipLabel}</span>
-          </div>
-        )}
-
-        {/* City + date */}
-        <p style={{
-          fontFamily: '"DM Serif Display", Georgia, serif',
-          fontSize: 13, letterSpacing: '1.5px', textTransform: 'uppercase',
-          color: '#555555', marginBottom: 6,
-        }}>
-          {venueCity(venue, lang)}{ratedDate ? ` · ${ratedDate}` : ''}
+          )}
+          <span style={{ verticalAlign: 'middle' }}>
+            {chipLabel ? ' · ' : ''}{[venueCity(venue, lang), ratedDate].filter(Boolean).join(' · ')}
+          </span>
         </p>
 
         {/* Café name */}
         <h1 style={{
           fontFamily: '"DM Serif Display", Georgia, serif',
-          fontSize: 38, fontWeight: 700, color: '#1a1714',
-          letterSpacing: -0.8, lineHeight: 1.05, marginBottom: 6,
+          fontSize: 30, fontWeight: 700, color: '#1a1714',
+          letterSpacing: -0.5, lineHeight: 1.1, marginBottom: 4,
         }}>{venue.name}</h1>
 
-        {/* Address */}
+        {/* Address + roastery — tight subline directly under the name */}
         {venue.address && (
-          <p style={{ fontSize: 14, color: '#555555', marginBottom: 2 }}>{venue.address}</p>
+          <p style={{ fontSize: 13, color: '#555555', marginBottom: 2, lineHeight: 1.35 }}>{venue.address}</p>
         )}
         {venue.roastery && (
-          <p style={{ fontSize: 13, color: '#555555', marginBottom: 2 }}>☕ {venue.roastery}</p>
+          <p style={{ fontSize: 13, color: '#555555', marginBottom: 0, lineHeight: 1.35 }}>☕ {venue.roastery}</p>
         )}
-        {divider}
 
         {/* Score / cup type / price — three caps-labelled columns. The
             row only renders when there's a score; an unrated venue has
@@ -198,42 +197,45 @@ export default function VenuePage() {
           };
           return (
             <div style={{
-              paddingBottom: 20, borderBottom: '1px solid rgba(26,23,20,0.10)', marginBottom: 20,
-              display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16,
+              paddingTop: 14, paddingBottom: 16, marginTop: 14, marginBottom: 16,
+              borderTop: '1px solid rgba(26,23,20,0.10)',
+              borderBottom: '1px solid rgba(26,23,20,0.10)',
+              display: 'flex', alignItems: 'flex-start', gap: 28,
             }}>
-              {/* SCORE */}
+              {/* SCORE — left, large */}
               <div>
                 <div style={capsLabel}>Score</div>
                 <div className="animate-score-pulse" style={{
                   fontFamily: '"DM Serif Display", Georgia, serif',
-                  fontSize: 72, fontWeight: 700, color: scoreColor,
+                  fontSize: 64, fontWeight: 700, color: scoreColor,
                   lineHeight: 0.9, letterSpacing: -2,
                 }}>{score.toFixed(1)}</div>
               </div>
 
-              {/* CUP TYPE */}
+              {/* CUP + PRICE clustered to the right of the score, not
+                  spread across the full width — keeps the eye in one
+                  zone instead of scanning across the whole row. */}
               {cupLabel && (
-                <div style={{ textAlign: 'center' }}>
+                <div>
                   <div style={capsLabel}>{tr.cupSection}</div>
                   <div style={{
                     fontFamily: '"DM Serif Display", Georgia, serif',
-                    fontStyle: 'italic', fontSize: 22, fontWeight: 700,
+                    fontStyle: 'italic', fontSize: 20, fontWeight: 700,
                     color: '#1a1714', lineHeight: 1.1,
                   }}>{cupLabel}</div>
                 </div>
               )}
 
-              {/* PRICE */}
               {venue.price != null && (
-                <div style={{ textAlign: 'right' }}>
+                <div>
                   <div style={capsLabel}>{priceLabel}</div>
                   <div style={{
                     fontFamily: '"DM Serif Display", Georgia, serif',
-                    fontSize: 22, fontWeight: 700, color: '#1a1714', lineHeight: 1.1,
+                    fontSize: 20, fontWeight: 700, color: '#1a1714', lineHeight: 1.1,
                     whiteSpace: 'nowrap',
                   }}>
                     {parseFloat(venue.price).toFixed(2)}
-                    <span style={{ color: '#555555', fontWeight: 400, fontSize: 13, marginLeft: 4 }}>
+                    <span style={{ color: '#555555', fontWeight: 400, fontSize: 12, marginLeft: 4 }}>
                       {venue.currency || 'EUR'}
                     </span>
                   </div>
@@ -243,16 +245,18 @@ export default function VenuePage() {
           );
         })()}
 
-        {/* Pull quote */}
+        {/* Pull quote — the visual anchor of the page below the score.
+            Generous vertical padding makes it sit as its own block
+            instead of running into the criteria below. */}
         {displayComment && (
           <div style={{
             borderLeft: '3px solid #6B4A2A',
-            paddingLeft: 18, paddingTop: 4, paddingBottom: 4,
-            marginTop: 24, marginBottom: 24,
+            paddingLeft: 18, paddingTop: 24, paddingBottom: 24,
+            marginTop: 0, marginBottom: 16,
           }}>
             <p style={{
               fontFamily: '"DM Serif Display", Georgia, serif',
-              fontStyle: 'italic', fontSize: 22, lineHeight: 1.4,
+              fontStyle: 'italic', fontSize: 20, lineHeight: 1.45,
               color: '#1a1714', margin: 0,
             }}>„{displayComment}"</p>
           </div>
@@ -261,7 +265,7 @@ export default function VenuePage() {
         {/* Photo */}
         {venue.photo_url && (
           <img src={venue.photo_url} alt={venue.name}
-            className="w-full rounded-xl object-cover max-h-64 mb-6" loading="lazy" />
+            className="w-full rounded-xl object-cover max-h-64 mb-5" loading="lazy" />
         )}
 
         {/* The three criteria */}
@@ -269,9 +273,9 @@ export default function VenuePage() {
           <>
             <div style={{
               fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase',
-              color: '#555555', marginBottom: 14, fontWeight: 700,
+              color: '#555555', marginBottom: 10, fontWeight: 700,
             }}>{lang === 'de' ? 'Die drei Kriterien' : 'The three criteria'}</div>
-            <div className="flex flex-col gap-4 mb-6">
+            <div className="flex flex-col mb-5" style={{ gap: 10 }}>
               {criteria.map(({ key, label, hint, info, val }) => {
                 const isBalance = key === 'balance';
                 const bMeta = isBalance ? balanceMeta(val) : null;
@@ -361,7 +365,7 @@ export default function VenuePage() {
         {divider}
 
         {/* Actions */}
-        <div className="flex flex-col gap-3 mb-8">
+        <div className="flex flex-col gap-3 mb-6">
           <a
             href={googleMapsUrl} target="_blank" rel="noopener noreferrer"
             className="w-full flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold font-sans min-h-[48px]"
