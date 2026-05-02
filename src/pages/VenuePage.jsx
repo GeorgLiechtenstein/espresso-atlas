@@ -182,40 +182,61 @@ export default function VenuePage() {
         )}
         {divider}
 
-        {/* Big score, with cup type tucked top-right when set */}
+        {/* Score / cup type / price — three caps-labelled columns. The
+            row only renders when there's a score; an unrated venue has
+            its own fallback block further down. */}
         {score !== null && (() => {
           const cupLabel = {
             ceramic: tr.cupCeramic,
             glass:   tr.cupGlass,
             paper:   tr.cupPaper,
           }[venue.cup_type];
+          const priceLabel = lang === 'de' ? 'Preis' : 'Price';
+          const capsLabel = {
+            fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
+            color: '#555555', marginBottom: 4,
+          };
           return (
             <div style={{
               paddingBottom: 20, borderBottom: '1px solid rgba(26,23,20,0.10)', marginBottom: 20,
               display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16,
             }}>
+              {/* SCORE */}
               <div>
-                <div style={{
-                  fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
-                  color: '#555555', marginBottom: 4,
-                }}>Score</div>
+                <div style={capsLabel}>Score</div>
                 <div className="animate-score-pulse" style={{
                   fontFamily: '"DM Serif Display", Georgia, serif',
                   fontSize: 72, fontWeight: 700, color: scoreColor,
                   lineHeight: 0.9, letterSpacing: -2,
                 }}>{score.toFixed(1)}</div>
               </div>
+
+              {/* CUP TYPE */}
               {cupLabel && (
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{
-                    fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
-                    color: '#555555', marginBottom: 4,
-                  }}>{tr.cupSection}</div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={capsLabel}>{tr.cupSection}</div>
                   <div style={{
                     fontFamily: '"DM Serif Display", Georgia, serif',
                     fontStyle: 'italic', fontSize: 22, fontWeight: 700,
                     color: '#1a1714', lineHeight: 1.1,
                   }}>{cupLabel}</div>
+                </div>
+              )}
+
+              {/* PRICE */}
+              {venue.price != null && (
+                <div style={{ textAlign: 'right' }}>
+                  <div style={capsLabel}>{priceLabel}</div>
+                  <div style={{
+                    fontFamily: '"DM Serif Display", Georgia, serif',
+                    fontSize: 22, fontWeight: 700, color: '#1a1714', lineHeight: 1.1,
+                    whiteSpace: 'nowrap',
+                  }}>
+                    {parseFloat(venue.price).toFixed(2)}
+                    <span style={{ color: '#555555', fontWeight: 400, fontSize: 13, marginLeft: 4 }}>
+                      {venue.currency || 'EUR'}
+                    </span>
+                  </div>
                 </div>
               )}
             </div>
@@ -235,13 +256,6 @@ export default function VenuePage() {
               color: '#1a1714', margin: 0,
             }}>„{displayComment}"</p>
           </div>
-        )}
-
-        {/* Price */}
-        {venue.price != null && (
-          <p style={{ fontSize: 14, color: '#555555', marginBottom: 20 }}>
-            {parseFloat(venue.price).toFixed(2)} {venue.currency || 'EUR'}
-          </p>
         )}
 
         {/* Photo */}
