@@ -205,17 +205,35 @@ export default function VenuePage() {
                   lineHeight: 0.9, letterSpacing: -2,
                 }}>{score.toFixed(1)}</div>
               </div>
-              {cupLabel && (
+              {(cupLabel || venue.price != null) && (
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{
-                    fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
-                    color: '#555555', marginBottom: 4,
-                  }}>{tr.cupSection}</div>
-                  <div style={{
-                    fontFamily: '"DM Serif Display", Georgia, serif',
-                    fontStyle: 'italic', fontSize: 22, fontWeight: 700,
-                    color: '#1a1714', lineHeight: 1.1,
-                  }}>{cupLabel}</div>
+                  {cupLabel ? (
+                    <>
+                      <div style={{
+                        fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
+                        color: '#555555', marginBottom: 4,
+                      }}>{tr.cupSection}</div>
+                      <div style={{
+                        fontFamily: '"DM Serif Display", Georgia, serif',
+                        fontStyle: 'italic', fontSize: 22, fontWeight: 700,
+                        color: '#1a1714', lineHeight: 1.1,
+                      }}>{cupLabel}</div>
+                    </>
+                  ) : (
+                    <div style={{
+                      fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
+                      color: '#555555', marginBottom: 4,
+                    }}>{lang === 'de' ? 'Preis' : 'Price'}</div>
+                  )}
+                  {venue.price != null && (
+                    <div style={{
+                      fontFamily: '"DM Sans", system-ui, sans-serif',
+                      fontSize: 13, color: '#555555',
+                      marginTop: cupLabel ? 4 : 0,
+                    }}>
+                      {parseFloat(venue.price).toFixed(2)} {venue.currency || 'EUR'}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -235,13 +253,6 @@ export default function VenuePage() {
               color: '#1a1714', margin: 0,
             }}>„{displayComment}"</p>
           </div>
-        )}
-
-        {/* Price */}
-        {venue.price != null && (
-          <p style={{ fontSize: 14, color: '#555555', marginBottom: 20 }}>
-            {parseFloat(venue.price).toFixed(2)} {venue.currency || 'EUR'}
-          </p>
         )}
 
         {/* Photo */}
