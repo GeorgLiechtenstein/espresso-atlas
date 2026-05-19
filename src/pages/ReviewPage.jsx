@@ -188,7 +188,7 @@ export default function ReviewPage() {
         setCurrency(data.currency || 'EUR');
         setExistingPhotoUrl(data.photo_url || null);
         if (data.photo_url) setPhotoPreview(data.photo_url);
-        if (data.comment_de || data.comment_en || data.comment || data.price || data.photo_url || data.roastery || data.cup_type) setShowDetails(true);
+        if (data.photo_url || data.roastery) setShowDetails(true);
       });
   }, [preVenueId]);
 
@@ -714,7 +714,22 @@ export default function ReviewPage() {
                 <div style={{ textAlign: 'right', fontSize: 11, color: MUTED, marginTop: 4, fontFamily: '"DM Sans", system-ui, sans-serif' }}>{comment.length}/500</div>
               </div>
 
-              {/* Optional details */}
+              {/* Price + currency — always visible alongside the
+                  comment, since users typically remember the price for a
+                  fresh espresso. Roastery and photo stay tucked behind
+                  the optional details toggle below. */}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <InputCard label={tr.priceLabel} style={{ flex: 1 }}>
+                  <CardInput value={price} onChange={(e) => setPrice(e.target.value)} placeholder="1.80" />
+                </InputCard>
+                <InputCard label={lang === 'de' ? 'Währung' : 'Currency'} style={{ flex: 1 }}>
+                  <select value={currency} onChange={(e) => setCurrency(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', fontSize: 16, color: INK, fontFamily: '"DM Sans", system-ui, sans-serif', width: '100%', padding: 0 }}>
+                    {CURRENCIES.map((c) => <option key={c}>{c}</option>)}
+                  </select>
+                </InputCard>
+              </div>
+
+              {/* Optional details — roastery + photo */}
               {!showDetails ? (
                 <button type="button" onClick={() => setShowDetails(true)}
                   style={{ textAlign: 'left', fontSize: 14, color: COFFEE, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', fontFamily: '"DM Sans", system-ui, sans-serif' }}>
@@ -725,16 +740,6 @@ export default function ReviewPage() {
                   <InputCard label={tr.roasteryLabel}>
                     <CardInput value={roastery} onChange={(e) => setRoastery(e.target.value)} placeholder={tr.roasteryPlaceholder} />
                   </InputCard>
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <InputCard label={tr.priceLabel} style={{ flex: 1 }}>
-                      <CardInput value={price} onChange={(e) => setPrice(e.target.value)} placeholder="1.80" />
-                    </InputCard>
-                    <InputCard label={lang === 'de' ? 'Währung' : 'Currency'} style={{ flex: 1 }}>
-                      <select value={currency} onChange={(e) => setCurrency(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', fontSize: 16, color: INK, fontFamily: '"DM Sans", system-ui, sans-serif', width: '100%', padding: 0 }}>
-                        {CURRENCIES.map((c) => <option key={c}>{c}</option>)}
-                      </select>
-                    </InputCard>
-                  </div>
                   {/* Photo */}
                   <div>
                     <div style={{ fontSize: 9, letterSpacing: '2.5px', textTransform: 'uppercase', color: MUTED, fontWeight: 700, fontFamily: '"DM Sans", system-ui, sans-serif', marginBottom: 8 }}>
