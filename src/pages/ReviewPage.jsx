@@ -10,7 +10,18 @@ import CupLogo from '../components/CupLogo';
 import { COLORS, BUCKETS, scoreBucket } from '../design-tokens';
 import { venueCity, venueCountry } from '../lib/localize';
 
-const CURRENCIES = ['EUR', 'CHF', 'USD', 'GBP', 'TRY', 'IQD'];
+// EUR / CHF / GBP / USD float to the top — the rest follow ISO-4217
+// codes in alphabetical order. The dropdown shows them in this order
+// so the four most-used options are reachable without scrolling.
+const CURRENCIES = [
+  'EUR', 'CHF', 'GBP', 'USD',
+  'AED', 'ARS', 'AUD', 'BGN', 'BHD', 'BRL', 'CAD', 'CLP', 'CNY', 'COP',
+  'CZK', 'DKK', 'EGP', 'HKD', 'HRK', 'HUF', 'IDR', 'ILS', 'INR', 'IQD',
+  'JOD', 'JPY', 'KRW', 'KWD', 'LKR', 'MAD', 'MXN', 'MYR', 'NOK', 'NZD',
+  'OMR', 'PLN', 'QAR', 'RON', 'SAR', 'SEK', 'SGD', 'THB', 'TRY', 'TWD', 'ZAR',
+];
+
+const LAST_CURRENCY_KEY = 'ea_last_currency';
 
 // Local short aliases that resolve to the central tokens — keeps the
 // existing inline style sites readable while staying in sync.
@@ -140,7 +151,13 @@ export default function ReviewPage() {
   const [comment,  setComment]  = useState('');
   const [roastery, setRoastery] = useState('');
   const [price,    setPrice]    = useState('');
-  const [currency, setCurrency] = useState('EUR');
+  // Default to whichever currency the user last saved with; falls back
+  // to EUR on first use or if localStorage is unavailable. Edit mode
+  // still wins via the load effect below — the venue's own currency is
+  // what gets preselected when editing.
+  const [currency, setCurrency] = useState(() => {
+    try { return localStorage.getItem(LAST_CURRENCY_KEY) || 'EUR'; } catch { return 'EUR'; }
+  });
   const [photo,    setPhoto]    = useState(null);
   const [photoPreview,     setPhotoPreview]     = useState('');
   const [existingPhotoUrl, setExistingPhotoUrl] = useState(null);
@@ -376,15 +393,23 @@ export default function ReviewPage() {
         currency, photo_url: photoUrl,
         rated_at: new Date(ratedAt + 'T12:00:00.000Z').toISOString(),
       };
+      let savedId;
       if (isEdit) {
         const { error: err } = await supabase.from('venues').update(payload).eq('id', preVenueId);
         if (err) throw new Error(err.message);
-        navigate(`/venue/${preVenueId}`, { replace: true });
+        savedId = preVenueId;
       } else {
         const { data: newVenue, error: err } = await supabase.from('venues').insert(payload).select().single();
         if (err) throw new Error(err.message);
-        navigate(`/venue/${newVenue.id}`, { replace: true });
+        savedId = newVenue.id;
       }
+      // Remember the chosen currency only when an actual price was
+      // entered — picking a currency without a price isn't a real
+      // signal of preference.
+      if (price) {
+        try { localStorage.setItem(LAST_CURRENCY_KEY, currency); } catch {}
+      }
+      navigate(`/venue/${savedId}`, { replace: true });
     } catch (err) {
       console.warn('[save]', err?.message || err);
       setError(tr.errSaveFailed);
