@@ -26,6 +26,24 @@ export default function VenuePage() {
   const [loading,  setLoading]  = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [openInfo, setOpenInfo] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting,      setDeleting]      = useState(false);
+
+  async function handleDelete() {
+    if (deleting) return;
+    setDeleting(true);
+    const { error } = await supabase.from('venues').delete().eq('id', id);
+    if (error) {
+      console.warn('[delete]', error.message);
+      setDeleting(false);
+      return;
+    }
+    // Drop the map-refocus hint so the map doesn't try to fly back to a
+    // venue that no longer exists. HomePage's realtime subscription will
+    // remove the pin as soon as the DELETE event lands.
+    try { sessionStorage.removeItem('ea_last_venue'); } catch {}
+    navigate('/?tab=map', { replace: true });
+  }
 
   useEffect(() => {
     if (!id) return;
@@ -387,7 +405,88 @@ export default function VenuePage() {
           fontStyle: 'italic', fontSize: 15, color: '#4a4340',
         }}>— Georg, vor Ort</div>
 
+        {/* Danger — delete link, only for logged-in users. Kept small
+            and unobtrusive at the very bottom; the confirmation dialog
+            is the real safety net. */}
+        {user && (
+          <div style={{ marginTop: 20, textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              style={{
+                background: 'none', border: 'none',
+                color: '#8B2A2A', fontSize: 12,
+                fontFamily: '"DM Sans", system-ui, sans-serif',
+                textDecoration: 'underline',
+                cursor: 'pointer', padding: 6,
+              }}
+            >
+              {lang === 'de' ? 'Löschen' : 'Delete'}
+            </button>
+          </div>
+        )}
+
       </div>
+
+      {/* Delete confirmation modal */}
+      {confirmDelete && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={(e) => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(false); }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 20,
+          }}
+        >
+          <div style={{
+            background: '#FAF0E6', borderRadius: 16,
+            padding: 24, maxWidth: 340, width: '100%',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+          }}>
+            <p style={{
+              fontFamily: '"DM Serif Display", Georgia, serif',
+              fontSize: 18, color: '#1a1714', margin: 0, marginBottom: 20,
+              lineHeight: 1.3,
+            }}>
+              {lang === 'de' ? 'Diese Bewertung wirklich löschen?' : 'Really delete this review?'}
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                disabled={deleting}
+                style={{
+                  padding: '10px 16px', background: 'none',
+                  border: '1px solid rgba(26,23,20,0.2)', borderRadius: 10,
+                  color: '#1a1714', fontSize: 14, fontWeight: 600,
+                  fontFamily: '"DM Sans", system-ui, sans-serif',
+                  cursor: deleting ? 'default' : 'pointer', minHeight: 44,
+                }}
+              >
+                {lang === 'de' ? 'Abbrechen' : 'Cancel'}
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                style={{
+                  padding: '10px 16px', background: '#8B2A2A',
+                  border: 'none', borderRadius: 10,
+                  color: '#FAF0E6', fontSize: 14, fontWeight: 600,
+                  fontFamily: '"DM Sans", system-ui, sans-serif',
+                  cursor: deleting ? 'default' : 'pointer', minHeight: 44,
+                  opacity: deleting ? 0.6 : 1,
+                }}
+              >
+                {lang === 'de' ? 'Löschen' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
