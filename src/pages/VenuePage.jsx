@@ -28,13 +28,34 @@ export default function VenuePage() {
   const [openInfo, setOpenInfo] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting,      setDeleting]      = useState(false);
+  const [deleteError,   setDeleteError]   = useState('');
 
   async function handleDelete() {
     if (deleting) return;
     setDeleting(true);
-    const { error } = await supabase.from('venues').delete().eq('id', id);
+    setDeleteError('');
+    // Chain .select() so the return payload lists the actually-deleted
+    // rows. If RLS blocks the delete, Postgres reports success but 0
+    // rows come back — we surface that as a clear message instead of a
+    // silent no-op. The DB-side fix is to add a DELETE policy for
+    // authenticated users (see supabase/migration_delete_policy.sql).
+    const { data, error } = await supabase
+      .from('venues')
+      .delete()
+      .eq('id', id)
+      .select();
     if (error) {
       console.warn('[delete]', error.message);
+      setDeleteError(error.message);
+      setDeleting(false);
+      return;
+    }
+    if (!data || data.length === 0) {
+      const msg = lang === 'de'
+        ? 'Löschen nicht erlaubt (RLS-Policy fehlt).'
+        : 'Delete blocked (RLS policy missing).';
+      console.warn('[delete] no rows affected — RLS?');
+      setDeleteError(msg);
       setDeleting(false);
       return;
     }
@@ -405,23 +426,39 @@ export default function VenuePage() {
           fontStyle: 'italic', fontSize: 15, color: '#4a4340',
         }}>— Georg, vor Ort</div>
 
-        {/* Danger — delete link, only for logged-in users. Kept small
-            and unobtrusive at the very bottom; the confirmation dialog
-            is the real safety net. */}
+        {/* Danger — delete, only for logged-in users. Kept small and
+            unobtrusive at the very bottom; the confirmation dialog is
+            the real safety net. */}
         {user && (
-          <div style={{ marginTop: 20, textAlign: 'center' }}>
+          <div style={{ marginTop: 28, display: 'flex', justifyContent: 'center' }}>
             <button
               type="button"
-              onClick={() => setConfirmDelete(true)}
+              onClick={() => { setDeleteError(''); setConfirmDelete(true); }}
               style={{
-                background: 'none', border: 'none',
-                color: '#8B2A2A', fontSize: 12,
+                background: 'none',
+                border: 'none',
+                color: 'rgba(139,42,42,0.75)',
+                fontSize: 11,
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
                 fontFamily: '"DM Sans", system-ui, sans-serif',
-                textDecoration: 'underline',
-                cursor: 'pointer', padding: 6,
+                fontWeight: 600,
+                cursor: 'pointer',
+                padding: '10px 14px',
+                minHeight: 44,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
               }}
             >
-              {lang === 'de' ? 'Löschen' : 'Delete'}
+              <svg width={12} height={12} viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" strokeWidth={2}
+                   strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M3 6h18" />
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+              </svg>
+              {lang === 'de' ? 'Bewertung löschen' : 'Delete review'}
             </button>
           </div>
         )}
@@ -448,11 +485,23 @@ export default function VenuePage() {
           }}>
             <p style={{
               fontFamily: '"DM Serif Display", Georgia, serif',
-              fontSize: 18, color: '#1a1714', margin: 0, marginBottom: 20,
+              fontSize: 18, color: '#1a1714', margin: 0, marginBottom: 16,
               lineHeight: 1.3,
             }}>
               {lang === 'de' ? 'Diese Bewertung wirklich löschen?' : 'Really delete this review?'}
             </p>
+            {deleteError && (
+              <p style={{
+                fontFamily: '"DM Sans", system-ui, sans-serif',
+                fontSize: 13, color: '#8B2A2A',
+                margin: 0, marginBottom: 16, lineHeight: 1.4,
+                padding: '10px 12px',
+                background: 'rgba(139,42,42,0.08)',
+                borderRadius: 8,
+              }}>
+                {deleteError}
+              </p>
+            )}
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
               <button
                 type="button"
